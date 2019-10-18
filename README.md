@@ -1,6 +1,19 @@
 # MP3 Group42
 
-## 
+## Starting Guide
+### Build Image
+```shell
+cd ./student-distrib
+```
+
+### Testing in VM
+Make sure you are at host machine and the root path of mp3(not `student-distrib`).
+```shell
+# test_nodebug
+make vm
+# test_debug
+make vmdebug
+```
 
 ## LOGISTICS
 - Checkpoint 1 due Monday 10/21/2019, 6pm in GitLab
