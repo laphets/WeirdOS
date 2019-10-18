@@ -4,6 +4,10 @@
 ### Build Image
 ```shell
 cd ./student-distrib
+# build dependencies
+make dep
+# build the OS (it is called bootimg) and the QEMU disk image (mp3.img)
+make
 ```
 
 ### Testing in VM
