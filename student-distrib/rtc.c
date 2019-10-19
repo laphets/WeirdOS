@@ -13,7 +13,6 @@ void rtc_handler() {
 
     count++;
 
-
     printf("RTC comes!!! %d \n", count);
 }
 

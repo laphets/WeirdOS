@@ -8,6 +8,7 @@
 #include "i8259.h"
 #include "idt.h"
 #include "rtc.h"
+#include "keyboard.h"
 #include "debug.h"
 #include "tests.h"
 
@@ -150,6 +151,8 @@ void entry(unsigned long magic, unsigned long addr) {
 
     /* Set up device interrupt */
     init_rtc();
+    init_keyboard();
+
     
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your
