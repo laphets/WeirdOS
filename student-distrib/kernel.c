@@ -6,10 +6,12 @@
 #include "x86_desc.h"
 #include "lib.h"
 #include "i8259.h"
+#include "idt.h"
+#include "rtc.h"
 #include "debug.h"
 #include "tests.h"
 
-#define RUN_TESTS
+// #define RUN_TESTS
 
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
@@ -18,7 +20,7 @@
 /* Check if MAGIC is valid and print the Multiboot information structure
    pointed by ADDR. */
 void entry(unsigned long magic, unsigned long addr) {
-
+    printf("Hello world");
     multiboot_info_t *mbi;
 
     /* Clear the screen. */
@@ -80,19 +82,19 @@ void entry(unsigned long magic, unsigned long addr) {
 
     /* Are mmap_* valid? */
     if (CHECK_FLAG(mbi->flags, 6)) {
-        memory_map_t *mmap;
-        printf("mmap_addr = 0x%#x, mmap_length = 0x%x\n",
-                (unsigned)mbi->mmap_addr, (unsigned)mbi->mmap_length);
-        for (mmap = (memory_map_t *)mbi->mmap_addr;
-                (unsigned long)mmap < mbi->mmap_addr + mbi->mmap_length;
-                mmap = (memory_map_t *)((unsigned long)mmap + mmap->size + sizeof (mmap->size)))
-            printf("    size = 0x%x, base_addr = 0x%#x%#x\n    type = 0x%x,  length    = 0x%#x%#x\n",
-                    (unsigned)mmap->size,
-                    (unsigned)mmap->base_addr_high,
-                    (unsigned)mmap->base_addr_low,
-                    (unsigned)mmap->type,
-                    (unsigned)mmap->length_high,
-                    (unsigned)mmap->length_low);
+//        memory_map_t *mmap;
+//        printf("mmap_addr = 0x%#x, mmap_length = 0x%x\n",
+//                (unsigned)mbi->mmap_addr, (unsigned)mbi->mmap_length);
+//        for (mmap = (memory_map_t *)mbi->mmap_addr;
+//                (unsigned long)mmap < mbi->mmap_addr + mbi->mmap_length;
+//                mmap = (memory_map_t *)((unsigned long)mmap + mmap->size + sizeof (mmap->size)))
+//            printf("    size = 0x%x, base_addr = 0x%#x%#x\n    type = 0x%x,  length    = 0x%#x%#x\n",
+//                    (unsigned)mmap->size,
+//                    (unsigned)mmap->base_addr_high,
+//                    (unsigned)mmap->base_addr_low,
+//                    (unsigned)mmap->type,
+//                    (unsigned)mmap->length_high,
+//                    (unsigned)mmap->length_low);
     }
 
     /* Construct an LDT entry in the GDT */
@@ -136,18 +138,25 @@ void entry(unsigned long magic, unsigned long addr) {
         ltr(KERNEL_TSS);
     }
 
+    /* Init IDT */
+    init_idt();
+
     /* Init the PIC */
     i8259_init();
+    
 
     /* Initialize devices, memory, filesystem, enable device interrupts on the
      * PIC, any other initialization stuff... */
 
+    /* Set up device interrupt */
+    init_rtc();
+    
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your
      * IDT correctly otherwise QEMU will triple fault and simple close
      * without showing you any output */
-    /*printf("Enabling Interrupts\n");
-    sti();*/
+    printf("Enabling Interrupts\n");
+    sti();
 
 #ifdef RUN_TESTS
     /* Run tests */

@@ -12,6 +12,13 @@
 #define MASTER_8259_PORT    0x20
 #define SLAVE_8259_PORT     0xA0
 
+/* Alias for CMD and IMR port */
+#define PIC_MASTER_CMD		0x20
+#define PIC_MASTER_IMR		0x21
+#define PIC_SLAVE_CMD		0xA0
+#define PIC_SLAVE_IMR		0xA1
+
+
 /* Initialization control words to init each PIC.
  * See the Intel manuals for details on the meaning
  * of each word */
