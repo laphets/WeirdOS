@@ -4,6 +4,7 @@
 #include "lib.h"
 #include "types.h"
 #include "x86_desc.h"
+#include "i8259.h"
 
 #define RTC_IRQ 0x8
 #define RTC_PORT_SELECT 0x70

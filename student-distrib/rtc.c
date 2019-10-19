@@ -1,5 +1,5 @@
 #include "rtc.h"
-#include "i8259.h"
+
 
 static uint32_t count = 0;
 
@@ -11,9 +11,11 @@ void rtc_handler() {
     /* Send the EOI */
     send_eoi(RTC_IRQ);
 
-    count++;
+//    count++;
+//
+//    printf("RTC comes!!! %d \n", count);
 
-    printf("RTC comes!!! %d \n", count);
+    test_interrupts();
 }
 
 /**
