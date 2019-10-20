@@ -46,6 +46,22 @@ int idt_test(){
 }
 
 // add more tests here
+int deref(int* a) {
+    return *a;
+}
+int paging_test() {
+    deref((int*)-100);
+    deref(NULL);
+
+
+    int b = 391;
+    int* a = &b;
+
+    if(b != deref(a)) {
+        return FAIL;
+    }
+    return PASS;
+}
 
 /* Checkpoint 2 tests */
 /* Checkpoint 3 tests */
@@ -56,5 +72,6 @@ int idt_test(){
 /* Test suite entry point */
 void launch_tests(){
 	TEST_OUTPUT("idt_test", idt_test());
+    TEST_OUTPUT("paging_test", paging_test());
 	// launch your tests here
 }

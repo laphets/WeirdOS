@@ -42,8 +42,18 @@ void TRAP_C() {
 void TRAP_D() {
     printf("0x0D: General protection fault\n");
 }
-void TRAP_E() {
-    printf("0x0E: Page fault\n");
+void TRAP_E(uint32_t code) {
+    int32_t location;
+    asm("\t movl %%cr2,%0" : "=r"(location));
+
+    blue_screen();
+    printf_error("0x0E PAGE_FAULT\n\n");
+    printf_error("If this is the first time you've seen this Stop error screen, \nrestart your computer. If this screen appears again, follow \nthese steps:\n\n");
+    printf_error("Check to make sure any new hardware or software is properly installed.\nIf this is a new installation, ask your hardware or software manufacturer\nfor any mp3 updates you might need.\n\n");
+    printf_error("If problems continue, disable or remove any newly installed hardware\nor software. Disable BIOS memory options such as caching or shadowing.\nIf you need to use safe mode to remove or disable components, restart\nyour computer, press F8 to select Advanced Startup Options, and then\nselect Safe Mode.\n\n");
+    printf_error("Technical Information:\n\n*** CODE: 0x%x   MEMORY ACCESS LOCATION: 0x%x ***\n", code, location);
+
+    while(1) {};
 }
 void TRAP_F() {
     printf("0x0F: reserved\n");
