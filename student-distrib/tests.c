@@ -63,6 +63,16 @@ int paging_test() {
     return PASS;
 }
 
+/**
+ * Test for exception handling, here it contains DIVISION_BY_ZERO testing
+ * @return
+ */
+int exception_test() {
+    int a;
+    a = 1/0;
+    return FAIL;
+}
+
 /* Checkpoint 2 tests */
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
@@ -73,5 +83,6 @@ int paging_test() {
 void launch_tests(){
 	TEST_OUTPUT("idt_test", idt_test());
     TEST_OUTPUT("paging_test", paging_test());
+    TEST_OUTPUT("exception_test", exception_test());
 	// launch your tests here
 }
