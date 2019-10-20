@@ -4,19 +4,19 @@
 
 
 INTERRUPT_21:
-	pusha
+	pushad
 	call keyboard_handler
-	popa
+	popad
 	iret
 
 INTERRUPT_28:
-	pusha
+	pushad
 	call rtc_handler
-	popa
+	popad
 	iret
 
 SYSCALL_80:
-	pusha
+	pushad
 
 	pushl %edx
 	pushl %ecx
@@ -25,5 +25,5 @@ SYSCALL_80:
 
 	call syscall_handler
 
-	popa
+	popad
 	iret
