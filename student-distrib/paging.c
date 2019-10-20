@@ -1,9 +1,5 @@
 #include "paging.h"
 
-page_directory_entry_t default_page_directory[PAGE_DIRECTORY_SIZE] __attribute__((aligned (PAGE_ALIGN_SIZE)));
-page_table_entry_t first_page_table[PAGE_TABLE_SIZE] __attribute__((aligned (PAGE_ALIGN_SIZE)));
-
-
 void init_paging() {
     /**
      * Init page directory for kernel
@@ -55,9 +51,22 @@ void init_paging() {
 
      /**
       * Then we enable the paging
+      * First set up cr3 to be the page_directory
+      * Then set up cr0 to or with 0x80000000 to enable paging
+      * Then enable PSE (4 MiB pages) by setting up cr4 bit5 physical address extension
       */
-//    asm volatile(
-//
-//            )
-
+    asm volatile ("                  \n\
+            movl %0, %%eax           \n\
+            movl %%eax, %%cr3        \n\
+            movl %%cr4, %%eax        \n\
+            orl $0x00000010, %%eax   \n\
+            movl %%eax, %%cr4        \n\
+            movl %%cr0, %%eax        \n\
+            orl $0x80000000, %%eax   \n\
+            movl %%eax, %%cr0        \n\
+            "
+            :
+            :"r"(default_page_directory)
+            :"eax"
+    );
 }
