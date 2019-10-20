@@ -50,8 +50,9 @@ int deref(int* a) {
     return *a;
 }
 int paging_test() {
+    deref((int*)-100);
     deref(NULL);
-    deref(-100);
+
 
     int b = 391;
     int* a = &b;
