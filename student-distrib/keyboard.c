@@ -3,7 +3,7 @@
 /**
  * http://www.osdever.net/bkerndev/Docs/keyboard.htm
  */
-unsigned char kbdus[128] =
+unsigned char kbdus[240] =
         {
                 0,  27, '1', '2', '3', '4', '5', '6', '7', '8',	/* 9 */
                 '9', '0', '-', '=', '\b',	/* Backspace */
@@ -47,7 +47,7 @@ void keyboard_handler() {
     uint8_t scancode;
     scancode = inb(KEYBOARD_PORT);
 
-    printf("Keyboard comes: %c\n", kbdus[scancode]);
+    printf("Keyboard comes: %c %x\n", kbdus[scancode], scancode);
 
     send_eoi(KEYBOARD_IRQ);
 

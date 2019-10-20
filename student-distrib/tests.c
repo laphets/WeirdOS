@@ -51,8 +51,8 @@ int deref(int* a) {
     return *a;
 }
 int paging_test() {
-    deref((int*)-100);
-    deref(NULL);
+    // deref((int*)-100);
+    // deref(NULL);
 
 
     int b = 391;
@@ -64,19 +64,6 @@ int paging_test() {
     return PASS;
 }
 
-// Tests keyboard by pressing values and see if all values work. Enter will cause exit the loop and pass
-int keyboard_test() {
-	int i;
-	uint8_t scancode = 0;
-	init_keyboard();
-	printf("Echos keyboard until enter is pressed:\n");
-	while (kdbus[scancode] != '\n') {
-    scancode = inb(KEYBOARD_PORT);
-    printf("Keyboard comes: %c\n", kbdus[scancode]);
-    send_eoi(KEYBOARD_IRQ);
-	}
-	return PASS;
-}
 
 /* Checkpoint 2 tests */
 /* Checkpoint 3 tests */
@@ -89,5 +76,4 @@ void launch_tests(){
 	TEST_OUTPUT("idt_test", idt_test());
     TEST_OUTPUT("paging_test", paging_test());
 	// launch your tests here
-	TEST_OUTPUT("Keyboard_Test", keyboard_test());
 }
