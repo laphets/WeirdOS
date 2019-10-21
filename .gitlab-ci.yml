@@ -6,4 +6,5 @@ build-image:
    - ECE391
  script:
    - cd student-distrib
+   - chmod +x ./debug.sh
    - make
