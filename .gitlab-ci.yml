@@ -5,4 +5,5 @@ build-image:
  tags:
    - ECE391
  script:
+   - cd student-distrib
    - make
