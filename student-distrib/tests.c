@@ -4,6 +4,9 @@
 
 #define PASS 1
 #define FAIL 0
+#define IDT_KB 0x21
+#define IDT_RTC 0x28
+#define IDT_SYS 0x80
 
 /* format these macros as you see fit */
 #define TEST_HEADER 	\
@@ -42,31 +45,28 @@ int idt_test(){
 		}
 	}
 
-	return result;
-}
-
-/* key_board_test Test - Example
- *
- * checkfor the keyboard test entires
- * Inputs: None
- * Outputs: PASS/FAIL
- * Side Effects: None
- */
-int key_board_test(){
-	TEST_HEADER;
-
-	int i;
-	int result = PASS;
-
-	for (i = 0; i < 10; ++i){
-		if ((scancode2char(i) == NULL) || ( scancode2char(i) != ('0' i - 2 )) ){
+	if ((idt[IDT_KB].offset_15_00 == NULL) &&			//check for keyboard call
+			(idt[IDT_KB].offset_31_16 == NULL)){
 			assertion_failure();
 			result = FAIL;
 		}
-	}
 
+		if ((idt[IDT_RTC].offset_15_00 == NULL) &&			//check for RTC
+			(idt[IDT_RTC].offset_31_16 == NULL)){
+			assertion_failure();
+			result = FAIL;
+		}
+
+		if ((idt[IDT_SYS].offset_15_00 == NULL) &&		//check for Sys call
+			(idt[IDT_SYS].offset_31_16 == NULL)){
+			assertion_failure();
+			result = FAIL;
+		}
 	return result;
 }
+
+
+
 
 
 /* Checkpoint 2 tests */
