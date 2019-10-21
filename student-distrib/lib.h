@@ -17,6 +17,7 @@ uint32_t strlen(const int8_t* s);
 void clear(void);
 
 void blue_screen();
+void test_interrupts(void);
 
 void* memset(void* s, int32_t c, uint32_t n);
 void* memset_word(void* s, int32_t c, uint32_t n);

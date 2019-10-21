@@ -50,11 +50,25 @@ int idt_test()
 	return result;
 }
 
-// add more tests here
+/**
+ * Dereference for a point
+ * @param a a pointer
+ * @return the value the pointer point to
+ */
 int deref(int *a)
 {
 	return *a;
 }
+/* Paging Test
+ *
+ * Asserts that video paging entry is present
+ * Asserts Register values are correct(cr0, cr3, cr4)
+ * Inputs: None
+ * Outputs: PASS/FAIL
+ * Side Effects: None
+ * Coverage: Paging Initizlize
+ * Files: paging.h/S
+ */
 int paging_test()
 {
 	TEST_HEADER;
@@ -125,6 +139,33 @@ int paging_test()
 	return result;
 }
 
+/* Keyboard Test
+ *
+ * Asserts scancode translation is correct
+ * Inputs: None
+ * Outputs: PASS/FAIL
+ * Side Effects: None
+ * Coverage: scancode translation
+ * Files: keyboard.h/S
+ */
+int keyboard_test()
+{
+    TEST_HEADER;
+
+    int i;
+    int result = PASS;
+
+    for(i = 2; i <= 10; i++) {
+        if(scancode2char(i) != ('0'+i - 1)) {
+            assertion_failure();
+            result = FAIL;
+        }
+    }
+
+    return result;
+}
+
+
 /* Checkpoint 2 tests */
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
@@ -135,5 +176,5 @@ void launch_tests()
 {
 	TEST_OUTPUT("idt_test", idt_test());
 	TEST_OUTPUT("paging_test", paging_test());
-	// launch your tests here
+	TEST_OUTPUT("keyboard_test", keyboard_test());
 }

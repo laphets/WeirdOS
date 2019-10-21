@@ -9,9 +9,21 @@
 #define KEYBOARD_IRQ 0x1
 #define KEYBOARD_PORT 0x60
 
+/**
+ * Translate scancode to char
+ * @param scancode scancode from keyboard
+ * @return char
+ */
+unsigned char scancode2char(uint8_t scancode);
 
-
+/**
+ * Interrupt handler for keyboard, will be called in idtwrapper.S
+ */
 void keyboard_handler();
+
+/**
+ * Routine to init keyboard
+ */
 void init_keyboard();
 
 #endif //MP3_GROUP_42_KEYBOARD_H
