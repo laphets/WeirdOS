@@ -156,6 +156,7 @@ int32_t printf_error(int8_t *format, ...) {
     return (buf - format);
 }
 void blue_screen() {
+    cli();
     int32_t i;
     for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
         *(uint8_t *)(video_mem + (i << 1)) = ' ';
