@@ -1,22 +1,26 @@
 #include "rtc.h"
-#include "i8259.h"
 
 static uint32_t count = 0;
 
+/**
+ * Interrupt handler for rtc, will be called in idtwrapper.S
+ */
 void rtc_handler() {
     /* Status Register C will contain a bitmask telling which interrupt happened */
     /* We should read register C */
     outb(RTC_REGISTER_C, RTC_PORT_SELECT);
     inb(RTC_PORT_DATA);
+    /* Call back to test RTC */
+//    test_interrupts();
     /* Send the EOI */
     send_eoi(RTC_IRQ);
 
     count++;
-
 //    printf("RTC comes!!! %d \n", count);
 }
 
 /**
+ * Init rtc and set rate to 0x0F
  * https://wiki.osdev.org/RTC
  */
 void init_rtc() {
