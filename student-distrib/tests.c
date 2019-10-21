@@ -1,12 +1,10 @@
 #include "tests.h"
 #include "x86_desc.h"
 #include "lib.h"
+#include "idt.h"
 
 #define PASS 1
 #define FAIL 0
-#define IDT_KB 0x21
-#define IDT_RTC 0x28
-#define IDT_SYS 0x80
 
 /* format these macros as you see fit */
 #define TEST_HEADER 	\
@@ -45,20 +43,20 @@ int idt_test(){
 		}
 	}
 
-	if ((idt[IDT_KB].offset_15_00 == NULL) &&			//check for keyboard call
-			(idt[IDT_KB].offset_31_16 == NULL)){
+	if ((idt[KEYBOARD_IDT].offset_15_00 == NULL) &&			//check for keyboard call
+			(idt[KEYBOARD_IDT].offset_31_16 == NULL)){
 			assertion_failure();
 			result = FAIL;
 		}
 
-		if ((idt[IDT_RTC].offset_15_00 == NULL) &&			//check for RTC
-			(idt[IDT_RTC].offset_31_16 == NULL)){
+		if ((idt[RTC_IDT].offset_15_00 == NULL) &&			//check for RTC
+			(idt[RTC_IDT].offset_31_16 == NULL)){
 			assertion_failure();
 			result = FAIL;
 		}
 
-		if ((idt[IDT_SYS].offset_15_00 == NULL) &&		//check for Sys call
-			(idt[IDT_SYS].offset_31_16 == NULL)){
+		if ((idt[SYSCALL_IDT].offset_15_00 == NULL) &&		//check for Sys call
+			(idt[SYSCALL_IDT].offset_31_16 == NULL)){
 			assertion_failure();
 			result = FAIL;
 		}
