@@ -1,6 +1,7 @@
 #include "tests.h"
 #include "x86_desc.h"
 #include "lib.h"
+#include "idt.h"
 #include "keyboard.h"
 #include "paging.h"
 
@@ -22,8 +23,8 @@ static inline void assertion_failure()
 
 /* Checkpoint 1 tests */
 
-/* IDT Test - Example
- * 
+/* IDT Test
+ *
  * Asserts that first 10 IDT entries are not NULL
  * Inputs: None
  * Outputs: PASS/FAIL
@@ -37,16 +38,31 @@ int idt_test()
 
 	int i;
 	int result = PASS;
-	for (i = 0; i < 10; ++i)
-	{
+	for (i = 0; i < 10; ++i) {
 		if ((idt[i].offset_15_00 == NULL) &&
-			(idt[i].offset_31_16 == NULL))
-		{
+			(idt[i].offset_31_16 == NULL)) {
 			assertion_failure();
 			result = FAIL;
 		}
 	}
 
+	if ((idt[KEYBOARD_IDT].offset_15_00 == NULL) &&			//check for keyboard call
+			(idt[KEYBOARD_IDT].offset_31_16 == NULL)){
+			assertion_failure();
+			result = FAIL;
+		}
+
+		if ((idt[RTC_IDT].offset_15_00 == NULL) &&			//check for RTC
+			(idt[RTC_IDT].offset_31_16 == NULL)){
+			assertion_failure();
+			result = FAIL;
+		}
+
+		if ((idt[SYSCALL_IDT].offset_15_00 == NULL) &&		//check for Sys call
+			(idt[SYSCALL_IDT].offset_31_16 == NULL)){
+			assertion_failure();
+			result = FAIL;
+		}
 	return result;
 }
 
