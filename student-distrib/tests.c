@@ -60,20 +60,15 @@ int paging_test()
 	TEST_HEADER;
 	int result = PASS;
 	unsigned long reg;
-	int i;
 
 	// Checks for video memory mapping
-	for (i = 0xB8; i <= 0xC0; i++)
+	if (!((&first_page_table[0xB8])->present))
 	{
-		if (!((&first_page_table[i])->present))
-		{
-			// printf("%x in video memory is not mapped\n", i);
-			assertion_failure();
-			result = FAIL;
-		}
+		// printf("%x in video memory is not mapped\n", i);
+		assertion_failure();
+		result = FAIL;
 	}
-	// printf("Video memory area 0xB8 = %h\nTable Value = %x\n", deref((int*) &first_page_table[0xB8]), first_page_table[0xB8]); // Accesses the first element in video memory
-
+	deref((int*) 0xB8000); // Accesses the first element in video memory. Should not blue screen
 	// deref((int*)-100); // Will cause the kernel to panic "blue screen"
 	// deref(NULL); // Will cause the kernel to panic "blue screen"
 	int b = 391;
