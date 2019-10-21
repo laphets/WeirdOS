@@ -1,7 +1,22 @@
-DEBUGGING MP3 
-===============
+#!/bin/bash
 
-The only steps that need to be taken on the virtual machine for debugging
-using qemu is to perform a "sudo make debug" (after "make dep").  This will build the disk image needed for QEMU and gdb.  
+if [ -d /mnt/tmpmp3 ]; then
+    rm -rf /mnt/tmpmp3
+fi
 
-Refer to the handout for instructions on starting QEMU and gdb.
+if [ -d /tmp/mp3 ]; then
+    rm -rf /tmp/mp3
+fi
+
+mkdir /mnt/tmpmp3
+mkdir /tmp/mp3
+cp ./bootimg /tmp/mp3/
+cp ./filesys_img /tmp/mp3/
+cp ./mp3.img /tmp/mp3/
+mount -o loop,offset=32256 /tmp/mp3/mp3.img /mnt/tmpmp3
+cp -f /tmp/mp3/bootimg /mnt/tmpmp3/
+cp -f /tmp/mp3/filesys_img /mnt/tmpmp3/
+umount /mnt/tmpmp3
+cp -f /tmp/mp3/mp3.img ./
+rm -rf /tmp/mp3
+rm -rf /mnt/tmpmp3

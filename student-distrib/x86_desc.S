@@ -13,7 +13,11 @@
 .globl idt_desc_ptr, idt
 
 .align 4
-
+    .word 0 # padding
+gdt_desc:
+    .word gdt_bottom - gdt - 1  # for limit storage
+    .long gdt   # for base storage
+    .align 16
 
 tss_size:
     .long tss_bottom - tss - 1
