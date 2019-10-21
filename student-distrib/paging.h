@@ -8,6 +8,7 @@
 #define PAGE_TABLE_SIZE 1024
 #define PAGE_ALIGN_SIZE 4096
 #define VIDEO_MEMORY_START 0xB8
+#define VIDEO_MEMORY_START_ADDRESS 0xB8000
 
 typedef struct page_table_entry {
     uint32_t present : 1;    /* 1->valid, 0->not used */
