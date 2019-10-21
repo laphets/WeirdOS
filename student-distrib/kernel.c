@@ -13,7 +13,7 @@
 #include "debug.h"
 #include "tests.h"
 
-#define RUN_TESTS
+#define RUN_TESTS 0
 
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
@@ -165,7 +165,7 @@ void entry(unsigned long magic, unsigned long addr) {
     printf("Enabling Interrupts\n");
     sti();
 
-#ifdef RUN_TESTS
+#if (RUN_TESTS == 1)
     /* Run tests */
     launch_tests();
 #endif

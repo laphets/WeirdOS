@@ -614,6 +614,9 @@ int8_t* strncpy(int8_t* dest, const int8_t* src, uint32_t n) {
 void test_interrupts(void) {
     int32_t i;
     for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
+        /* Remain some space for keyboard echo */
+        if(i % NUM_COLS <= 24)
+            continue;
         video_mem[i << 1]++;
     }
 }
