@@ -64,28 +64,6 @@ int paging_test() {
     return PASS;
 }
 
-/* Stores the values of the GDTR in the struct pointed to by the 
-   passed pointer */
-static inline void sgdt(void* ret) {
-    do {                                    \
-        asm volatile ("sgdt %0"           \
-                : "=m" (ret)                \
-				:							\
-                : "memory"                  \
-        );                                  \
-    } while (0);
-}
-
-int gdt_test() {
-	x86_desc_t response;
-	sgdt((void*) &(response.size));
-	if((gdt_desc.size != response.size) || 
-	   (gdt_desc.addr != response.addr)) {
-		return FAIL;
-	}
-	return PASS;
-}
-
 int keyboard_handler_tester(uint8_t scancode) {
 	return kbdus[scancode];
 }
@@ -278,7 +256,6 @@ int keyboard_translation_test() {
 void launch_tests(){
 	TEST_OUTPUT("idt_test", idt_test());
     TEST_OUTPUT("paging_test", paging_test());
-	TEST_OUTPUT("gdt_test", gdt_test());
 	TEST_OUTPUT("keyboard_translation_test", keyboard_translation_test());
 
 	// launch your tests here
