@@ -10,6 +10,8 @@
 #define RTC_PORT_SELECT 0x70
 #define RTC_PORT_DATA 0x71
 
+#define RTC_DEFAULT_RATE 0x06
+
 #define RTC_REGISTER_A 0x8A
 #define RTC_REGISTER_B 0x8B
 #define RTC_REGISTER_C 0x0C

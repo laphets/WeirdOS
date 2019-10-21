@@ -16,7 +16,6 @@ void rtc_handler() {
     send_eoi(RTC_IRQ);
 
     count++;
-//    printf("RTC comes!!! %d \n", count);
 }
 
 /**
@@ -33,7 +32,7 @@ void init_rtc() {
 
     /* Set for rate */
     int rate;
-    rate = 0x0F;
+    rate = RTC_DEFAULT_RATE;
     outb(RTC_REGISTER_A, RTC_PORT_SELECT);
     prev = inb(RTC_PORT_DATA);
     outb(RTC_REGISTER_A, RTC_PORT_SELECT);

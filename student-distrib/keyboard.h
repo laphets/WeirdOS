@@ -10,9 +10,7 @@
 #define KEYBOARD_PORT 0x60
 
 /**
- * Translate scancode to char
- * @param scancode scancode from keyboard
- * @return char
+ * Translate scancode into char
  */
 unsigned char scancode2char(uint8_t scancode);
 

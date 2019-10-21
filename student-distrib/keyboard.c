@@ -3,7 +3,7 @@
 /**
  * http://www.osdever.net/bkerndev/Docs/keyboard.htm
  */
-unsigned char kbdus[256] =
+static unsigned char kbdus[256] =
         {
                 0,  27, '1', '2', '3', '4', '5', '6', '7', '8',	/* 9 */
                 '9', '0', '-', '=', '\b',	/* Backspace */
@@ -42,10 +42,12 @@ unsigned char kbdus[256] =
                 0,	/* F12 Key */
                 0,	/* All other keys are undefined */
         };
+
 /**
- * Translate scancode to char
- * @param scancode scancode from keyboard
- * @return char
+ * @brief Translate scancode into char
+ * 
+ * @param scancode 
+ * @return unsigned char 
  */
 unsigned char scancode2char(uint8_t scancode) {
     return kbdus[scancode];
