@@ -64,10 +64,20 @@ int paging_test() {
     return PASS;
 }
 
+/*
+ * Turn a scancode to a ascii character
+ * Input: scancode number
+ * Output: ascii number
+ */
 int keyboard_handler_tester(uint8_t scancode) {
 	return kbdus[scancode];
 }
 
+/*
+ * Tests the mapping of scancodes to ascii
+ * Ouput: PASS if none of the tests fail
+ * 		  FAIL is any of the tests fail
+ */
 int keyboard_translation_test() {
 	if (0 != keyboard_handler_tester(0x0)) {
 		return FAIL;
