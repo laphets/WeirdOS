@@ -47,7 +47,7 @@ void keyboard_handler() {
     uint8_t scancode;
     scancode = inb(KEYBOARD_PORT);
 
-    printf("Keyboard comes: %c %x\n", kbdus[scancode], scancode);
+    printf("Keyboard comes: %c\n", kbdus[scancode]);
 
     send_eoi(KEYBOARD_IRQ);
 
