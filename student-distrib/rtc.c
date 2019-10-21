@@ -11,7 +11,7 @@ void rtc_handler() {
     outb(RTC_REGISTER_C, RTC_PORT_SELECT);
     inb(RTC_PORT_DATA);
     /* Call back to test RTC */
-//    test_interrupts();
+    test_interrupts();
     /* Send the EOI */
     send_eoi(RTC_IRQ);
 
