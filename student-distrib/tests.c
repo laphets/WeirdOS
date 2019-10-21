@@ -92,67 +92,51 @@ int keyboard_handler_tester(uint8_t scancode) {
 
 int keyboard_translation_test() {
 	if (0 != keyboard_handler_tester(0x0)) {
-		printf("0");
 		return FAIL;
 	}
 	if (27 != keyboard_handler_tester(0x1)) {
-		printf("1");
 		return FAIL;
 	}
 	if ('1' != keyboard_handler_tester(0x2)) {
-		printf("2");
 		return FAIL;
 	}
 	if ('2' != keyboard_handler_tester(0x3)) {
-printf("3");
 		return FAIL;
 	}
 	if ('3' != keyboard_handler_tester(0x4)) {
-printf("4");
 		return FAIL;
 	}
 	if ('4' != keyboard_handler_tester(0x5)) {
-printf("5");
 		return FAIL;
 	}
 	if ('5' != keyboard_handler_tester(0x6)) {
-printf("6");
 		return FAIL;
 	}
 	if ('6' != keyboard_handler_tester(0x7)) {
-		printf("7");
 		return FAIL;
 	}
 	if ('7' != keyboard_handler_tester(0x8)) {
-printf("8");
 		return FAIL;
 	}
 	if ('8' != keyboard_handler_tester(0x9)) {
-printf("0");
 		return FAIL;
 	}
 	if ('9' != keyboard_handler_tester(0xA)) {
-printf("0");
 		return FAIL;
 	}
 	if ('0' != keyboard_handler_tester(0xB)) {
-printf("0");
 		return FAIL;
 	}
 	if ('-' != keyboard_handler_tester(0xC)) {
-printf("0");
 		return FAIL;
 	}
 	if ('=' != keyboard_handler_tester(0xD)) {
-printf("0");
 		return FAIL;
 	}
 	if ('\b' != keyboard_handler_tester(0xE)) {
-		printf("0");
 		return FAIL;
 	}
 	if ('\t' != keyboard_handler_tester(0xF)) {
-		printf("0");
 		return FAIL;
 	}
 	if ('q' != keyboard_handler_tester(0x10)) {
@@ -245,55 +229,40 @@ printf("0");
 	if ('x' != keyboard_handler_tester(0x2D)) {
 		return FAIL;
 	}
-	if ('c' != keyboard_handler_tester(0x2D)) {
+	if ('c' != keyboard_handler_tester(0x2E)) {
 		return FAIL;
 	}
-	if ('v' != keyboard_handler_tester(0x2E)) {
+	if ('v' != keyboard_handler_tester(0x2F)) {
 		return FAIL;
 	}
-	if ('b' != keyboard_handler_tester(0x2F)) {
+	if ('b' != keyboard_handler_tester(0x30)) {
 		return FAIL;
 	}
-	if ('n' != keyboard_handler_tester(0x30)) {
+	if ('n' != keyboard_handler_tester(0x31)) {
 		return FAIL;
 	}
-	if ('m' != keyboard_handler_tester(0x31)) {
+	if ('m' != keyboard_handler_tester(0x32)) {
 		return FAIL;
 	}
-	if (',' != keyboard_handler_tester(0x32)) {
+	if (',' != keyboard_handler_tester(0x33)) {
 		return FAIL;
 	}
-	if ('.' != keyboard_handler_tester(0x33)) {
+	if ('.' != keyboard_handler_tester(0x34)) {
 		return FAIL;
 	}
-	if ('/' != keyboard_handler_tester(0x34)) {
+	if ('/' != keyboard_handler_tester(0x35)) {
 		return FAIL;
 	}
-	if (0 != keyboard_handler_tester(0x35)) {
+	if (0 != keyboard_handler_tester(0x36)) {
 		return FAIL;
 	}
-	if ('*' != keyboard_handler_tester(0x36)) {
+	if ('*' != keyboard_handler_tester(0x37)) {
 		return FAIL;
 	}
-	if (0 != keyboard_handler_tester(0x37)) {
+	if (0 != keyboard_handler_tester(0x38)) {
 		return FAIL;
 	}
-	if (' ' != keyboard_handler_tester(0x38)) {
-		return FAIL;
-	}
-	if ('.' != keyboard_handler_tester(0x39)) {
-		return FAIL;
-	}
-	if ('.' != keyboard_handler_tester(0x3A)) {
-		return FAIL;
-	}
-	if ('.' != keyboard_handler_tester(0x3B)) {
-		return FAIL;
-	}
-	if ('.' != keyboard_handler_tester(0x3C)) {
-		return FAIL;
-	}
-	if ('.' != keyboard_handler_tester(0x3D)) {
+	if (' ' != keyboard_handler_tester(0x39)) {
 		return FAIL;
 	}
 	return PASS;
