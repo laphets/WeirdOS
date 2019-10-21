@@ -1,6 +1,8 @@
 #include "keyboard.h"
 
 /**
+ * mapping from scancode to ascii. gotten from:
+ * 
  * http://www.osdever.net/bkerndev/Docs/keyboard.htm
  */
 unsigned char kbdus[256] =
