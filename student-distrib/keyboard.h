@@ -8,6 +8,9 @@
 
 #define KEYBOARD_IRQ 0x1
 #define KEYBOARD_PORT 0x60
+#define CAPS_LOCK 0x3A
+
+unsigned uint8_t keyboard_flag;
 
 /**
  * Translate scancode into char

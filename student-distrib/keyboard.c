@@ -52,7 +52,16 @@ static unsigned char kbdus[256] =
  * @return unsigned char 
  */
 unsigned char scancode2char(uint8_t scancode) {
-    return kbdus[scancode];
+    int ascii;
+    if (scancode == CAPS_LOCK) {
+        keyboard_flag ^= 0x1;
+        return 0;
+    }
+    ascii = kbdus[scancode]
+    if ((keyboard_handler & 0x1) && (ascii > 'a') && (ascii < 'z')) {
+        ascii += 'A' - 'a';
+    }
+    return ascii;
 }
 
 /**
