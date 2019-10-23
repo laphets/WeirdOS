@@ -8,6 +8,16 @@
 
 #define KEYBOARD_IRQ 0x1
 #define KEYBOARD_PORT 0x60
+#define CAPS_LOCK_PRESS 0x3A
+#define LEFT_SHIFT_PRESS 0x2A
+#define RIGHT_SHIFT_PRESS 0x36
+#define LEFT_SHIFT_RELEASE 0xAA
+#define RIGHT_SHIFT_RELEASE 0xB6
+#define CAPS_LOCK_BIT_MASK 0x1
+#define LEFT_SHIFT_BIT_MASK 0x2
+#define RIGHT_SHIFT_BIT_MASK 0x4
+
+uint8_t keyboard_flag;
 
 /**
  * Translate scancode into char
