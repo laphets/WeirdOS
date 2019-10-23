@@ -14,7 +14,7 @@
 #define LEFT_SHIFT_RELEASE 0xAA
 #define RIGHT_SHIFT_RELEASE 0xB6
 
-unsigned uint8_t keyboard_flag;
+uint8_t keyboard_flag;
 
 /**
  * Translate scancode into char

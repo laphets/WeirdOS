@@ -50,7 +50,7 @@ static unsigned char kbdus[256] =
  * 
  * http://www.osdever.net/bkerndev/Docs/keyboard.htm
  */
-static unsigned char shift_table[127] = {
+static unsigned char shift_table[200] = {
     0,
     1,
     2,
@@ -124,7 +124,7 @@ static unsigned char shift_table[127] = {
     'J','K','L','M','N','O','P','Q','R','S',
     'T','U','V','W','X','Y','Z','{','|','}',
     '~',127
-}
+};
 
 /**
  * @brief Translate scancode into char
@@ -138,7 +138,7 @@ scancode2char(uint8_t scancode)
     int ascii;
 
     /* Set flags to deal with caps and shift presses */
-    if (scancode == CAPS_LOCK) {
+    if (scancode == CAPS_LOCK_PRESS) {
         keyboard_flag ^= 0x1;
         return 0;
     } else if (scancode == LEFT_SHIFT_PRESS) {
@@ -155,7 +155,7 @@ scancode2char(uint8_t scancode)
         return 0;
     }
 
-    ascii = kbdus[scancode]
+    ascii = kbdus[scancode];
 
     if ((keyboard_flag & 0x1) && (keyboard_flag & 0x6) && (ascii > 'a') && (ascii < 'z')) {
         return ascii;
