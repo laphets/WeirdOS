@@ -74,19 +74,19 @@ scancode2char(uint8_t scancode)
     unsigned char ascii;
 
     /* Set flags to deal with caps and shift presses */
-    if (scancode == CAPS_LOCK_PRESS) {
+    if (scancode == KEYBOARD_CAPS_LOCK_PRESS) {
         keyboard_flag ^= CAPS_LOCK_BIT_MASK;
         return 0;
-    } else if (scancode == LEFT_SHIFT_PRESS) {
+    } else if (scancode == KEYBOARD_LEFT_SHIFT_PRESS) {
         keyboard_flag |= LEFT_SHIFT_BIT_MASK;
         return 0;
-    } else if (scancode == RIGHT_SHIFT_PRESS) {
+    } else if (scancode == KEYBOARD_RIGHT_SHIFT_PRESS) {
         keyboard_flag |= RIGHT_SHIFT_BIT_MASK;
         return 0;
-    } else if (scancode == LEFT_SHIFT_RELEASE) {
+    } else if (scancode == KEYBOARD_LEFT_SHIFT_RELEASE) {
         keyboard_flag &= ~LEFT_SHIFT_BIT_MASK;
         return 0;
-    } else if (scancode == RIGHT_SHIFT_RELEASE) {
+    } else if (scancode == KEYBOARD_RIGHT_SHIFT_RELEASE) {
         keyboard_flag &= ~RIGHT_SHIFT_BIT_MASK;
         return 0;
     }
