@@ -108,9 +108,14 @@ scancode2char(uint8_t scancode)
  */
 void keyboard_handler() {
     uint8_t scancode;
+    unsigned char ascii;
     scancode = inb(KEYBOARD_PORT);
 
-    printf("Keyboard comes: %c\n", scancode2char(scancode));
+    /* Check to not print when scancode is non pritable */
+    if (0 != (ascii = scancode2char(scancode)))
+    {
+        printf("Keyboard comes: %c\n", ascii);
+    }
 
     send_eoi(KEYBOARD_IRQ);
 }
