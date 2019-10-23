@@ -36,7 +36,8 @@ int idt_test()
 {
 	TEST_HEADER;
 
-	int i;
+	unsigned int i;
+	int test_bounds[1];
 	int result = PASS;
 	for (i = 0; i < 10; ++i) {
 		if ((idt[i].offset_15_00 == NULL) &&
@@ -63,6 +64,29 @@ int idt_test()
 			assertion_failure();
 			result = FAIL;
 		}
+
+		/* Divide by zero exception test */
+		// i = i / 0;
+
+		/* Floating Point exception test */
+		i = (int)(((float)i) / 0);
+
+		/* Overflow exception test */
+		i = 0xFFFFFFFF + 0xFFFFFFFF;
+
+		/* Bounds exception test */
+		i = test_bounds[1];
+
+		/* Overflow exception test */
+		asm volatile("                  \n\
+            pushf        				\n\
+            orl $0x800, (%%esp)          \n\
+			popf						\n\
+            "
+				 :
+				 :
+				 : "memory");
+
 	return result;
 }
 
