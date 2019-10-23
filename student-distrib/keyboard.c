@@ -95,7 +95,7 @@ scancode2char(uint8_t scancode)
     ascii = kbdus[scancode];
 
     /* Check is a letter is pressed while both CAPS and SHIFT are enabled */
-    if ((keyboard_flag & 0x1) && (keyboard_flag & 0x6) && (ascii > 'a') && (ascii < 'z')) {
+    if ((keyboard_flag & 0x1) && (keyboard_flag & 0x6) && (ascii >= 'a') && (ascii <= 'z')) {
         return ascii;
     } else if (keyboard_flag & 0x7) { /* Check if the input needs to be shifted */
         return shift_table[ascii];
