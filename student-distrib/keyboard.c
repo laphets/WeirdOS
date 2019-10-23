@@ -90,7 +90,6 @@ static unsigned char shift_table[127] = {
     '$',
     '%',
     '&',
-    '\'',
     '"',
     '(',
     ')',
