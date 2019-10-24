@@ -22,8 +22,12 @@
 #define RIGHT_SHIFT_BIT_MASK 0x4
 #define LEFT_CTRL_MASK 0x8
 #define RIGHT_CTRL_MASK 0x10
+#define KEYBOARD_BUF_MAX_POS 127
 
 uint8_t keyboard_flag;
+
+unsigned char keyboard_buf[129];
+uint8_t keyboard_buf_pos;
 
 /**
  * Translate scancode into char

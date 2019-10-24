@@ -134,6 +134,11 @@ void keyboard_handler() {
     /* Check to not print when scancode is non pritable */
     if (0 != (ascii = scancode2char(scancode)))
     {
+        if(ascii == '\b') {
+            keyboard_buf[--keyboard_buf_pos] = 0;
+        } else if (keyboard_buf_pos <= KEYBOARD_BUF_MAX_POS) {
+            keyboard_buf[keyboard_buf_pos++] = ascii;
+        }
         printf("Keyboard comes: %c\n", ascii);
     }
 
@@ -144,5 +149,6 @@ void keyboard_handler() {
  * Routine to init keyboard
  */
 void init_keyboard() {
+    keyboard_buf_pos = 0;
     enable_irq(KEYBOARD_IRQ);
 }
