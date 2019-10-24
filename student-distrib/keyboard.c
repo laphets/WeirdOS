@@ -83,16 +83,36 @@ scancode2char(uint8_t scancode)
     } else if (scancode == KEYBOARD_RIGHT_SHIFT_PRESS) {
         keyboard_flag |= RIGHT_SHIFT_BIT_MASK;
         return 0;
+    } else if (scancode == KEYBOARD_LEFT_CTRL_PRESS) {
+        keyboard_flag |= LEFT_CTRL_MASK;
+        return 0;
+    } else if (scancode == KEYBOARD_RIGHT_CTRL_PRESS) {
+        keyboard_flag |= RIGHT_CTRL_MASK;
+        return 0;
     } else if (scancode == KEYBOARD_LEFT_SHIFT_RELEASE) {
         keyboard_flag &= ~LEFT_SHIFT_BIT_MASK;
         return 0;
     } else if (scancode == KEYBOARD_RIGHT_SHIFT_RELEASE) {
         keyboard_flag &= ~RIGHT_SHIFT_BIT_MASK;
         return 0;
+    } else if (scancode == KEYBOARD_LEFT_CTRL_RELEASE) {
+        keyboard_flag &= ~LEFT_CTRL_MASK;
+        return 0;
+    } else if (scancode == KEYBOARD_RIGHT_CTRL_RELEASE) {
+        keyboard_flag &= ~RIGHT_CTRL_MASK;
+        return 0;
     }
 
     /* Convert the scancode to the ascii equivalent */
     ascii = kbdus[scancode];
+
+    /* Checks if CTRL-L is pressed to clear screen */
+    if (keyboard_flag & (RIGHT_CTRL_MASK | LEFT_CTRL_MASK) {
+        if (ascii == 'l') {
+            clear();
+            return 0;
+        }
+    }
 
     /* Check is a letter is pressed while both CAPS and SHIFT are enabled */
     if ((keyboard_flag & 0x1) && (keyboard_flag & 0x6) && (ascii >= 'a') && (ascii <= 'z')) {
