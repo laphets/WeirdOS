@@ -16,6 +16,12 @@
 #define RTC_REGISTER_B 0x8B
 #define RTC_REGISTER_C 0x0C
 
+
+void open();
+void close();
+void read();
+void write();
+
 /**
  * Interrupt handler for rtc, will be called in idtwrapper.S
  */

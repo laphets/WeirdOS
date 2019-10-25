@@ -2,6 +2,29 @@
 
 static uint32_t count = 0;
 
+void open() {
+    int rate = 15;
+    // dissable interrupt -------------------------
+    outb(RTC_REGISTER_A, RTC_PORT_SELECT);
+    prev = inb(RTC_PORT_DATA);
+    outb(RTC_REGISTER_A, RTC_PORT_SELECT);
+    outb((prev & 0xF0) | rate, RTC_PORT_DATA);
+    // enable interrupt -------------------------
+    return 0
+}
+
+void close() {
+    return 0;
+}
+
+void read() {
+
+}
+
+void write() {
+
+}
+
 /**
  * Interrupt handler for rtc, will be called in idtwrapper.S
  */
@@ -38,5 +61,5 @@ void init_rtc() {
     outb(RTC_REGISTER_A, RTC_PORT_SELECT);
     outb((prev & 0xF0) | rate, RTC_PORT_DATA);
 
-    enable_irq(RTC_IRQ);
+    enabe_irq(RTC_IRQ);
 }
