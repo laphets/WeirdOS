@@ -60,20 +60,14 @@ static unsigned char shift_table[200] = {
     'S','T','U','V','W','X','Y','Z','{','|','}','~',127
 };
 
-/**
- * @brief Translate scancode into the appropriate char
- *        accounting for CAPS and shift. Also keeps
- *        track of the CAPS and SHIFT state.
- * 
- * @param scancode 
- * @return unsigned char 
+/* char handle_keybaord_flags(uint8_t scancode);
+ * Input: uint8_t scancode - keyboard scancode pressed
+ * Return: 0 if special key was pressed, 1 otherwise
+ * Function: Looks at the scancode to determine if a special
+ *          key was pressed that should be kept track of.
  */
-unsigned char
-scancode2char(uint8_t scancode)
-{
-    unsigned char ascii;
-
-    /* Set flags to deal with caps and shift presses */
+char handle_keybaord_flags(uint8_t scancode) {
+    /* Set flags to deal with caps, shift, and ctrl presses */
     if (scancode == KEYBOARD_CAPS_LOCK_PRESS) {
         keyboard_flag ^= CAPS_LOCK_BIT_MASK;
         return 0;
@@ -102,20 +96,43 @@ scancode2char(uint8_t scancode)
         keyboard_flag &= ~RIGHT_CTRL_MASK;
         return 0;
     }
+    return 1;
+}
+
+/**
+ * @brief Translate scancode into the appropriate char
+ *        accounting for CAPS and shift. Also keeps
+ *        track of the CAPS and SHIFT state.
+ * 
+ * @param scancode 
+ * @return unsigned char 
+ */
+unsigned char
+scancode2char(uint8_t scancode)
+{
+    unsigned char ascii;
+    
+    /* Update the keyboard flags if necesary */
+    if(!handle_keybaord_flags(scancode)) {
+        return 0;
+    }
 
     /* Convert the scancode to the ascii equivalent */
     ascii = kbdus[scancode];
 
-    /* Checks if CTRL-L is pressed to clear screen */
-    if (keyboard_flag & (RIGHT_CTRL_MASK | LEFT_CTRL_MASK) {
+    /* Checks if CTRL-L is pressed to clear screen and reset cursor*/
+    if (keyboard_flag & (RIGHT_CTRL_MASK | LEFT_CTRL_MASK)) {
         if (ascii == 'l') {
             clear();
+            reset_cursos_pos();
             return 0;
         }
     }
 
     /* Check is a letter is pressed while both CAPS and SHIFT are enabled */
-    if ((keyboard_flag & 0x1) && (keyboard_flag & 0x6) && (ascii >= 'a') && (ascii <= 'z')) {
+    if ((keyboard_flag & CAPS_LOCK_BIT_MASK) &&
+        (keyboard_flag & (LEFT_SHIFT_BIT_MASK | RIGHT_SHIFT_BIT_MASK)) &&
+        (ascii >= 'a') && (ascii <= 'z')) {
         return ascii;
     } else if (keyboard_flag & 0x7) { /* Check if the input needs to be shifted */
         return shift_table[ascii];
@@ -136,10 +153,15 @@ void keyboard_handler() {
     {
         if(ascii == '\b') {
             keyboard_buf[--keyboard_buf_pos] = 0;
-        } else if (keyboard_buf_pos <= KEYBOARD_BUF_MAX_POS) {
+        } else if (keyboard_buf_pos < KEYBOARD_BUF_MAX_SIZE) {
             keyboard_buf[keyboard_buf_pos++] = ascii;
+            if(ascii == '\n') {
+                read();
+                write();
+                keyboard_buf_pos = 0;
+            }
         }
-        printf("Keyboard comes: %c\n", ascii);
+        //printf("Keyboard comes: %c\n", ascii);
     }
 
     send_eoi(KEYBOARD_IRQ);

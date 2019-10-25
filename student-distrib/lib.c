@@ -24,7 +24,14 @@ void clear(void) {
     }
 }
 
-
+/* void reset_cursos_pos();
+ * Inputs: none
+ * Return Value: none
+ * Function: reset cursor position to top left */
+void reset_cursos_pos() {
+    screen_y = 0;
+    screen_x = 0;
+}
 
 void putc_error(uint8_t c) {
     if(c == '\n' || c == '\r') {
@@ -320,6 +327,23 @@ void putc(uint8_t c) {
         screen_x++;
         screen_x %= NUM_COLS;
         screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+    }
+}
+
+/* void shift_video_up(int num_row_shift);
+ * Inputs: int num_row_shift = number of rows to shift up
+ * Return Value: void
+ * Function: Shift the screen up by num_row_shift lines */
+void shift_video_up(int num_row_shift) {
+    int row,col;
+    for (row = 0; row < (NUM_ROWS - num_row_shift); row++)
+    {
+        for(col = 0; col < NUM_COLS; col++) {
+            *(uint8_t *)(video_mem + ((NUM_COLS * row + col) << 1)) =
+                *(uint8_t *)(video_mem + ((NUM_COLS * (row + num_row_shift) + col) << 1));
+            *(uint8_t *)(video_mem + ((NUM_COLS * row + col) << 1) + 1) =
+                *(uint8_t *)(video_mem + ((NUM_COLS * (row + num_row_shift) + col) << 1) + 1);
+        }
     }
 }
 

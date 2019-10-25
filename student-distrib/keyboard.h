@@ -5,7 +5,9 @@
 #include "lib.h"
 #include "types.h"
 #include "i8259.h"
+#include "terminal.h"
 
+/* Macros for mapping keyboard scan codes */
 #define KEYBOARD_IRQ 0x1
 #define KEYBOARD_PORT 0x60
 #define KEYBOARD_CAPS_LOCK_PRESS 0x3A
@@ -17,16 +19,21 @@
 #define KEYBOARD_RIGHT_CTRL_PRESS 0xE0 | 0x1D
 #define KEYBOARD_LEFT_CTRL_RELEASE 0x9D
 #define KEYBOARD_RIGHT_CTRL_RELEASE 0xE0 | 0x9D
+
+/* Macros for mapping bit masks to keep track of special keys */
 #define CAPS_LOCK_BIT_MASK 0x1
 #define LEFT_SHIFT_BIT_MASK 0x2
 #define RIGHT_SHIFT_BIT_MASK 0x4
 #define LEFT_CTRL_MASK 0x8
 #define RIGHT_CTRL_MASK 0x10
-#define KEYBOARD_BUF_MAX_POS 127
+
+/* Macros for the keyboard buffer */
+#define KEYBOARD_BUF_MAX_SIZE 128
+#define NUM_KEYBOARD_BUFS 5
 
 uint8_t keyboard_flag;
 
-unsigned char keyboard_buf[129];
+unsigned char keyboard_buf[KEYBOARD_BUF_MAX_SIZE];
 uint8_t keyboard_buf_pos;
 
 /**
