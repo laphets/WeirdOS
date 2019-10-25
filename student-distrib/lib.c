@@ -24,18 +24,29 @@ void clear(void) {
     }
 }
 
+/*
+ * From: https://wiki.osdev.org/Text_Mode_Cursor
+ */
+void update_cursor_pos(int x, int y) {
+	uint16_t pos = y * NUM_COLS + x;
+	outb(0x0F, 0x3D4);
+	outb((uint8_t) (pos & 0xFF), 0x3D5);
+	outb(0x0E, 0x3D4);
+	outb((uint8_t) ((pos >> 8) & 0xFF), 0x3D5);
+}
+
 /* void reset_cursos_pos();
  * Inputs: none
  * Return Value: none
  * Function: reset cursor position to top left */
-void reset_cursos_pos() {
+void reset_cursor_pos() {
     screen_y = 0;
     screen_x = 0;
 }
 
 void putc_error(uint8_t c) {
     if(c == '\n' || c == '\r') {
-        screen_y++;
+        screen_y = (screen_y + 1) % NUM_ROWS;
         screen_x = 0;
     } else {
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = c;
@@ -345,6 +356,27 @@ void shift_video_up(int num_row_shift) {
                 *(uint8_t *)(video_mem + ((NUM_COLS * (row + num_row_shift) + col) << 1) + 1);
         }
     }
+    for (row; row < NUM_ROWS; row++) {
+        for(col = 0; col < NUM_COLS; col++) {
+            *(uint8_t *)(video_mem + ((NUM_COLS * row + col) << 1)) = ' ';
+        }
+    }
+}
+
+/* int get_screen_y();
+ * Inputs: none
+ * Return Value: the current value of screen_y
+ * Function: returns the current value of screen_y */
+int get_screen_y() {
+    return screen_y;
+}
+
+/* void reset_screen_x();
+ * Inputs: none
+ * Return Value: void
+ * Function: Sets the value of screen_y to 0 */
+void reset_screen_x() {
+    screen_x = 0;
 }
 
 /* int8_t* itoa(uint32_t value, int8_t* buf, int32_t radix);
@@ -637,9 +669,9 @@ int8_t* strncpy(int8_t* dest, const int8_t* src, uint32_t n) {
  * Function: increments video memory. To be used to test rtc */
 void test_interrupts(void) {
     int32_t i;
-    for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
+    for (i = 0; i < 2 * NUM_COLS; i++) {
         /* Remain some space for keyboard echo */
-        if(i % NUM_COLS <= 24)
+        if(i % NUM_COLS <= 77)
             continue;
         video_mem[i << 1]++;
     }

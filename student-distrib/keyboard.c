@@ -7,42 +7,16 @@
  */
 static unsigned char kbdus[256] =
         {
-                0,  27, '1', '2', '3', '4', '5', '6', '7', '8',	/* 9 */
-                '9', '0', '-', '=', '\b',	/* Backspace */
-                '\t',			/* Tab */
-                'q', 'w', 'e', 'r',	/* 19 */
-                't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n',	/* Enter key */
-                0,			/* 29   - Control */
-                'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';',	/* 39 */
-                '\'', '`',   0,		/* Left shift */
-                '\\', 'z', 'x', 'c', 'v', 'b', 'n',			/* 49 */
-                'm', ',', '.', '/',   0,				/* Right shift */
-                '*',
-                0,	/* Alt */
-                ' ',	/* Space bar */
-                0,	/* Caps lock */
-                0,	/* 59 - F1 key ... > */
-                0,   0,   0,   0,   0,   0,   0,   0,
-                0,	/* < ... F10 */
-                0,	/* 69 - Num lock*/
-                0,	/* Scroll Lock */
-                0,	/* Home key */
-                0,	/* Up Arrow */
-                0,	/* Page Up */
-                '-',
-                0,	/* Left Arrow */
-                0,
-                0,	/* Right Arrow */
-                '+',
-                0,	/* 79 - End key*/
-                0,	/* Down Arrow */
-                0,	/* Page Down */
-                0,	/* Insert Key */
-                0,	/* Delete Key */
-                0,   0,   0,
-                0,	/* F11 Key */
-                0,	/* F12 Key */
-                0,	/* All other keys are undefined */
+            0,27,'1','2','3','4','5','6','7','8',
+            '9','0','-','=','\b','\t','q','w','e','r',
+            't','y','u','i','o','p','[',']','\n',0,
+            'a','s','d','f','g','h','j','k','l',';',
+            '\'','`',0,'\\','z','x','c','v','b','n',
+            'm',',','.','/',0,'*',0,' ',0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,'-',0,0,0,'+',
+            0,0,0,0,0,0,0,0,0,0,
+            0,
         };
 
 /*
@@ -99,6 +73,16 @@ char handle_keybaord_flags(uint8_t scancode) {
     return 1;
 }
 
+/* char handle_keybaord_flags(uint8_t scancode);
+ * Input: uint8_t scancode - keyboard scancode pressed
+ * Return: 0 if special key was pressed, 1 otherwise
+ * Function: Looks at the scancode to determine if a special
+ *          key was pressed that should be kept track of.
+ */
+char handle_special_keys(uint8_t scancode) {
+    return 0;
+}
+
 /**
  * @brief Translate scancode into the appropriate char
  *        accounting for CAPS and shift. Also keeps
@@ -124,7 +108,7 @@ scancode2char(uint8_t scancode)
     if (keyboard_flag & (RIGHT_CTRL_MASK | LEFT_CTRL_MASK)) {
         if (ascii == 'l') {
             clear();
-            reset_cursos_pos();
+            reset_cursor_pos();
             return 0;
         }
     }
@@ -151,7 +135,7 @@ void keyboard_handler() {
     /* Check to not print when scancode is non pritable */
     if (0 != (ascii = scancode2char(scancode)))
     {
-        if(ascii == '\b') {
+        if((ascii == '\b') && (keyboard_buf_pos > 0)) {
             keyboard_buf[--keyboard_buf_pos] = 0;
         } else if (keyboard_buf_pos < KEYBOARD_BUF_MAX_SIZE) {
             keyboard_buf[keyboard_buf_pos++] = ascii;
@@ -171,6 +155,7 @@ void keyboard_handler() {
  * Routine to init keyboard
  */
 void init_keyboard() {
+    open();
     keyboard_buf_pos = 0;
     enable_irq(KEYBOARD_IRQ);
 }

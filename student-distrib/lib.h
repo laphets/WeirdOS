@@ -15,9 +15,12 @@ int8_t *itoa(uint32_t value, int8_t* buf, int32_t radix);
 int8_t *strrev(int8_t* s);
 uint32_t strlen(const int8_t* s);
 void clear(void);
-void reset_cursos_pos();
+void reset_cursor_pos();
 
-void shift_video_up(int num_row_shift) ;
+void update_cursor_pos(int x, int y);
+int get_screen_y();
+void reset_screen_x();
+void shift_video_up(int num_row_shift);
 void blue_screen();
 void test_interrupts(void);
 
