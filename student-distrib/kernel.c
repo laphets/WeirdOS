@@ -10,10 +10,11 @@
 #include "rtc.h"
 #include "keyboard.h"
 #include "paging.h"
+#include "fs.h"
 #include "debug.h"
 #include "tests.h"
 
-#define RUN_TESTS 0
+#define RUN_TESTS 1
 
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
@@ -24,6 +25,7 @@
 void entry(unsigned long magic, unsigned long addr) {
     printf("Hello world");
     multiboot_info_t *mbi;
+    uint32_t fs_start_addr, fs_end_addr;
 
     /* Clear the screen. */
     clear();
@@ -57,6 +59,13 @@ void entry(unsigned long magic, unsigned long addr) {
         int i;
         module_t* mod = (module_t*)mbi->mods_addr;
         while (mod_count < mbi->mods_count) {
+            /**
+             * Init file system addr
+             */
+            if(mod_count == 0) {
+                fs_start_addr = mod->mod_start;
+                fs_end_addr = mod->mod_end;
+            }
             printf("Module %d loaded at address: 0x%#x\n", mod_count, (unsigned int)mod->mod_start);
             printf("Module %d ends at address: 0x%#x\n", mod_count, (unsigned int)mod->mod_end);
             printf("First few bytes of module:\n");
@@ -153,6 +162,9 @@ void entry(unsigned long magic, unsigned long addr) {
     /* Init paging */
     init_paging();
 
+    /* Init filesystem */
+    init_fs(fs_start_addr, fs_end_addr);
+
     /* Set up device interrupt */
     init_rtc();
     init_keyboard();
@@ -164,6 +176,7 @@ void entry(unsigned long magic, unsigned long addr) {
      * without showing you any output */
     printf("Enabling Interrupts\n");
     sti();
+
 
 #if (RUN_TESTS == 1)
     /* Run tests */
