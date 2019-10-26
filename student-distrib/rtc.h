@@ -17,10 +17,10 @@
 #define RTC_REGISTER_C 0x0C
 
 
-void open();
-void close();
-void read();
-void write();
+int32_t open(const uint8_t* filename);
+int32_t close(int32_t fd);
+int32_t read(int32_t fd, void* buf, int32_t nbytes);
+int32_t write(int32_t fd, const void *buf, int32_t nbytes);
 
 /**
  * Interrupt handler for rtc, will be called in idtwrapper.S

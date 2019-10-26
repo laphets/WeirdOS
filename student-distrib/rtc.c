@@ -2,7 +2,12 @@
 
 static uint32_t count = 0;
 
-void open() {
+/* int32_t open(const uint8_t *filename);
+ * Input: 
+ * Output:
+ * Function: 
+ */
+int32_t open(const uint8_t *filename) {
     int rate = 15;
     // dissable interrupt -------------------------
     outb(RTC_REGISTER_A, RTC_PORT_SELECT);
@@ -13,16 +18,16 @@ void open() {
     return 0
 }
 
-void close() {
+int32_t close(int32_t fd) {
     return 0;
 }
 
-void read() {
+int32_t read(int32_t fd, void *buf, int32_t nbytes) {
 
 }
 
-void write() {
-
+int32_t write(int32_t fd, const void *buf, int32_t nbytes) {
+    
 }
 
 /**
