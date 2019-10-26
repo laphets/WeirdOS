@@ -133,17 +133,9 @@ void keyboard_handler() {
     scancode = inb(KEYBOARD_PORT);
 
     /* Check to not print when scancode is non pritable */
-    if (0 != (ascii = scancode2char(scancode)))
-    {
-        if((ascii == '\b') && (keyboard_buf_pos > 0)) {
-            keyboard_buf[--keyboard_buf_pos] = 0;
-        } else if (keyboard_buf_pos < KEYBOARD_BUF_MAX_SIZE) {
-            keyboard_buf[keyboard_buf_pos++] = ascii;
-            if(ascii == '\n') {
-                read();
-                write();
-                keyboard_buf_pos = 0;
-            }
+    if (0 != (ascii = scancode2char(scancode))) {
+         if (keyboard_buf_size < KEYBOARD_BUF_MAX_SIZE) {
+            keyboard_buf[keyboard_buf_size++] = ascii;
         }
         //printf("Keyboard comes: %c\n", ascii);
     }
@@ -156,6 +148,6 @@ void keyboard_handler() {
  */
 void init_keyboard() {
     open();
-    keyboard_buf_pos = 0;
+    keyboard_buf_size = 0;
     enable_irq(KEYBOARD_IRQ);
 }

@@ -332,6 +332,15 @@ void putc(uint8_t c) {
     if(c == '\n' || c == '\r') {
         screen_y = (screen_y + 1) % NUM_ROWS;
         screen_x = 0;
+    } else if (c == '\b') { 
+        if (screen_x > 0) {
+            screen_x--;
+        } else if(screen_y > 0) {
+            screen_x = NUM_COLS - 1;
+            screen_y--;
+        }
+        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = ' ';
+        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
     } else {
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = c;
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;

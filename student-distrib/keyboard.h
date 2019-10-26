@@ -34,7 +34,7 @@
 uint8_t keyboard_flag;
 
 unsigned char keyboard_buf[KEYBOARD_BUF_MAX_SIZE];
-uint8_t keyboard_buf_pos;
+uint8_t keyboard_buf_size;
 
 /**
  * Translate scancode into char

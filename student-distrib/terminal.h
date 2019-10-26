@@ -11,7 +11,6 @@
 
 /* Terminal buffer data */
 unsigned char terminal_buf[MAX_TERMINAL_BUF_SIZE];
-uint8_t last_read_pos;
 uint8_t terminal_buf_size;
 
 /* Driver functions */
