@@ -378,11 +378,11 @@ int keyboard_translation_test() {
 int fs_read_test() {
     clear();
     dentry_t dentry;
-    read_dentry_by_name("verylargetextwithverylongname.tx", &dentry);
+    read_dentry_by_name((uint8_t*)"verylargetextwithverylongname.tx", &dentry);
     uint32_t inode = dentry.inode_idx;
-    char* buf[2000];
+    uint8_t* buf[2000];
     int read_length = 0;
-    read_length = read_data(inode, 0, buf, 2000);
+    read_length = read_data(inode, 1000, (uint8_t*)buf, 2000);
     printf("Bytes: %d; Data Read: %s\n", read_length, buf);
 
     return PASS;
@@ -397,9 +397,9 @@ int fs_test() {
     int i = 0;
     dentry_t dentry;
     while(read_dentry_by_index(i, &dentry) != -1) {
-        printf("[Dentry %d]: name: %s; name_length: %d; type: %d; inode: %d|\n", i, dentry.file_name, strlen(dentry.file_name), dentry.file_type, dentry.inode_idx);
+//        printf("[Dentry %d]: name: %s; name_length: %d; type: %d; inode: %d|\n", i, dentry.file_name, strlen(dentry.file_name), dentry.file_type, dentry.inode_idx);
         dentry_t test_dentry;
-        read_dentry_by_name(dentry.file_name, &test_dentry);
+        read_dentry_by_name((uint8_t*)dentry.file_name, &test_dentry);
         if(strncmp(dentry.file_name, test_dentry.file_name, strlen(dentry.file_name)) != 0) {
             result = FAIL;
             assertion_failure();
