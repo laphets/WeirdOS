@@ -134,3 +134,20 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
 
     return read_num;
 }
+
+
+/** Wrapper file system interface */
+void dir_open() {
+
+}
+
+void dir_read() {
+
+}
+
+void dir_write() {
+}
+
+void dir_close() {
+
+}
