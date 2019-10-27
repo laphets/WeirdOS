@@ -4,6 +4,7 @@
 #include "idt.h"
 #include "keyboard.h"
 #include "paging.h"
+#include "terminal.h"
 
 #define PASS 1
 #define FAIL 0
@@ -381,8 +382,9 @@ int terimal_read_write()
 
     int i;
     int result = PASS;
-	uint16_t check_result;
-	uint8_t fd;
+	int32_t check_result;
+	uint8_t *fd;
+	int32_t fdint;
 
 	check_result = open(fd);
     if(check_result != 0) {
@@ -396,7 +398,7 @@ int terimal_read_write()
 
 	char buf[128];
 	printf("Type something:\n");
-	check_result = read(fd, (unsigned char *)buf, 128);
+	check_result = read(fdint, (unsigned char *)buf, 128);
 	if(check_result == 0) {
             assertion_failure();
             result = FAIL;
@@ -404,21 +406,20 @@ int terimal_read_write()
 
 	printf("Type something:\n");
 
-	if ( read(fd, (unsigned char *)buf, 128) ) ){
-
-		char buf_print = (unsigned char) strlen (buf);
-		for (i = 0; i < strlen(buf_print); i++)
-		 printf("%c \n", buf_print[i]);
+	if ( read(fdint, (unsigned char *)buf, 128) ){
+		for (i = 0; buf[i-1] != '\n'; i++)
+		 printf("%c", buf[i]);
 	}
 
 	printf("Print something with terimal write");
-	check_result = write(fd, (unsigned char *)buf, check_result);
+	check_result = write(fdint, (unsigned char *)buf, check_result);
 	if(check_result == 0) {
             assertion_failure();
             result = FAIL;
     }
 
     return result;
+	
 }
 
 
@@ -432,5 +433,6 @@ void launch_tests()
 {
 	TEST_OUTPUT("idt_test", idt_test());
     TEST_OUTPUT("paging_test", paging_test());
-	TEST_OUTPUT("keyboard_translation_test", keyboard_translation_test());
+	//TEST_OUTPUT("keyboard_translation_test", keyboard_translation_test());
+	TEST_OUTPUT("Terimal_test", terimal_read_write());
 }
