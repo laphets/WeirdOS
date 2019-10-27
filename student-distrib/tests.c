@@ -375,6 +375,54 @@ int keyboard_translation_test() {
 }
 
 /* Checkpoint 2 tests */
+int terimal_read_write()
+{
+    TEST_HEADER;
+
+    int i;
+    int result = PASS;
+	uint16_t check_result;
+	uint8_t fd;
+
+	check_result = open(fd);
+    if(check_result != 0) {
+            assertion_failure();
+            result = FAIL;
+    }
+	if (terminal_buf_size != 0 && enter_pressed_flag != 0){
+		assertion_failure();
+        result = FAIL;
+	}
+
+	char buf[128];
+	printf("Type something:\n");
+	check_result = read(fd, (unsigned char *)buf, 128);
+	if(check_result == 0) {
+            assertion_failure();
+            result = FAIL;
+    }
+
+	printf("Type something:\n");
+
+	if ( read(fd, (unsigned char *)buf, 128) ) ){
+
+		char buf_print = (unsigned char) strlen (buf);
+		for (i = 0; i < strlen(buf_print); i++)
+		 printf("%c \n", buf_print[i]);
+	}
+
+	printf("Print something with terimal write");
+	check_result = write(fd, (unsigned char *)buf, check_result);
+	if(check_result == 0) {
+            assertion_failure();
+            result = FAIL;
+    }
+
+    return result;
+}
+
+
+
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
