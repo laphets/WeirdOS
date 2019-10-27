@@ -411,7 +411,7 @@ int terimal_read_write()
 		 printf("%c", buf[i]);
 	}
 
-	printf("Print something with terimal write");
+	printf("Print something with terimal write:\n");
 	check_result = write(fdint, (unsigned char *)buf, check_result);
 	if(check_result == 0) {
             assertion_failure();
@@ -419,7 +419,7 @@ int terimal_read_write()
     }
 
     return result;
-	
+
 }
 
 
