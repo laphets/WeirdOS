@@ -12,4 +12,4 @@ paging.o: paging.c paging.h types.h lib.h
 rtc.o: rtc.c rtc.h lib.h types.h x86_desc.h i8259.h
 syscall.o: syscall.c syscall.h types.h
 tests.o: tests.c tests.h x86_desc.h types.h lib.h idt.h idthandler.h \
-  keyboard.h i8259.h paging.h
+  keyboard.h i8259.h paging.h rtc.h

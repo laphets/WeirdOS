@@ -44,5 +44,9 @@ void enable_irq(uint32_t irq_num);
 void disable_irq(uint32_t irq_num);
 /* Send end-of-interrupt signal for the specified IRQ */
 void send_eoi(uint32_t irq_num);
+/* Disable (mask) all IRQs and saves flags. CANNOT BE RUN AGAIN BEFORE LOCAL_IRQ_RESTORE OR WILL NEVER RESTORE INTERRUPTS */
+void local_irq_save(void);
+/* Enable (unmask) all IRQs and restores flags */
+void local_irq_restore(void);
 
 #endif /* _I8259_H */

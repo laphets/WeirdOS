@@ -4,6 +4,7 @@
 #include "idt.h"
 #include "keyboard.h"
 #include "paging.h"
+#include "rtc.h"
 
 #define PASS 1
 #define FAIL 0
@@ -98,7 +99,7 @@ int paging_test()
 		assertion_failure();
 		result = FAIL;
 	}
-	deref((int*) VIDEO_MEMORY_START_ADDRESS); // Accesses the first element in video memory. Should not blue screen
+	// deref((int*) VIDEO_MEMORY_START_ADDRESS); // Accesses the first element in video memory. Should not blue screen
 	// deref((int*)-100); // Will cause the kernel to panic "blue screen"
 	// deref(NULL); // Will cause the kernel to panic "blue screen"
 	int b = 391;
@@ -375,6 +376,74 @@ int keyboard_translation_test() {
 }
 
 /* Checkpoint 2 tests */
+
+int rtc_test(){
+	int i, j, result = PASS;
+	uint8_t *filename = NULL;
+	int32_t fd, nbytes = 4;
+	int hertz_array[1];
+	TEST_HEADER;
+	init_rtc();
+	printf("RTC Open Test\n");
+	if(open(filename) != 0){
+		assertion_failure();
+		result = FAIL;
+	}
+	printf("RTC Open Read\n");
+	for (i = 0; i < 1024; i++){
+		read(fd, hertz_array, nbytes);
+		printf("RTC Read %d\n", i);
+	}
+
+	printf("RTC Good Hertz Test\n");
+	for(j = 6; j < 15; j++){
+		hertz_array[0] = hertzmap[j];
+		if (write(fd, (void *)hertz_array, nbytes) != 0){
+			assertion_failure();
+			result = FAIL;
+		}
+		for (i = 0; i < hertzmap[j]; i++){
+			read(fd, hertz_array, nbytes);
+		}
+	}
+
+	printf("RTC High Hertz Test\n");
+	for(j = 3; j < 6; j++){
+		hertz_array[0] = hertzmap[j];
+		if (write(fd, (void *)hertz_array, nbytes) != -1){
+			assertion_failure();
+			result = FAIL;
+		}
+		for (i = 0; i < hertzmap[j]; i++){
+			read(fd, hertz_array, nbytes);
+		}
+	}
+
+	printf("RTC Bad Hertz Test\n");
+	hertz_array[0] = 300;
+	if (write(fd, (void *)hertz_array, nbytes) != -1)
+	{
+		assertion_failure();
+		result = FAIL;
+	}
+
+	printf("RTC Bad Nbytes Test\n");
+	hertz_array[0] = 256;
+	if (write(fd, (void *)hertz_array, 0) != -1)
+	{
+		assertion_failure();
+		result = FAIL;
+	}
+
+	// if (write(fd, NULL, nbytes) != -1)
+	// {
+	// 	assertion_failure();
+	// 	result = FAIL;
+	// }
+
+	return result;
+}
+
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
@@ -382,7 +451,8 @@ int keyboard_translation_test() {
 /* Test suite entry point */
 void launch_tests()
 {
-	TEST_OUTPUT("idt_test", idt_test());
-    TEST_OUTPUT("paging_test", paging_test());
-	TEST_OUTPUT("keyboard_translation_test", keyboard_translation_test());
+	// TEST_OUTPUT("idt_test", idt_test());
+    // TEST_OUTPUT("paging_test", paging_test());
+	// TEST_OUTPUT("keyboard_translation_test", keyboard_translation_test());
+	TEST_OUTPUT("rtc_test", rtc_test());
 }

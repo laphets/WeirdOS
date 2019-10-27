@@ -8,6 +8,8 @@
 /* Interrupt masks to determine which interrupts are enabled and disabled */
 uint8_t master_mask; /* IRQs 0-7  */
 uint8_t slave_mask;  /* IRQs 8-15 */
+uint32_t flags;
+
 
 /* Initialize the 8259 PIC */
 void i8259_init(void) {
@@ -37,6 +39,15 @@ void i8259_init(void) {
     printf("Inited with i8259\n");
 }
 
+
+void local_irq_restore(void){
+    int i;
+    for(i = 0; i < 8; i++){
+        enable_irq(i);
+    }
+    restore_flags(flags);
+}
+
 /* Enable (unmask) the specified IRQ */
 void enable_irq(uint32_t irq_num) {
     uint16_t port;
@@ -50,6 +61,15 @@ void enable_irq(uint32_t irq_num) {
     }
     data = inb(port) & ~(1 << irq_num);
     outb(data, port);
+}
+
+/* Disables all IRQs and disables irq saving flags. CANNOT BE RUN AGAIN BEFORE LOCAL_IRQ_RESTORE OR WILL NEVER RESTORE INTERRUPTS */
+void local_irq_save(void){
+    int i;
+    cli_and_save(flags);
+    for(i = 0; i < 8; i++){
+        disable_irq(i);
+    }
 }
 
 /* Disable (mask) the specified IRQ */

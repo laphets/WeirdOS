@@ -16,6 +16,9 @@
 #define RTC_REGISTER_B 0x8B
 #define RTC_REGISTER_C 0x0C
 
+#define OPEN_RTC_RATE 0xF
+#define MAX_RTC_RATE 1024000
+#define LOW_4_BITS 0xF
 
 int32_t open(const uint8_t* filename);
 int32_t close(int32_t fd);
@@ -31,5 +34,9 @@ void rtc_handler();
  * Init rtc and set rate to 0x0F
  */
 void init_rtc();
+
+/* Since 0000 is no output, we make the map from 1-16 and always skip index 0 */
+static int hertzmap[16] = 
+{NULL, 256, 128, 8192, 4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2};
 
 #endif
