@@ -19,6 +19,7 @@ void reset_cursor_pos();
 
 void update_cursor_pos(int x, int y);
 int get_screen_y();
+int get_screen_x();
 void reset_screen_x();
 void shift_video_up(int num_row_shift);
 void blue_screen();

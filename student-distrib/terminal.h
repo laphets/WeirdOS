@@ -6,12 +6,11 @@
 
 /* Macros for the terminal buffer */
 #define MAX_TERMINAL_BUF_SIZE 128
-#define MAX_LETTERS_IN_ROW 80
-#define MAX_NUM_ROWS 25
 
 /* Terminal buffer data */
-unsigned char terminal_buf[MAX_TERMINAL_BUF_SIZE];
-uint8_t terminal_buf_size;
+char terminal_buf[MAX_TERMINAL_BUF_SIZE];
+uint32_t terminal_buf_size;
+uint8_t enter_pressed_flag;
 
 /* Driver functions */
 int32_t open(const uint8_t* filename);
