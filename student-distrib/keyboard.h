@@ -15,26 +15,25 @@
 #define KEYBOARD_RIGHT_SHIFT_PRESS 0x36
 #define KEYBOARD_LEFT_SHIFT_RELEASE 0xAA
 #define KEYBOARD_RIGHT_SHIFT_RELEASE 0xB6
-#define KEYBOARD_LEFT_CTRL_PRESS 0x1D
-#define KEYBOARD_RIGHT_CTRL_PRESS (0xE0 | 0x1D)
-#define KEYBOARD_LEFT_CTRL_RELEASE 0x9D
-#define KEYBOARD_RIGHT_CTRL_RELEASE (0xE0 | 0x9D)
+#define KEYBOARD_CTRL_PRESS 0x1D
+#define KEYBOARD_CTRL_RELEASE 0x9D
 
 /* Macros for mapping bit masks to keep track of special keys */
 #define CAPS_LOCK_BIT_MASK 0x1
-#define LEFT_SHIFT_BIT_MASK 0x2
-#define RIGHT_SHIFT_BIT_MASK 0x4
-#define LEFT_CTRL_MASK 0x8
-#define RIGHT_CTRL_MASK 0x10
+#define SHIFT_BIT_MASK 0x2
+#define CTRL_MASK 0x4
 
 /* Macros for the keyboard buffer */
 #define KEYBOARD_BUF_MAX_SIZE 128
+#define MAX_LETTERS_IN_ROW 80
+#define MAX_NUM_ROWS 25
 #define NUM_KEYBOARD_BUFS 5
 
 uint8_t keyboard_flag;
 
-unsigned char keyboard_buf[KEYBOARD_BUF_MAX_SIZE];
-uint8_t keyboard_buf_size;
+char keyboard_buf[KEYBOARD_BUF_MAX_SIZE];
+uint32_t keyboard_buf_size;
+
 
 /**
  * Translate scancode into char

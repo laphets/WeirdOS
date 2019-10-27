@@ -348,6 +348,18 @@ void putc(uint8_t c) {
         screen_x %= NUM_COLS;
         screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
     }
+
+    if (screen_x < NUM_COLS) {
+        update_cursor_pos(screen_x, screen_y);
+    } else {
+        if (get_screen_y() >= NUM_ROWS - 1) {
+            shift_video_up(1);
+        } else {
+            screen_y = (screen_y + 1) % NUM_ROWS;
+            screen_x = 0;
+        }
+        update_cursor_pos(screen_x, screen_y);
+    }
 }
 
 /* void shift_video_up(int num_row_shift);
@@ -365,11 +377,14 @@ void shift_video_up(int num_row_shift) {
                 *(uint8_t *)(video_mem + ((NUM_COLS * (row + num_row_shift) + col) << 1) + 1);
         }
     }
-    for (row; row < NUM_ROWS; row++) {
+    for (; row < NUM_ROWS; row++) {
         for(col = 0; col < NUM_COLS; col++) {
             *(uint8_t *)(video_mem + ((NUM_COLS * row + col) << 1)) = ' ';
         }
     }
+    screen_x = 0;
+    update_cursor_pos(screen_x, screen_y);
+
 }
 
 /* int get_screen_y();
@@ -380,12 +395,12 @@ int get_screen_y() {
     return screen_y;
 }
 
-/* void reset_screen_x();
+/* int get_screen_x();
  * Inputs: none
- * Return Value: void
- * Function: Sets the value of screen_y to 0 */
-void reset_screen_x() {
-    screen_x = 0;
+ * Return Value: the current value of screen_x
+ * Function: returns the current value of screen_x */
+int get_screen_x() {
+    return screen_x;
 }
 
 /* int8_t* itoa(uint32_t value, int8_t* buf, int32_t radix);
