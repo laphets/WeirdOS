@@ -94,7 +94,7 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
     /**
      * Then we check whether it has reached end of the file
      */
-    if((offset + length) >= data_length) {
+    if(offset >= data_length) {
         return 0;
     }
 
@@ -140,13 +140,13 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
 /** Wrapper file system interface */
 int32_t dir_open(const uint8_t* filename) {
     dentry_t file_info;
-    read_dentry_by_name(filename, file_info);
+    read_dentry_by_name(filename, &file_info);
     return 0;
 }
 
 int32_t dir_read(int32_t fd, void* buf, int32_t nbytes) {
     dentry_t file_info;
-    read_dentry_by_name(filename, file_info);
+    read_dentry_by_name(buf, &file_info);
     return 0;
 }
 
@@ -163,7 +163,7 @@ int32_t file_open(const uint8_t *filename) {
 }
 
 int32_t file_read(int32_t fd, void *buf, int32_t nbytes) {
-    
+
     return read_data(, 0, buf, nbytes);
 }
 
