@@ -376,7 +376,7 @@ int keyboard_translation_test() {
 }
 
 /* Checkpoint 2 tests */
-int terimal_read_write()
+int terminal_read_write()
 {
     TEST_HEADER;
 
@@ -402,7 +402,7 @@ int terimal_read_write()
 	if(check_result == 0) {
             assertion_failure();
             result = FAIL;
-    }
+    }	
 
 	printf("Type something:\n");
 
@@ -411,7 +411,7 @@ int terimal_read_write()
 		 printf("%c", buf[i]);
 	}
 
-	printf("Print something with terimal write");
+	printf("Print something with terimal write:\n");
 	check_result = write(fdint, (unsigned char *)buf, check_result);
 	if(check_result == 0) {
             assertion_failure();
@@ -421,6 +421,24 @@ int terimal_read_write()
     return result;
 	
 }
+
+int test_for_larger_values(){
+
+    int result = PASS;
+	char string_size[6] = "Hello";
+	int32_t check_result;
+
+	check_result = write(1, (unsigned char *)string_size, 11);
+
+	putc('\n');
+	if(check_result != 5) {
+            assertion_failure();
+            result = FAIL;
+    }
+
+	return result;
+}
+
 
 
 
@@ -434,5 +452,6 @@ void launch_tests()
 	TEST_OUTPUT("idt_test", idt_test());
     TEST_OUTPUT("paging_test", paging_test());
 	//TEST_OUTPUT("keyboard_translation_test", keyboard_translation_test());
-	TEST_OUTPUT("Terimal_test", terimal_read_write());
+	//TEST_OUTPUT("Terimal_test", terminal_read_write());
+	TEST_OUTPUT("Test_for_larger_values", test_for_larger_values());
 }
