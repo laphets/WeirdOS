@@ -419,7 +419,7 @@ int terminal_read_write()
     }
 
     return result;
-	
+
 }
 
 int test_for_larger_values(){
