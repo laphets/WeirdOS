@@ -24,9 +24,24 @@ typedef struct boot_block {
     uint8_t reserved[52];
 } boot_block_t;
 
+typedef struct inode {
+    int32_t length;
+    int32_t data_block_num[1023];
+} inode;
+
 void init_fs(uint32_t fs_start_addr, uint32_t fs_end_addr);
 int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry);
 int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry);
 int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length);
+
+int32_t dir_open(const uint8_t *filename);
+int32_t dir_read(int32_t fd, void *buf, int32_t nbytes);
+int32_t dir_write(int32_t fd, const void *buf, int32_t nbytes);
+int32_t dir_close(int32_t fd);
+
+int32_t file_open(const uint8_t *filename);
+int32_t file_read(int32_t fd, void *buf, int32_t nbytes);
+int32_t file_write(int32_t fd, const void *buf, int32_t nbytes);
+int32_t file_close(int32_t fd);
 
 #endif //MP3_GROUP_42_FS_H
