@@ -37,8 +37,9 @@ int idt_test()
 {
 	TEST_HEADER;
 
-	int i;
+	unsigned int i;
 	int result = PASS;
+	
 	for (i = 0; i < 10; ++i) {
 		if ((idt[i].offset_15_00 == NULL) &&
 			(idt[i].offset_31_16 == NULL)) {
@@ -64,6 +65,10 @@ int idt_test()
 			assertion_failure();
 			result = FAIL;
 		}
+
+		/* Divide by zero exception test */
+		// i = i / 0;
+
 	return result;
 }
 
