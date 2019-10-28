@@ -6,11 +6,12 @@ i8259.o: i8259.c i8259.h types.h lib.h
 idt.o: idt.c idt.h lib.h types.h x86_desc.h idthandler.h
 idthandler.o: idthandler.c idt.h lib.h types.h x86_desc.h idthandler.h
 kernel.o: kernel.c multiboot.h types.h x86_desc.h lib.h i8259.h idt.h \
-  idthandler.h rtc.h keyboard.h paging.h fs.h debug.h tests.h
-keyboard.o: keyboard.c keyboard.h lib.h types.h i8259.h
+  idthandler.h rtc.h keyboard.h terminal.h paging.h fs.h debug.h tests.h
+keyboard.o: keyboard.c keyboard.h lib.h types.h i8259.h terminal.h
 lib.o: lib.c lib.h types.h
 paging.o: paging.c paging.h types.h lib.h
 rtc.o: rtc.c rtc.h lib.h types.h x86_desc.h i8259.h
 syscall.o: syscall.c syscall.h types.h
+terminal.o: terminal.c terminal.h keyboard.h lib.h types.h i8259.h
 tests.o: tests.c tests.h x86_desc.h types.h lib.h idt.h idthandler.h \
-  keyboard.h i8259.h paging.h fs.h
+  keyboard.h i8259.h terminal.h paging.h fs.h

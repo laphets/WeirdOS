@@ -131,6 +131,9 @@ void keyboard_handler() {
     /* Check to not print when scancode is non pritable */
     if (0 != (ascii = scancode2char(scancode))) {
         if ((ascii == '\b') && (keyboard_buf_size > 0)) {
+            /**
+             * Check for Backspace
+             */
             keyboard_buf_size--;
             putc(ascii);
         } else if (ascii == '\n' || ascii == '\r') {
