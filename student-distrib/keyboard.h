@@ -21,7 +21,7 @@
 /* Macros for mapping bit masks to keep track of special keys */
 #define CAPS_LOCK_BIT_MASK 0x1
 #define SHIFT_BIT_MASK 0x2
-#define CTRL_MASK 0x4
+#define CTRL_BIT_MASK 0x4
 
 /* Macros for the keyboard buffer */
 #define KEYBOARD_BUF_MAX_SIZE 128

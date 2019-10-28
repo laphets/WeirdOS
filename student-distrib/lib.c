@@ -42,6 +42,7 @@ void update_cursor_pos(int x, int y) {
 void reset_cursor_pos() {
     screen_y = 0;
     screen_x = 0;
+    update_cursor_pos(screen_x, screen_y);
 }
 
 void putc_error(uint8_t c) {
@@ -330,8 +331,13 @@ int32_t puts(int8_t* s) {
  *  Function: Output a character to the console */
 void putc(uint8_t c) {
     if(c == '\n' || c == '\r') {
-        screen_y = (screen_y + 1) % NUM_ROWS;
-        screen_x = 0;
+        if (get_screen_y() >= NUM_ROWS - 1) {
+            shift_video_up(1);
+        } else {
+            screen_y = (screen_y + 1) % NUM_ROWS;
+            screen_x = 0;
+        }
+        update_cursor_pos(screen_x, screen_y);
     } else if (c == '\b') { 
         if (screen_x > 0) {
             screen_x--;

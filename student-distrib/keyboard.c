@@ -6,16 +6,16 @@
  * http://www.osdever.net/bkerndev/Docs/keyboard.htm
  */
 static unsigned char kbdus[256] = {
-    0,27,'1','2','3','4','5','6','7','8',
-    '9','0','-','=','\b','\t','q','w','e','r',
-    't','y','u','i','o','p','[',']','\n',0,
-    'a','s','d','f','g','h','j','k','l',';',
-    '\'','`',0,'\\','z','x','c','v','b','n',
-    'm',',','.','/',0,'*',0,' ',0,
-    0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,'-',0,0,0,'+',
-    0,0,0,0,0,0,0,0,0,0,
-    0,
+    0   ,27 ,'1','2' ,'3' ,'4' ,'5','6','7' ,'8',
+    '9' ,'0','-','=' ,'\b','\t','q','w','e' ,'r',
+    't' ,'y','u','i' ,'o' ,'p' ,'[',']','\n',0  ,
+    'a' ,'s','d','f' ,'g' ,'h' ,'j','k','l' ,';',
+    '\'','`',0  ,'\\','z' ,'x' ,'c','v','b' ,'n',
+    'm' ,',','.','/' ,0   ,'*' ,0  ,' ',0   ,0  ,
+    0   ,0  ,0  ,0   ,0   ,0   ,0  ,0  ,0   ,0  ,
+    0   ,0  ,0  ,0   ,'-' ,0   ,0  ,0  ,'+' ,0  ,
+    0   ,0  ,0  ,0   ,0   ,0   ,0  ,0  ,0   ,0  ,
+    0, /* Rest are 0 */
 };
 
 /*
@@ -53,10 +53,10 @@ char handle_keybaord_flags(uint8_t scancode) {
         keyboard_flag &= ~SHIFT_BIT_MASK;
         return 1;
     }  else if (scancode == KEYBOARD_CTRL_PRESS) {
-        keyboard_flag |= CTRL_MASK;
+        keyboard_flag |= CTRL_BIT_MASK;
         return 1;
     } else if (scancode == KEYBOARD_CTRL_RELEASE) {
-        keyboard_flag &= ~CTRL_MASK;
+        keyboard_flag &= ~CTRL_BIT_MASK;
         return 1;
     }
     return 0;
@@ -68,7 +68,13 @@ char handle_keybaord_flags(uint8_t scancode) {
  * Function: Looks at the scancode to determine if a special
  *          key was pressed that should be kept track of.
  */
-char handle_special_keys(uint8_t scancode) {
+char handle_special_keys(uint8_t ascii) {
+    /* Checks if CTRL-L is pressed to clear screen and reset cursor*/
+    if ((keyboard_flag & CTRL_BIT_MASK) && (ascii == 'l')) {
+        clear();
+        reset_cursor_pos();
+        return 1;
+    }
     return 0;
 }
 
@@ -93,10 +99,8 @@ scancode2char(uint8_t scancode)
     /* Convert the scancode to the ascii equivalent */
     ascii = kbdus[scancode];
 
-    /* Checks if CTRL-L is pressed to clear screen and reset cursor*/
-    if ((keyboard_flag & CTRL_MASK) && (ascii == 'l')) {
-        clear();
-        reset_cursor_pos();
+    /* Checks if a special combination has been pressed */
+    if (handle_special_keys(ascii)) {
         return 0;
     }
 
@@ -160,7 +164,7 @@ void keyboard_handler() {
  * Routine to init keyboard
  */
 void init_keyboard() {
-    open(NULL);
     keyboard_buf_size = 0;
+    keyboard_flag = 0;
     enable_irq(KEYBOARD_IRQ);
 }

@@ -5,6 +5,7 @@
 #include "keyboard.h"
 #include "paging.h"
 #include "terminal.h"
+#include "types.h"
 
 #define PASS 1
 #define FAIL 0
@@ -156,30 +157,6 @@ int paging_test()
 	return result;
 }
 
-/* Keyboard Test
- *
- * Asserts scancode translation is correct
- * Inputs: None
- * Outputs: PASS/FAIL
-
- */
-int keyboard_test()
-{
-    TEST_HEADER;
-
-    int i;
-    int result = PASS;
-
-    for(i = 2; i <= 10; i++) {
-        if(scancode2char(i) != ('0'+i - 1)) {
-            assertion_failure();
-            result = FAIL;
-        }
-    }
-
-    return result;
-}
-
 /*
  * Turn a scancode to a ascii character
  * Input: scancode number
@@ -198,195 +175,188 @@ int keyboard_handler_tester(uint8_t scancode) {
  * Files: keyboard.h/S
  */
 int keyboard_translation_test() {
+	TEST_HEADER;
+	int result = PASS;
 	if (0 != keyboard_handler_tester(0x0)) {
-		return FAIL;
+		printf("0x0");result = FAIL;
 	}
 	if (27 != keyboard_handler_tester(0x1)) {
-		return FAIL;
+		printf("0x1");result = FAIL;
 	}
 	if ('1' != keyboard_handler_tester(0x2)) {
-		return FAIL;
+		printf("0x2"); result = FAIL;
 	}
 	if ('2' != keyboard_handler_tester(0x3)) {
-		return FAIL;
+		printf("0x3"); result = FAIL;
 	}
 	if ('3' != keyboard_handler_tester(0x4)) {
-		return FAIL;
+		printf("0x4"); result = FAIL;
 	}
 	if ('4' != keyboard_handler_tester(0x5)) {
-		return FAIL;
+		printf("0x5"); result = FAIL;
 	}
 	if ('5' != keyboard_handler_tester(0x6)) {
-		return FAIL;
+		printf("0x6"); result = FAIL;
 	}
 	if ('6' != keyboard_handler_tester(0x7)) {
-		return FAIL;
+		printf("0x7"); result = FAIL;
 	}
 	if ('7' != keyboard_handler_tester(0x8)) {
-		return FAIL;
+		printf("0x8"); result = FAIL;
 	}
 	if ('8' != keyboard_handler_tester(0x9)) {
-		return FAIL;
+		printf("0x9"); result = FAIL;
 	}
 	if ('9' != keyboard_handler_tester(0xA)) {
-		return FAIL;
+		printf("0xA"); result = FAIL;
 	}
 	if ('0' != keyboard_handler_tester(0xB)) {
-		return FAIL;
+		printf("0xB"); result = FAIL;
 	}
 	if ('-' != keyboard_handler_tester(0xC)) {
-		return FAIL;
+		printf("0xC"); result = FAIL;
 	}
 	if ('=' != keyboard_handler_tester(0xD)) {
-		return FAIL;
+		printf("0xD"); result = FAIL;
 	}
 	if ('\b' != keyboard_handler_tester(0xE)) {
-		return FAIL;
+		printf("0xE"); result = FAIL;
 	}
 	if ('\t' != keyboard_handler_tester(0xF)) {
-		return FAIL;
+		printf("0xF"); result = FAIL;
 	}
 	if ('q' != keyboard_handler_tester(0x10)) {
-		return FAIL;
+		printf("0x10"); result = FAIL;
 	}
 	if ('w' != keyboard_handler_tester(0x11)) {
-		return FAIL;
+		printf("0x11"); result = FAIL;
 	}
 	if ('e' != keyboard_handler_tester(0x12)) {
-		return FAIL;
+		printf("0x12"); result = FAIL;
 	}
 	if ('r' != keyboard_handler_tester(0x13)) {
-		return FAIL;
+		printf("0x13"); result = FAIL;
 	}
 	if ('t' != keyboard_handler_tester(0x14)) {
-		return FAIL;
+		printf("0x14"); result = FAIL;
 	}
 	if ('y' != keyboard_handler_tester(0x15)) {
-		return FAIL;
+		printf("0x15"); result = FAIL;
 	}
 	if ('u' != keyboard_handler_tester(0x16)) {
-		return FAIL;
+		printf("0x16"); result = FAIL;
 	}
 	if ('i' != keyboard_handler_tester(0x17)) {
-		return FAIL;
+		printf("0x17"); result = FAIL;
 	}
 	if ('o' != keyboard_handler_tester(0x18)) {
-		return FAIL;
+		printf("0x18"); result = FAIL;
 	}
 	if ('p' != keyboard_handler_tester(0x19)) {
-		return FAIL;
+		printf("0x19"); result = FAIL;
 	}
 	if ('[' != keyboard_handler_tester(0x1A)) {
-		return FAIL;
+		printf("0x1A"); result = FAIL;
 	}
 	if (']' != keyboard_handler_tester(0x1B)) {
-		return FAIL;
+		printf("0x1B"); result = FAIL;
 	}
 	if ('\n' != keyboard_handler_tester(0x1C)) {
-		return FAIL;
-	}
-	if (0 != keyboard_handler_tester(0x1D)) {
-		return FAIL;
+		printf("0x1C"); result = FAIL;
 	}
 	if ('a' != keyboard_handler_tester(0x1E)) {
-		return FAIL;
+		printf("0x1E"); result = FAIL;
 	}
 	if ('s' != keyboard_handler_tester(0x1F)) {
-		return FAIL;
+		printf("0x1F"); result = FAIL;
 	}
 	if ('d' != keyboard_handler_tester(0x20)) {
-		return FAIL;
+		printf("0x20"); result = FAIL;
 	}
 	if ('f' != keyboard_handler_tester(0x21)) {
-		return FAIL;
+		printf("0x21"); result = FAIL;
 	}
 	if ('g' != keyboard_handler_tester(0x22)) {
-		return FAIL;
+		printf("0x22"); result = FAIL;
 	}
 	if ('h' != keyboard_handler_tester(0x23)) {
-		return FAIL;
+		printf("0x23"); result = FAIL;
 	}
 	if ('j' != keyboard_handler_tester(0x24)) {
-		return FAIL;
+		printf("0x24"); result = FAIL;
 	}
 	if ('k' != keyboard_handler_tester(0x25)) {
-		return FAIL;
+		printf("0x25"); result = FAIL;
 	}
 	if ('l' != keyboard_handler_tester(0x26)) {
-		return FAIL;
+		printf("0x26"); result = FAIL;
 	}
 	if (';' != keyboard_handler_tester(0x27)) {
-		return FAIL;
+		printf("0x27"); result = FAIL;
 	}
 	if ('\'' != keyboard_handler_tester(0x28)) {
-		return FAIL;
+		printf("0x28"); result = FAIL;
 	}
 	if ('`' != keyboard_handler_tester(0x29)) {
-		return FAIL;
-	}
-	if (0 != keyboard_handler_tester(0x2A)) {
-		return FAIL;
+		printf("0x29"); result = FAIL;
 	}
 	if ('\\' != keyboard_handler_tester(0x2B)) {
-		return FAIL;
+		printf("0x2B"); result = FAIL;
 	}
 	if ('z' != keyboard_handler_tester(0x2C)) {
-		return FAIL;
+		printf("0x2C"); result = FAIL;
 	}
 	if ('x' != keyboard_handler_tester(0x2D)) {
-		return FAIL;
+		printf("0x2D"); result = FAIL;
 	}
 	if ('c' != keyboard_handler_tester(0x2E)) {
-		return FAIL;
+		printf("0x2E"); result = FAIL;
 	}
 	if ('v' != keyboard_handler_tester(0x2F)) {
-		return FAIL;
+		printf("0x2F"); result = FAIL;
 	}
 	if ('b' != keyboard_handler_tester(0x30)) {
-		return FAIL;
+		printf("0x30"); result = FAIL;
 	}
 	if ('n' != keyboard_handler_tester(0x31)) {
-		return FAIL;
+		printf("0x31"); result = FAIL;
 	}
 	if ('m' != keyboard_handler_tester(0x32)) {
-		return FAIL;
+		printf("0x32"); result = FAIL;
 	}
 	if (',' != keyboard_handler_tester(0x33)) {
-		return FAIL;
+		printf("0x33"); result = FAIL;
 	}
 	if ('.' != keyboard_handler_tester(0x34)) {
-		return FAIL;
+		printf("0x34"); result = FAIL;
 	}
 	if ('/' != keyboard_handler_tester(0x35)) {
-		return FAIL;
-	}
-	if (0 != keyboard_handler_tester(0x36)) {
-		return FAIL;
+		printf("0x35"); result = FAIL;
 	}
 	if ('*' != keyboard_handler_tester(0x37)) {
-		return FAIL;
+		printf("0x37"); result = FAIL;
 	}
 	if (0 != keyboard_handler_tester(0x38)) {
-		return FAIL;
+		printf("0x38"); result = FAIL;
 	}
 	if (' ' != keyboard_handler_tester(0x39)) {
-		return FAIL;
+		printf("0x39"); result = FAIL;
 	}
-	return PASS;
+	return result;
 }
 
 /* Checkpoint 2 tests */
-int terminal_read_write()
-{
+int terminal_read_write() {
     TEST_HEADER;
 
-    int i;
+    int i, buf_size = 0;
     int result = PASS;
 	int32_t check_result;
 	uint8_t *fd;
 	int32_t fdint;
 
-	check_result = open(fd);
+	/* Test terminal_open function */
+	check_result = terminal_open(fd);
     if(check_result != 0) {
             assertion_failure();
             result = FAIL;
@@ -396,54 +366,65 @@ int terminal_read_write()
         result = FAIL;
 	}
 
-	char buf[128];
+	/* Test terminal_close function */
+	check_result = terminal_close(fdint);
+    if(check_result != 0) {
+            assertion_failure();
+            result = FAIL;
+    }
+
+	/* Test terminal_close and terminal_write function */
+	char buf[200];
 	printf("Type something:\n");
-	check_result = read(fdint, (unsigned char *)buf, 128);
+	check_result = terminal_read(fdint, (unsigned char *)buf, 128);
+	
+	/* Check for return value */
 	if(check_result == 0) {
             assertion_failure();
             result = FAIL;
-    }	
+    }
 
-	printf("Type something:\n");
-
-	if ( read(fdint, (unsigned char *)buf, 128) ){
-		for (i = 0; buf[i-1] != '\n'; i++)
-		 printf("%c", buf[i]);
+	/* Check for buf greater that 128 bytes */
+	check_result = 1;
+	for (i = 0; i < 128; i++) {
+		if(buf[i] == '\n' || buf[i] == '\r') {
+			check_result = 0;
+			buf_size = i;
+			break;
+		}
+	}
+	if (check_result) {
+		assertion_failure();
+        result = FAIL;
 	}
 
-	printf("Print something with terimal write:\n");
-	check_result = write(fdint, (unsigned char *)buf, check_result);
-	if(check_result == 0) {
+	/* Check for succesfull keyboard echo and write functionality */
+	buf[++buf_size] = '\0';
+	printf("%s", buf);
+	check_result = terminal_write(fdint, buf, buf_size);
+	printf("Depending if the last three strings printed are the same type y/n:");
+	terminal_read(fdint, buf, 0);
+	if(buf[0] == 'n') {
+		assertion_failure();
+        result = FAIL;
+	}
+
+	// /* Check return value of termianl_write */
+	// if (check_result != buf_size) {
+	// 	assertion_failure();
+    //     result = FAIL;
+	// }
+
+	/* Check result for writing more bytes than available termianl_write */
+	char buf2[17] = "Wrong Size Test\n\0";
+	check_result = terminal_write(1, (unsigned char *)buf2, 30);
+	if(check_result != 16) {
             assertion_failure();
             result = FAIL;
     }
 
     return result;
-
 }
-
-/*
-This function is causing page faulting. Check for the larger values
-
-
-int test_for_larger_values(){
-
-    int result = PASS;
-	char string_size[6] = "Hello";
-	int32_t check_result;
-
-	check_result = write(1, (unsigned char *)string_size, 11);
-
-	putc('\n');
-	if(check_result != 5) {
-            assertion_failure();
-            result = FAIL;
-    }
-
-	return result;
-}
-*/
-
 
 
 /* Checkpoint 3 tests */
@@ -455,7 +436,6 @@ void launch_tests()
 {
 	TEST_OUTPUT("idt_test", idt_test());
     TEST_OUTPUT("paging_test", paging_test());
-	//TEST_OUTPUT("keyboard_translation_test", keyboard_translation_test());
+	TEST_OUTPUT("keyboard_translation_test", keyboard_translation_test());
 	TEST_OUTPUT("Terimal_test", terminal_read_write());
-	//TEST_OUTPUT("Test_for_larger_values", test_for_larger_values());
 }
