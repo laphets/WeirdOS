@@ -61,3 +61,6 @@ student-distrib/mp3.img
 
 # cmake
 cmake-build-debug
+
+# Makefile.dep
+student-distrib/Makefile.dep
