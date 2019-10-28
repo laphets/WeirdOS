@@ -351,10 +351,11 @@ int keyboard_translation_test() {
  * Do some test for the fs read
  * Will first try to get the file to read
  * Then print out the file content up to some bytes
+ * Since fd is not working for this cp, we just set them to any number
  */
 int fs_read_test() {
     TEST_HEADER;
-    char buf[200];
+    char buf[200]; /* 200 is the continer size we want to read from terminal */
     printf("Type the file name you want to read:\n");
     terminal_read(1, (unsigned char *)buf, 200);
 
@@ -367,7 +368,7 @@ int fs_read_test() {
 
     int read_length = 0;
     int total_length = 0;
-    uint8_t* data[200];
+    uint8_t* data[200]; /* 200 is the continer size each time we want to read something */
     while((read_length = file_read(0, (uint8_t*)data, 200)) != 0) {
         if(read_length == -1) {
             return FAIL;
@@ -400,13 +401,14 @@ int fs_read_test() {
 
     /* Then test for read by index */
     dentry_t dentry_testidx;
+    printf("Testing for read_dentry_by_index...\n");
     read_dentry_by_index(14, &dentry_testidx);
     if(file_open((const uint8_t*)dentry_testidx.file_name) == -1) {
         printf("File Not Exist\n");
         return FAIL;
     }
     int read_length_testidx = 0;
-    uint8_t* data_testidx[300];
+    uint8_t* data_testidx[300]; /* 300 is the continer size each time we want to read something */
     while((read_length_testidx = file_read(0, (uint8_t*)data_testidx, 300)) != 0) {
         if(read_length_testidx == -1) {
             return FAIL;
@@ -422,6 +424,7 @@ int fs_read_test() {
 /**
  * Test for file system listfiles functionality
  * will try to test for dir_open, dir_close, dir_read and dir_write
+ * Since fd is not working for this cp, we just set them to any number
  * @return pass or fail
  */
 int fs_listfiles_test() {
@@ -430,7 +433,7 @@ int fs_listfiles_test() {
     int result = PASS;
 
     int32_t cnt;
-    uint8_t buf[33];
+    uint8_t buf[33];    /*  32 is the max file_name size, we need one more for terminator */
 
     /* Try to open a directory */
     if (dir_open ((uint8_t*)".") == -1) {
@@ -438,11 +441,12 @@ int fs_listfiles_test() {
     }
 
     /* Try read the directory */
+    /* 32 is the max file_name size */
     while (0 != (cnt = dir_read(0, buf, 32))) {
         if (-1 == cnt) {
             return FAIL;
         }
-        buf[cnt] = '\0';
+        buf[cnt] = '\0';    /* '\0' is the string termiantor */
 
         dentry_t dentry;
         read_dentry_by_name((uint8_t*)buf, &dentry);
@@ -546,6 +550,7 @@ int terminal_read_write() {
 	// }
 
 	/* Check result for writing more bytes than available termianl_write */
+	/* 50 is the enough size for buf container */
 	char buf2[50] = "Tesing for terminal_write...\n\0";
 	check_result = terminal_write(1, (unsigned char *)buf2, strlen(buf2));
 	if(check_result != strlen(buf2)) {
@@ -555,8 +560,6 @@ int terminal_read_write() {
 
     return result;
 }
-
-/* Checkpoint 2 tests */
 
 /* RTC Test:
  * Opens the RTC and tests the handler for 5 seconds @ 2 Hz
