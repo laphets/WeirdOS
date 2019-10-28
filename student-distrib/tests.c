@@ -368,8 +368,8 @@ int fs_read_test() {
 
     int read_length = 0;
     int total_length = 0;
-    uint8_t* data[2000];
-    while((read_length = file_read(0, (uint8_t*)data, 2000)) != 0) {
+    uint8_t* data[200];
+    while((read_length = file_read(0, (uint8_t*)data, 200)) != 0) {
         if(read_length == -1) {
             return FAIL;
         }
@@ -383,13 +383,11 @@ int fs_read_test() {
         printf("File Not Exist\n");
         return FAIL;
     }
+//    uint8_t* dentry_data[6000];
+//    int32_t byte_read = read_data(dentry.inode_idx, 0, (uint8_t*)dentry_data, 6000);
+//    terminal_write(1, dentry_data, 6000);
+//    printf("\nbyte_read: %d\n", byte_read);
 
-    /*
-    uint8_t* dentry_data[6000];
-    int32_t byte_read = read_data(dentry.inode_idx, 0, (uint8_t*)dentry_data, 6000);
-    terminal_write(1, dentry_data, byte_read);
-    printf("byte_read: %d\n", byte_read);
-     */
 
     printf("file_name: %s, file_size: %d\n",dentry.file_name, read_file_size(dentry.inode_idx));
 
@@ -644,3 +642,4 @@ void launch_tests()
 	TEST_OUTPUT("Terimal_test", terminal_read_write());
 	TEST_OUTPUT("rtc_test", rtc_test());
 }
+
