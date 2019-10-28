@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="Project"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="clang"/>
+		<Option virtualFolders="CMake Files\;CMake Files\student-distrib\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/Users/laphets/Code/mp3_group_42/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/local/bin/gmake -j4 -f &quot;/Users/laphets/Code/mp3_group_42/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/local/bin/gmake -j4 -f &quot;/Users/laphets/Code/mp3_group_42/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/local/bin/gmake -j4 -f &quot;/Users/laphets/Code/mp3_group_42/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/local/bin/gmake -j4 -f &quot;/Users/laphets/Code/mp3_group_42/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/Users/laphets/Code/mp3_group_42/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/local/bin/gmake -j4 -f &quot;/Users/laphets/Code/mp3_group_42/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/local/bin/gmake -j4 -f &quot;/Users/laphets/Code/mp3_group_42/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/local/bin/gmake -j4 -f &quot;/Users/laphets/Code/mp3_group_42/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/local/bin/gmake -j4 -f &quot;/Users/laphets/Code/mp3_group_42/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/Users/laphets/Code/mp3_group_42/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/local/bin/gmake -j4 -f &quot;/Users/laphets/Code/mp3_group_42/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/local/bin/gmake -j4 -f &quot;/Users/laphets/Code/mp3_group_42/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/local/bin/gmake -j4 -f &quot;/Users/laphets/Code/mp3_group_42/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/local/bin/gmake -j4 -f &quot;/Users/laphets/Code/mp3_group_42/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="mp3">
+				<Option output="/Users/laphets/Code/mp3_group_42/cmake-build-debug/student-distrib/mp3" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/laphets/Code/mp3_group_42/cmake-build-debug/student-distrib"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.0/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/local/bin/gmake -j4 -f &quot;/Users/laphets/Code/mp3_group_42/cmake-build-debug/student-distrib/Makefile&quot;  VERBOSE=1 mp3"/>
+					<CompileFile command="/usr/local/bin/gmake -j4 -f &quot;/Users/laphets/Code/mp3_group_42/cmake-build-debug/student-distrib/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/local/bin/gmake -j4 -f &quot;/Users/laphets/Code/mp3_group_42/cmake-build-debug/student-distrib/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/local/bin/gmake -j4 -f &quot;/Users/laphets/Code/mp3_group_42/cmake-build-debug/student-distrib/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="mp3/fast">
+				<Option output="/Users/laphets/Code/mp3_group_42/cmake-build-debug/student-distrib/mp3" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/laphets/Code/mp3_group_42/cmake-build-debug/student-distrib"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.0/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/local/bin/gmake -j4 -f &quot;/Users/laphets/Code/mp3_group_42/cmake-build-debug/student-distrib/Makefile&quot;  VERBOSE=1 mp3/fast"/>
+					<CompileFile command="/usr/local/bin/gmake -j4 -f &quot;/Users/laphets/Code/mp3_group_42/cmake-build-debug/student-distrib/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/local/bin/gmake -j4 -f &quot;/Users/laphets/Code/mp3_group_42/cmake-build-debug/student-distrib/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/local/bin/gmake -j4 -f &quot;/Users/laphets/Code/mp3_group_42/cmake-build-debug/student-distrib/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/debug.h">
+			<Option target="mp3"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/fs.c">
+			<Option target="mp3"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/fs.h">
+			<Option target="mp3"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/i8259.c">
+			<Option target="mp3"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/i8259.h">
+			<Option target="mp3"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/idt.c">
+			<Option target="mp3"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/idt.h">
+			<Option target="mp3"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/idthandler.c">
+			<Option target="mp3"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/idthandler.h">
+			<Option target="mp3"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/kernel.c">
+			<Option target="mp3"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/keyboard.c">
+			<Option target="mp3"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/keyboard.h">
+			<Option target="mp3"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/lib.c">
+			<Option target="mp3"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/lib.h">
+			<Option target="mp3"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/multiboot.h">
+			<Option target="mp3"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/paging.c">
+			<Option target="mp3"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/paging.h">
+			<Option target="mp3"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/rtc.c">
+			<Option target="mp3"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/rtc.h">
+			<Option target="mp3"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/syscall.c">
+			<Option target="mp3"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/syscall.h">
+			<Option target="mp3"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/terminal.c">
+			<Option target="mp3"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/terminal.h">
+			<Option target="mp3"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/tests.c">
+			<Option target="mp3"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/tests.h">
+			<Option target="mp3"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/types.h">
+			<Option target="mp3"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/x86_desc.h">
+			<Option target="mp3"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/Users/laphets/Code/mp3_group_42/student-distrib/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\student-distrib\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

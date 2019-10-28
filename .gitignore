@@ -54,3 +54,7 @@ dkms.conf
 # vscode and idea
 .vscode
 .idea
+
+# some build image
+student-distrib/bootimg
+student-distrib/mp3.img

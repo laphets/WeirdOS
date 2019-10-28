@@ -1,0 +1,5 @@
+/Users/laphets/Code/mp3_group_42/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/laphets/Code/mp3_group_42/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/laphets/Code/mp3_group_42/cmake-build-debug/student-distrib/CMakeFiles/rebuild_cache.dir
+/Users/laphets/Code/mp3_group_42/cmake-build-debug/student-distrib/CMakeFiles/edit_cache.dir
+/Users/laphets/Code/mp3_group_42/cmake-build-debug/student-distrib/CMakeFiles/mp3.dir
