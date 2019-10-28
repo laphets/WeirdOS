@@ -607,16 +607,18 @@ int8_t* strncpy(int8_t* dest, const int8_t* src, uint32_t n) {
     return dest;
 }
 
-/* void test_interrupts(void)
- * Inputs: void
+/* void test_interrupts(uint32_t count)
+ * Inputs: count -- # of interrupts after last change in RTC rate
  * Return Value: void
- * Function: increments video memory. To be used to test rtc */
-void test_interrupts(void) {
-    int32_t i;
-    for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
-        /* Remain some space for keyboard echo */
-        if(i % NUM_COLS <= 24)
-            continue;
-        video_mem[i << 1]++;
-    }
+ * Function: Updates a counter in the top right corner. To be used to test rtc */
+void test_interrupts(uint32_t count) {
+    // int32_t i;
+    // for (i = 0; i < 1 * NUM_COLS; i++) {
+    //     /* Remain some space for keyboard echo */
+    //     if(i % NUM_COLS <= 77)
+    //         continue;
+    //     video_mem[i << 1]++;
+    // }
+    video_mem[(TOP_RIGHT_CHAR - 1) << 1] = count % 100 / 10 + '0';
+    video_mem[TOP_RIGHT_CHAR << 1] = count % 10 + '0';
 }

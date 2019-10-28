@@ -8,6 +8,8 @@
 /* Interrupt masks to determine which interrupts are enabled and disabled */
 uint8_t master_mask; /* IRQs 0-7  */
 uint8_t slave_mask;  /* IRQs 8-15 */
+uint32_t flags;
+
 
 /* Initialize the 8259 PIC */
 void i8259_init(void) {
@@ -36,6 +38,7 @@ void i8259_init(void) {
 
     printf("Inited with i8259\n");
 }
+
 
 /* Enable (unmask) the specified IRQ */
 void enable_irq(uint32_t irq_num) {
