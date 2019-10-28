@@ -105,7 +105,7 @@ int paging_test()
 		assertion_failure();
 		result = FAIL;
 	}
-	// deref((int*) VIDEO_MEMORY_START_ADDRESS); // Accesses the first element in video memory. Should not blue screen
+	deref((int*) VIDEO_MEMORY_START_ADDRESS); // Accesses the first element in video memory. Should not blue screen
 	// deref((int*)-100); // Will cause the kernel to panic "blue screen"
 	// deref(NULL); // Will cause the kernel to panic "blue screen"
 	int b = 391;

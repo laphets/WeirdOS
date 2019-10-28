@@ -1,7 +1,7 @@
 #include "rtc.h"
 #include "i8259.h"
 
-static uint32_t count = 0;
+volatile static uint32_t count = 0;
 volatile char wait = 0;
 uint32_t hertzmap[16] = {NULL, 256, 128, 8192, 4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2};
 
