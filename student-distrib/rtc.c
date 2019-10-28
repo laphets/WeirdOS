@@ -3,16 +3,16 @@
 
 static uint32_t count = 0;
 volatile char wait = 0;
-unsigned int rate = 0;
+uint32_t hertzmap[16] = {NULL, 256, 128, 8192, 4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2};
 
-/* int32_t open(const uint8_t *filename);
+/* int32_t rtc_open(const uint8_t *filename);
  * Description: Updates the clock to 2 Hz when 
  *              the RTC is opened
  * Input: filename -- Unused inside the function
  * Output: Returns 0 on success
  * Side effect: Updates the clock to 2 Hz 
  */
-int32_t open(const uint8_t *filename) {
+int32_t rtc_open(const uint8_t *filename) {
     int rate = OPEN_RTC_RATE;
     char prev;
     /* Read value in previous in register A */
@@ -21,20 +21,22 @@ int32_t open(const uint8_t *filename) {
     /* Enable  Update in Progress & Set rate to 2 Hz*/
     outb(RTC_REGISTER_A, RTC_PORT_SELECT);
     outb((prev & 0xF0) | rate, RTC_PORT_DATA);
+
+    count = 0;
     return 0;
 }
 
-/* int32_t close(int32_t fd);
+/* int32_t rtc_close(int32_t fd);
  * Description: Has no function
  * Input: fd -- Unused inside the function
  * Output: Returns 0 on success
  * Side effect: none
  */
-int32_t close(int32_t fd) {
+int32_t rtc_close(int32_t fd) {
     return 0;
 }
 
-/* int32_t read(int32_t fd, void *buf, int32_t nbytes);
+/* int32_t rtc_read(int32_t fd, void *buf, int32_t nbytes);
  * Description: Sets the wait flag to 1 & waits until 
  *              the RTC interrupt to clear the flag 
  *              before returning
@@ -44,7 +46,7 @@ int32_t close(int32_t fd) {
  * Output: none
  * Side effect: Waits until next RTC interrupt before returning
  */
-int32_t read(int32_t fd, void *buf, int32_t nbytes) {
+int32_t rtc_read(int32_t fd, void *buf, int32_t nbytes) {
 wait = 1;
 while(wait){
     continue;
@@ -52,7 +54,7 @@ while(wait){
 return 0;
 }
 
-/* int32_t write(int32_t fd, const void *buf, int32_t nbytes);
+/* int32_t rtc_write(int32_t fd, const void *buf, int32_t nbytes);
  * Description: Takes in a Hz clock rate and updates the RTC
  * Input: fd -- Unused inside the function
  *        buf -- Pointer to an int with the Hz clock rate
@@ -60,7 +62,7 @@ return 0;
  * Output: Returns 0 on successful RTC update else fail
  * Side effect: Updates the RTC clock rate
  */
-int32_t write(int32_t fd, const void *buf, int32_t nbytes) {
+int32_t rtc_write(int32_t fd, const void *buf, int32_t nbytes) {
     unsigned int hertz, i;
     unsigned char rate, prev;
     /* Check for valid inputs */
@@ -89,6 +91,8 @@ int32_t write(int32_t fd, const void *buf, int32_t nbytes) {
     prev = inb(RTC_PORT_DATA);
     outb(RTC_REGISTER_A, RTC_PORT_SELECT);
     outb((prev & 0xF0) | rate, RTC_PORT_DATA);
+
+    count = 0;
     return 0;
 }
 
@@ -105,7 +109,7 @@ void rtc_handler() {
     outb(RTC_REGISTER_C, RTC_PORT_SELECT);
     inb(RTC_PORT_DATA);
     /* Call back to test RTC */
-    test_interrupts();
+    test_interrupts(count);
     /* Send the EOI */
     send_eoi(RTC_IRQ);
     wait = 0;
@@ -144,4 +148,6 @@ void init_rtc() {
     outb((prev & 0xF0) | rate, RTC_PORT_DATA); 
 
     enable_irq(RTC_IRQ);
+
+    count = 0;
 }

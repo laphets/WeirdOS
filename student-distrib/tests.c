@@ -5,6 +5,7 @@
 #include "keyboard.h"
 #include "paging.h"
 #include "rtc.h"
+#include "fs.h"
 
 #define PASS 1
 #define FAIL 0
@@ -375,6 +376,42 @@ int keyboard_translation_test() {
 	return PASS;
 }
 
+int fs_read_test() {
+    clear();
+    dentry_t dentry;
+    read_dentry_by_name((uint8_t*)"verylargetextwithverylongname.tx", &dentry);
+    uint32_t inode = dentry.inode_idx;
+    uint8_t* buf[2000];
+    int read_length = 0;
+    read_length = read_data(inode, 1000, (uint8_t*)buf, 2000);
+    printf("Bytes: %d; Data Read: %s\n", read_length, buf);
+
+    return PASS;
+}
+
+/**
+ * FileSystem Test
+ */
+int fs_test() {
+    TEST_HEADER;
+    int result = PASS;
+    int i = 0;
+    dentry_t dentry;
+    while(read_dentry_by_index(i, &dentry) != -1) {
+//        printf("[Dentry %d]: name: %s; name_length: %d; type: %d; inode: %d|\n", i, dentry.file_name, strlen(dentry.file_name), dentry.file_type, dentry.inode_idx);
+        dentry_t test_dentry;
+        read_dentry_by_name((uint8_t*)dentry.file_name, &test_dentry);
+        if(strncmp(dentry.file_name, test_dentry.file_name, strlen(dentry.file_name)) != 0) {
+            result = FAIL;
+            assertion_failure();
+        }
+//        printf("[Test Dentry %d]: name: %s; type: %d; inode: %d|\n\n", i, test_dentry.file_name, test_dentry.file_type, test_dentry.inode_idx);
+        i++;
+    }
+    return result;
+}
+
+
 /* Checkpoint 2 tests */
 
 /* RTC Test:
@@ -399,21 +436,21 @@ int rtc_test(){
 	TEST_HEADER;
 	// init_rtc();
 	// printf("RTC Open Test: ");
-	if(open(filename) != 0){
+	if(rtc_open(filename) != 0){
 		result = FAIL;
 	}
 	for (i = 0; i < 10; i++){
-		read(fd, hertz_array, nbytes);
+		rtc_read(fd, hertz_array, nbytes);
 	}
 
 	// printf("%s\nRTC Good Hertz Test: ", (result ? "Success" : "Fail"));
 	for(j = 6; j < 15; j++){
 		hertz_array[0] = hertzmap[j];
-		if (write(fd, (void *)hertz_array, nbytes) != 0){
+		if (rtc_write(fd, (void *)hertz_array, nbytes) != 0){
 			result = FAIL;
 		}
 		for (i = 0; i < hertzmap[j]; i++){
-			read(fd, hertz_array, nbytes);
+			rtc_read(fd, hertz_array, nbytes);
 		}
 	}
 
@@ -421,27 +458,27 @@ int rtc_test(){
 	for(j = 3; j < 6; j++){
 		hertz_array[0] = hertzmap[j];
 		// printf("%d\t%s\n", hertz_array[0], (result ? "Success" : "Fail"));
-		if (write(fd, (void *)hertz_array, nbytes) != -1){
+		if (rtc_write(fd, (void *)hertz_array, nbytes) != -1){
 			result = FAIL;
 		}
 	}
 
 	// printf("%s\nRTC Bad Hertz Test: ", (result ? "Success" : "Fail"));
 	hertz_array[0] = 300;
-	if (write(fd, (void *)hertz_array, nbytes) != -1)
+	if (rtc_write(fd, (void *)hertz_array, nbytes) != -1)
 	{
 		result = FAIL;
 	}
 
 	// printf("%s\nRTC Bad Nbytes Test: ", (result ? "Success" : "Fail"));
 	hertz_array[0] = 256;
-	if (write(fd, (void *)hertz_array, 0) != -1)
+	if (rtc_write(fd, (void *)hertz_array, 0) != -1)
 	{
 		result = FAIL;
 	}
 
 	// printf("%s\nRTC Bad Buffer Test: ", (result ? "Success" : "Fail"));
-	if (write(fd, NULL, nbytes) != -1)
+	if (rtc_write(fd, NULL, nbytes) != -1)
 	{
 		result = FAIL;
 	}
@@ -460,5 +497,7 @@ void launch_tests()
 	TEST_OUTPUT("idt_test", idt_test());
     TEST_OUTPUT("paging_test", paging_test());
 	TEST_OUTPUT("keyboard_translation_test", keyboard_translation_test());
+//	TEST_OUTPUT("fs_read_test", fs_read_test());
+    TEST_OUTPUT("fs_test", fs_test());
 	TEST_OUTPUT("rtc_test", rtc_test());
 }
