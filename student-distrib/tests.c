@@ -468,6 +468,14 @@ int fs_listfiles_test() {
 
 
 /* Checkpoint 2 tests */
+/*
+ *  Test for check wheather terminal_read_write works
+ * Ouput: PASS if none of the tests fail
+ * 		  FAIL is any of the tests fail
+ * Side Effects: None
+ * Coverage: termnal functionality check
+ * Files: keyboard.h/S
+ */
 int terminal_read_write() {
     TEST_HEADER;
 
