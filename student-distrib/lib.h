@@ -4,6 +4,7 @@
 
 #ifndef _LIB_H
 #define _LIB_H
+#define TOP_RIGHT_CHAR 79
 
 #include "types.h"
 
@@ -23,7 +24,7 @@ int get_screen_x();
 void reset_screen_x();
 void shift_video_up(int num_row_shift);
 void blue_screen();
-void test_interrupts(void);
+void test_interrupts(uint32_t count);
 
 void* memset(void* s, int32_t c, uint32_t n);
 void* memset_word(void* s, int32_t c, uint32_t n);
