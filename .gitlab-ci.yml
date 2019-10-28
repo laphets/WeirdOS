@@ -1,0 +1,10 @@
+image: laphets/ece391-builder:v0
+
+build-image:
+ stage: build
+ tags:
+   - ECE391
+ script:
+   - cd student-distrib
+   - chmod +x ./debug.sh
+   - make
