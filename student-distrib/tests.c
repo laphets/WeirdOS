@@ -546,9 +546,9 @@ int terminal_read_write() {
 	// }
 
 	/* Check result for writing more bytes than available termianl_write */
-	char buf2[17] = "Wrong Size Test\n\0";
+	char buf2[50] = "Tesing for terminal_write...\n\0";
 	check_result = terminal_write(1, (unsigned char *)buf2, strlen(buf2));
-	if(check_result != 16) {
+	if(check_result != strlen(buf2)) {
             assertion_failure();
             result = FAIL;
     }
