@@ -17,25 +17,34 @@
 #define RTC_REGISTER_C 0x0C
 
 #define OPEN_RTC_RATE 0xF
-#define MAX_RTC_RATE 1024000
+#define MAX_RTC_HZ 1024
 #define LOW_4_BITS 0xF
 
+/* Updates the clock to 2 Hz when the RTC is opened */
 int32_t open(const uint8_t* filename);
+
+/* Has no function */
 int32_t close(int32_t fd);
+
+/* Sets the wait flag to 1 & waits until the RTC interrupt to clear the flag before returning */
 int32_t read(int32_t fd, void* buf, int32_t nbytes);
+
+/* Takes in a Hz clock rate and updates the RTC */
 int32_t write(int32_t fd, const void *buf, int32_t nbytes);
 
-/**
- * Interrupt handler for rtc, will be called in idtwrapper.S
- */
+/* Interrupt handler for rtc, will be called in idtwrapper.S */
 void rtc_handler();
 
-/**
- * Init rtc and set rate to 0x0F
- */
+/* Init rtc and set rate to 0x0F */
 void init_rtc();
 
-/* Since 0000 is no output, we make the map from 1-16 and always skip index 0 */
+/* hertzmap[16]:
+ * Holds all the possible Hertz values of the RTC
+ * Values greater than 1024 should not be used as 
+ *      generating more than 1000 interrupts a second 
+ *      will cause significant performance decrease
+ * Since 0x0 is no output, it is represented as NULL
+ */
 static int hertzmap[16] = 
 {NULL, 256, 128, 8192, 4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2};
 

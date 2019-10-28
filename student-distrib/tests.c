@@ -377,29 +377,39 @@ int keyboard_translation_test() {
 
 /* Checkpoint 2 tests */
 
+/* RTC Test:
+ * Opens the RTC and tests the handler for 5 seconds @ 2 Hz
+ * Writes all valid Hz values to the RTC then tests them
+ *  	for 1 second each (Can't distinguish between 
+ * 		values > 30 Hz due to screen refresh)
+ * Writes all valid Hz values > 1024 Hz which are rejected
+ * 		due to kernel wanting to limit interrupts per 
+ * 		second
+ * Writes an invalid Hz value which is rejected
+ * Writes a valid Hz value with an invalid nbytes value
+ * 		which is rejected
+ * Writes with a valid nbytes but an invalid buf pointer
+ * 		which is rejected
+ */
 int rtc_test(){
 	int i, j, result = PASS;
 	uint8_t *filename = NULL;
 	int32_t fd, nbytes = 4;
 	int hertz_array[1];
 	TEST_HEADER;
-	init_rtc();
-	printf("RTC Open Test\n");
+	// init_rtc();
+	// printf("RTC Open Test: ");
 	if(open(filename) != 0){
-		assertion_failure();
 		result = FAIL;
 	}
-	printf("RTC Open Read\n");
-	for (i = 0; i < 1024; i++){
+	for (i = 0; i < 10; i++){
 		read(fd, hertz_array, nbytes);
-		printf("RTC Read %d\n", i);
 	}
 
-	printf("RTC Good Hertz Test\n");
+	// printf("%s\nRTC Good Hertz Test: ", (result ? "Success" : "Fail"));
 	for(j = 6; j < 15; j++){
 		hertz_array[0] = hertzmap[j];
 		if (write(fd, (void *)hertz_array, nbytes) != 0){
-			assertion_failure();
 			result = FAIL;
 		}
 		for (i = 0; i < hertzmap[j]; i++){
@@ -407,39 +417,35 @@ int rtc_test(){
 		}
 	}
 
-	printf("RTC High Hertz Test\n");
+	// printf("%s\nRTC High Hertz Test: \n", (result ? "Success" : "Fail"));
 	for(j = 3; j < 6; j++){
 		hertz_array[0] = hertzmap[j];
+		// printf("%d\t%s\n", hertz_array[0], (result ? "Success" : "Fail"));
 		if (write(fd, (void *)hertz_array, nbytes) != -1){
-			assertion_failure();
 			result = FAIL;
-		}
-		for (i = 0; i < hertzmap[j]; i++){
-			read(fd, hertz_array, nbytes);
 		}
 	}
 
-	printf("RTC Bad Hertz Test\n");
+	// printf("%s\nRTC Bad Hertz Test: ", (result ? "Success" : "Fail"));
 	hertz_array[0] = 300;
 	if (write(fd, (void *)hertz_array, nbytes) != -1)
 	{
-		assertion_failure();
 		result = FAIL;
 	}
 
-	printf("RTC Bad Nbytes Test\n");
+	// printf("%s\nRTC Bad Nbytes Test: ", (result ? "Success" : "Fail"));
 	hertz_array[0] = 256;
 	if (write(fd, (void *)hertz_array, 0) != -1)
 	{
-		assertion_failure();
 		result = FAIL;
 	}
 
-	// if (write(fd, NULL, nbytes) != -1)
-	// {
-	// 	assertion_failure();
-	// 	result = FAIL;
-	// }
+	// printf("%s\nRTC Bad Buffer Test: ", (result ? "Success" : "Fail"));
+	if (write(fd, NULL, nbytes) != -1)
+	{
+		result = FAIL;
+	}
+	// printf("%s\n", (result ? "Success" : "Fail"));
 
 	return result;
 }
@@ -451,8 +457,8 @@ int rtc_test(){
 /* Test suite entry point */
 void launch_tests()
 {
-	// TEST_OUTPUT("idt_test", idt_test());
-    // TEST_OUTPUT("paging_test", paging_test());
-	// TEST_OUTPUT("keyboard_translation_test", keyboard_translation_test());
+	TEST_OUTPUT("idt_test", idt_test());
+    TEST_OUTPUT("paging_test", paging_test());
+	TEST_OUTPUT("keyboard_translation_test", keyboard_translation_test());
 	TEST_OUTPUT("rtc_test", rtc_test());
 }

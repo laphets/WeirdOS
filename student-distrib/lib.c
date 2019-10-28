@@ -613,9 +613,9 @@ int8_t* strncpy(int8_t* dest, const int8_t* src, uint32_t n) {
  * Function: increments video memory. To be used to test rtc */
 void test_interrupts(void) {
     int32_t i;
-    for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
+    for (i = 0; i < 2 * NUM_COLS; i++) {
         /* Remain some space for keyboard echo */
-        if(i % NUM_COLS <= 24)
+        if(i % NUM_COLS <= 77)
             continue;
         video_mem[i << 1]++;
     }

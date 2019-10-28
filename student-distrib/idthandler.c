@@ -56,10 +56,10 @@ void TRAP_E(uint32_t code, uint32_t eip) {
     int32_t location;
     asm("\t movl %%cr2,%0" : "=r"(location));
 
-    // blue_screen();
-    // printf_error("0x0E PAGE_FAULT | UNIT_TESTING_FAIL\n\n");
-    // show_msg();
-    // printf_error("Technical Information:\n\n*** CODE: 0x%x  STOP: 0x%x  MEMORY ACCESS LOCATION: 0x%x ***\n", code, eip, location);
+    blue_screen();
+    printf_error("0x0E PAGE_FAULT | UNIT_TESTING_FAIL\n\n");
+    show_msg();
+    printf_error("Technical Information:\n\n*** CODE: 0x%x  STOP: 0x%x  MEMORY ACCESS LOCATION: 0x%x ***\n", code, eip, location);
     while(1) {};
 }
 void TRAP_F() {
