@@ -367,7 +367,7 @@ int fs_read_test() {
 
     int read_length = 0;
     int total_length = 0;
-    uint8_t* data[200];
+    uint8_t* data[200]; /* 200 is the continer size each time we want to read something */
     while((read_length = file_read(0, (uint8_t*)data, 200)) != 0) {
         if(read_length == -1) {
             return FAIL;
