@@ -400,6 +400,7 @@ int fs_read_test() {
 
     /* Then test for read by index */
     dentry_t dentry_testidx;
+    printf("Testing for read_dentry_by_index...\n");
     read_dentry_by_index(14, &dentry_testidx);
     if(file_open((const uint8_t*)dentry_testidx.file_name) == -1) {
         printf("File Not Exist\n");
