@@ -504,7 +504,7 @@ int terminal_read_write() {
     }
 
 	/* Test terminal_close and terminal_write function */
-	char buf[200];
+	char buf[200];  /* 200 is an enough number for the buffer container */
 	printf("Type something:\n");
 	check_result = terminal_read(fdint, (unsigned char *)buf, 200);
 	
@@ -516,7 +516,7 @@ int terminal_read_write() {
 
 	/* Check for buf greater that 128 bytes */
 	check_result = 1;
-	for (i = 0; i < 128; i++) {
+	for (i = 0; i < 128; i++) { /* 128 is the max buffer size */
 		if(buf[i] == '\n' || buf[i] == '\r') {
 			check_result = 0;
 			buf_size = i;
