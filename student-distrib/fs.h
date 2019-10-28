@@ -29,10 +29,21 @@ typedef struct inode {
     int32_t data_block_num[1023];
 } inode;
 
+
+/* typedef enum file_type{STDIN_T, STDOUT_T, DIRECTORY_T, FILE_T, RTC_T} file_type_t; */
+
+typedef struct file_descriptor {
+    void* file_operation_table_ptr;
+    uint32_t inode;
+    uint32_t file_pos;
+    uint32_t flag;
+} file_descriptor_t;
+
 void init_fs(uint32_t fs_start_addr, uint32_t fs_end_addr);
 int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry);
 int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry);
 int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length);
+uint32_t read_file_size(uint32_t inode);
 
 int32_t dir_open(const uint8_t *filename);
 int32_t dir_read(int32_t fd, void *buf, int32_t nbytes);

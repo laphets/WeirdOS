@@ -347,38 +347,126 @@ int keyboard_translation_test() {
 	return result;
 }
 
+/**
+ * Do some test for the fs read
+ * Will first try to get the file to read
+ * Then print out the file content up to some bytes
+ */
 int fs_read_test() {
+    TEST_HEADER;
+    char buf[200];
+    printf("Type the file name you want to read:\n");
+    terminal_read(1, (unsigned char *)buf, 200);
+
     clear();
-    dentry_t dentry;
-    read_dentry_by_name((uint8_t*)"verylargetextwithverylongname.tx", &dentry);
-    uint32_t inode = dentry.inode_idx;
-    uint8_t* buf[2000];
+    reset_cursor_pos();
+
+    if(file_open((const uint8_t*)buf) == -1) {
+        printf("File Not Exist\n");
+        return FAIL;
+    }
+
     int read_length = 0;
-    read_length = read_data(inode, 1000, (uint8_t*)buf, 2000);
-    printf("Bytes: %d; Data Read: %s\n", read_length, buf);
+    int total_length = 0;
+    uint8_t* data[2000];
+    while((read_length = file_read(0, (uint8_t*)data, 2000)) != 0) {
+        if(read_length == -1) {
+            return FAIL;
+        }
+        total_length += read_length;
+        terminal_write(1, data, read_length);
+    }
+    printf("\ntotal_length: %d\n", total_length);
+
+    dentry_t dentry;
+    if(read_dentry_by_name((const uint8_t*)buf, &dentry) == -1) {
+        printf("File Not Exist\n");
+        return FAIL;
+    }
+
+    /*
+    uint8_t* dentry_data[6000];
+    int32_t byte_read = read_data(dentry.inode_idx, 0, (uint8_t*)dentry_data, 6000);
+    terminal_write(1, dentry_data, byte_read);
+    printf("byte_read: %d\n", byte_read);
+     */
+
+    printf("file_name: %s, file_size: %d\n",dentry.file_name, read_file_size(dentry.inode_idx));
+
+    if(file_write(0, "test", 4) != -1) {
+        return FAIL;
+    }
+
+    if(file_close(0) != 0) {
+        return FAIL;
+    }
+
+    /* Then test for read by index */
+    dentry_t dentry_testidx;
+    read_dentry_by_index(14, &dentry_testidx);
+    if(file_open((const uint8_t*)dentry_testidx.file_name) == -1) {
+        printf("File Not Exist\n");
+        return FAIL;
+    }
+    int read_length_testidx = 0;
+    uint8_t* data_testidx[300];
+    while((read_length_testidx = file_read(0, (uint8_t*)data_testidx, 300)) != 0) {
+        if(read_length_testidx == -1) {
+            return FAIL;
+        }
+        terminal_write(1, data_testidx, read_length_testidx);
+    }
+    putc('\n');
+    printf("file_name: %s, file_size: %d\n",dentry_testidx.file_name, read_file_size(dentry_testidx.inode_idx));
 
     return PASS;
 }
 
 /**
- * FileSystem Test
+ * Test for file system listfiles functionality
+ * will try to test for dir_open, dir_close, dir_read and dir_write
+ * @return pass or fail
  */
-int fs_test() {
+int fs_listfiles_test() {
     TEST_HEADER;
+    clear();
+    reset_cursor_pos();
     int result = PASS;
-    int i = 0;
-    dentry_t dentry;
-    while(read_dentry_by_index(i, &dentry) != -1) {
-//        printf("[Dentry %d]: name: %s; name_length: %d; type: %d; inode: %d|\n", i, dentry.file_name, strlen(dentry.file_name), dentry.file_type, dentry.inode_idx);
-        dentry_t test_dentry;
-        read_dentry_by_name((uint8_t*)dentry.file_name, &test_dentry);
-        if(strncmp(dentry.file_name, test_dentry.file_name, strlen(dentry.file_name)) != 0) {
+
+    int32_t cnt;
+    uint8_t buf[33];
+
+    /* Try to open a directory */
+    if (dir_open ((uint8_t*)".") == -1) {
+        return FAIL;
+    }
+
+    /* Try read the directory */
+    while (0 != (cnt = dir_read(0, buf, 32))) {
+        if (-1 == cnt) {
+            return FAIL;
+        }
+        buf[cnt] = '\0';
+
+        dentry_t dentry;
+        read_dentry_by_name((uint8_t*)buf, &dentry);
+        if(strncmp((const int8_t*)buf, dentry.file_name, strlen(dentry.file_name)) != 0) {
             result = FAIL;
             assertion_failure();
         }
-//        printf("[Test Dentry %d]: name: %s; type: %d; inode: %d|\n\n", i, test_dentry.file_name, test_dentry.file_type, test_dentry.inode_idx);
-        i++;
+        printf("file_name: %s, file_type: %d, file_size: %d\n", dentry.file_name, dentry.file_type, read_file_size(dentry.inode_idx));
     }
+
+    /* Try to write a directory */
+    if(dir_write(0, (const void*)"test", 4) != -1) {
+        return FAIL;
+    }
+
+    /* Try to close a directory */
+    if(dir_close(0) != 0) {
+        return FAIL;
+    }
+
     return result;
 }
 
@@ -414,7 +502,7 @@ int terminal_read_write() {
 	/* Test terminal_close and terminal_write function */
 	char buf[200];
 	printf("Type something:\n");
-	check_result = terminal_read(fdint, (unsigned char *)buf, 128);
+	check_result = terminal_read(fdint, (unsigned char *)buf, 200);
 	
 	/* Check for return value */
 	if(check_result == 0) {
@@ -441,7 +529,7 @@ int terminal_read_write() {
 	printf("%s", buf);
 	check_result = terminal_write(fdint, buf, buf_size);
 	printf("Depending if the last three strings printed are the same type y/n:");
-	terminal_read(fdint, buf, 0);
+	terminal_read(fdint, buf, 1);
 	if(buf[0] == 'n') {
 		assertion_failure();
         result = FAIL;
@@ -455,7 +543,7 @@ int terminal_read_write() {
 
 	/* Check result for writing more bytes than available termianl_write */
 	char buf2[17] = "Wrong Size Test\n\0";
-	check_result = terminal_write(1, (unsigned char *)buf2, 30);
+	check_result = terminal_write(1, (unsigned char *)buf2, strlen(buf2));
 	if(check_result != 16) {
             assertion_failure();
             result = FAIL;
@@ -550,9 +638,9 @@ void launch_tests()
 {
 	TEST_OUTPUT("idt_test", idt_test());
     TEST_OUTPUT("paging_test", paging_test());
+    TEST_OUTPUT("fs_listfiles_test", fs_listfiles_test());
+    TEST_OUTPUT("fs_read_test", fs_read_test());
 	TEST_OUTPUT("keyboard_translation_test", keyboard_translation_test());
 	TEST_OUTPUT("Terimal_test", terminal_read_write());
-//	TEST_OUTPUT("fs_read_test", fs_read_test());
-    TEST_OUTPUT("fs_test", fs_test());
 	TEST_OUTPUT("rtc_test", rtc_test());
 }
