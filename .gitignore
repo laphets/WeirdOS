@@ -56,11 +56,11 @@ dkms.conf
 .idea
 
 # some build image
-student-distrib/bootimg
-student-distrib/mp3.img
+# student-distrib/bootimg
+# student-distrib/mp3.img
 
 # cmake
 cmake-build-debug
 
 # Makefile.dep
-student-distrib/Makefile.dep
+# student-distrib/Makefile.dep
