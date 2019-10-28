@@ -474,10 +474,7 @@ void launch_tests()
 	TEST_OUTPUT("idt_test", idt_test());
     TEST_OUTPUT("paging_test", paging_test());
 	TEST_OUTPUT("keyboard_translation_test", keyboard_translation_test());
-<<<<<<< HEAD
 	TEST_OUTPUT("Terimal_test", terminal_read_write());
-=======
 //	TEST_OUTPUT("fs_read_test", fs_read_test());
     TEST_OUTPUT("fs_test", fs_test());
->>>>>>> fdd8fd2ad99f73161ecf1997b9a1708dc353610a
 }
