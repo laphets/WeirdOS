@@ -72,7 +72,6 @@ char handle_special_keys(uint8_t ascii) {
     /* Checks if CTRL-L is pressed to clear screen and reset cursor*/
     if ((keyboard_flag & CTRL_BIT_MASK) && (ascii == 'l')) {
         clear();
-        reset_cursor_pos();
         return 1;
     }
     return 0;

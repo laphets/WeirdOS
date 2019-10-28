@@ -359,7 +359,6 @@ int fs_read_test() {
     terminal_read(1, (unsigned char *)buf, 200);
 
     clear();
-    reset_cursor_pos();
 
     if(file_open((const uint8_t*)buf) == -1) {
         printf("File Not Exist\n");
@@ -428,7 +427,6 @@ int fs_read_test() {
 int fs_listfiles_test() {
     TEST_HEADER;
     clear();
-    reset_cursor_pos();
     int result = PASS;
 
     int32_t cnt;
@@ -582,18 +580,21 @@ int rtc_test(){
 				result = FAIL;
 			}
 	}
-
+	char buf3[1] = "l";
+	char buf4[1] = "\n";
 	// printf("%s\nRTC Good Hertz Test: ", (result ? "Success" : "Fail"));
 	for(j = 6; j < 15; j++){
 		hertz_array[0] = hertzmap[j];
 		if (rtc_write(fd, (void *)hertz_array, nbytes) != 0){
 			result = FAIL;
 		}
-		for (i = 0; i < hertzmap[j]; i++){
+		for (i = 0; i < 100; i++){
 			if (rtc_read(fd, hertz_array, nbytes)){
 				result = FAIL;
 			}
+			terminal_write(1,(void*)buf3,1);
 		}
+		clear();
 	}
 
 	// printf("%s\nRTC High Hertz Test: \n", (result ? "Success" : "Fail"));
@@ -634,12 +635,27 @@ int rtc_test(){
 /* Test suite entry point */
 void launch_tests()
 {
-	TEST_OUTPUT("idt_test", idt_test());
-    TEST_OUTPUT("paging_test", paging_test());
-    TEST_OUTPUT("fs_listfiles_test", fs_listfiles_test());
-    TEST_OUTPUT("fs_read_test", fs_read_test());
-	TEST_OUTPUT("keyboard_translation_test", keyboard_translation_test());
-	TEST_OUTPUT("Terimal_test", terminal_read_write());
-	TEST_OUTPUT("rtc_test", rtc_test());
+	/* Variables to store results */
+	int idt_test_result, paging_test_result, fs_listfiles_test_result;
+	int fs_read_test_result, keyboard_translation_test_result;
+	int terimal_test_result, rtc_test_result;
+
+	/* Run Tests */
+	idt_test_result = idt_test();
+	paging_test_result = paging_test();
+	fs_listfiles_test_result = fs_listfiles_test();
+	fs_read_test_result = fs_read_test();
+	keyboard_translation_test_result = keyboard_translation_test();
+	terimal_test_result = terminal_read_write();
+	rtc_test_result = rtc_test();
+
+	/* Print test results */
+	TEST_OUTPUT("idt_test", idt_test_result);
+    TEST_OUTPUT("paging_test", paging_test_result);
+    TEST_OUTPUT("fs_listfiles_test", fs_listfiles_test_result);
+    TEST_OUTPUT("fs_read_test", fs_read_test_result);
+	TEST_OUTPUT("keyboard_translation_test", keyboard_translation_test_result);
+	TEST_OUTPUT("terimal_test", terimal_test_result);
+	TEST_OUTPUT("rtc_test", rtc_test_result);
 }
 
