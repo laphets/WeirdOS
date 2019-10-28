@@ -445,7 +445,9 @@ int rtc_test(){
 		result = FAIL;
 	}
 	for (i = 0; i < 10; i++){
-		rtc_read(fd, hertz_array, nbytes);
+		if (rtc_read(fd, hertz_array, nbytes)){
+				result = FAIL;
+			}
 	}
 
 	// printf("%s\nRTC Good Hertz Test: ", (result ? "Success" : "Fail"));
@@ -455,7 +457,9 @@ int rtc_test(){
 			result = FAIL;
 		}
 		for (i = 0; i < hertzmap[j]; i++){
-			rtc_read(fd, hertz_array, nbytes);
+			if (rtc_read(fd, hertz_array, nbytes)){
+				result = FAIL;
+			}
 		}
 	}
 
