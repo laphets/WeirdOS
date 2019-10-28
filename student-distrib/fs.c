@@ -89,12 +89,12 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
     }
     uint32_t read_num = 0;
     uint32_t* inode_target = (uint32_t*)(FS_START_ADDR + FS_BLOCK_SIZE /* boot block */ + FS_BLOCK_SIZE * inode);
-    uint32_t data_length = inode_target[0];
+    uint32_t file_size = inode_target[0];
 
     /**
      * Then we check whether it has reached end of the file
      */
-    if(offset >= data_length) {
+    if(offset >= file_size) {
         return 0;
     }
 
@@ -105,22 +105,24 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
 
 
     while(read_num < length) {
-        if(inode_block_idx*FS_BLOCK_SIZE >= data_length) {
+        /* Exceed the file size */
+        if(inode_block_idx*FS_BLOCK_SIZE >= file_size) {
             break;
         }
         uint32_t data_block_idx = inode_target[1 + inode_block_idx];
         void* data_block_addr = data_block_start_addr + data_block_idx * FS_BLOCK_SIZE + inode_block_offset;
-        uint32_t remain_data_length = data_length - inode_block_idx * FS_BLOCK_SIZE;
+        uint32_t remain_data_length = file_size - inode_block_idx * FS_BLOCK_SIZE;
         uint32_t current_block_size = get_min(FS_BLOCK_SIZE, remain_data_length) - inode_block_offset;
         inode_block_offset = 0;
 
-        if(length <= current_block_size) {
+        uint32_t reamin_bytes_to_read = length-read_num;
+        if(reamin_bytes_to_read <= current_block_size) {
             /**
              * All the data is in this block
              * We're done
              */
-            memcpy((void*)((uint32_t)buf+read_num), data_block_addr, length);
-            read_num += length;
+            memcpy((void*)((uint32_t)buf+read_num), data_block_addr, reamin_bytes_to_read);
+            read_num += reamin_bytes_to_read;
             break;
         } else {
             /**
