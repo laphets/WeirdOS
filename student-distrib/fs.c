@@ -10,6 +10,10 @@ void* FS_END_ADDR = 0;
 
 boot_block_t boot_block;
 
+/**
+ * Array for file descriptor(should begin from 2)
+ */
+file_descriptor_t file_descriptor_table[20];
 
 
 /**
@@ -76,6 +80,17 @@ static int32_t get_min(uint32_t a, uint32_t b) {
 }
 
 /**
+ * Read file size for inode
+ * @param inode inode idx
+ * @return the file size
+ */
+uint32_t read_file_size(uint32_t inode) {
+    uint32_t* inode_target = (uint32_t*)(FS_START_ADDR + FS_BLOCK_SIZE /* boot block */ + FS_BLOCK_SIZE * inode);
+    uint32_t file_size = inode_target[0];
+    return file_size;
+}
+
+/**
  * Read data from certain inode
  * @param inode idx for inode
  * @param offset offset for the data
@@ -138,39 +153,102 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
 
 
 /** Wrapper file system interface */
+
+/**
+ * Open a directory type file
+ * @param filename should be '.'
+ * @return 0 for success
+ */
+int32_t dir_index = 0;
 int32_t dir_open(const uint8_t* filename) {
+    dir_index = 0;
     dentry_t file_info;
-    read_dentry_by_name(filename, &file_info);
-    return 0;
+    return read_dentry_by_name(filename, &file_info);
 }
 
+/**
+ * Read current dir content(file_name)
+ * @param fd file descriptor
+ * @param buf buffer copy to
+ * @param nbytes bytes length
+ * @return -1 fail, or bytes copied
+ */
 int32_t dir_read(int32_t fd, void* buf, int32_t nbytes) {
     dentry_t file_info;
-    read_dentry_by_name(buf, &file_info);
-    return 0;
+    if(dir_index >= boot_block.dir_entry_num)
+        return 0;
+    if(read_dentry_by_index(dir_index, &file_info) == -1) {
+        return -1;
+    }
+    uint32_t file_name_length = strlen(file_info.file_name);
+    int32_t bytes_to_copy = nbytes < file_name_length ? nbytes : file_name_length;
+    memcpy(buf, file_info.file_name, bytes_to_copy);
+    dir_index++;
+    return bytes_to_copy;
 }
 
+/**
+ * Write current dir content(file_name)
+ * @param fd file descriptor
+ * @param buf buffer write from
+ * @param nbytes bytes length
+ * @return -1 fail
+ */
 int32_t dir_write(int32_t fd, const void *buf, int32_t nbytes) {
     return -1;
 }
 
+/**
+ * Close a directory
+ * @param fd file_descriptor
+ * @return 0 on success
+ */
 int32_t dir_close(int32_t fd) {
     return 0;
 }
 
-int32_t file_open(const uint8_t *filename) {
-    return 0;
+/**
+ * Open a file, initialize any temporary structures,
+ * @param filename filename
+ * @return 0 for success, -1 on fail
+ */
+int32_t read_offset;
+dentry_t open_file_info;
+int32_t file_open(const uint8_t* filename) {
+    read_offset = 0;
+    return read_dentry_by_name(filename, &open_file_info);
 }
 
+/**
+ * Read current file content(file_name)
+ * @param fd file descriptor
+ * @param buf buffer copy to
+ * @param nbytes bytes length
+ * @return -1 fail, or bytes copied
+ */
 int32_t file_read(int32_t fd, void *buf, int32_t nbytes) {
-
-    return read_data(0, 0, buf, nbytes);
+    int32_t bytes_read = read_data(open_file_info.inode_idx, read_offset, buf, nbytes);
+    read_offset += bytes_read;
+    return bytes_read;
 }
 
+/**
+ * Write current file content(file_name)
+ * @param fd file descriptor
+ * @param buf buffer write from
+ * @param nbytes bytes length
+ * @return -1 fail
+ */
 int32_t file_write(int32_t fd, const void *buf, int32_t nbytes) {
     return -1;
 }
 
+/**
+ * Close a file
+ * @param fd file_descriptor
+ * @return 0 on success
+ */
 int32_t file_close(int32_t fd) {
+    read_offset = 0;
     return 0;
 }

@@ -32,8 +32,9 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes) {
     enter_pressed_flag = 0;
     terminal_buf_size = 0;
     while (!enter_pressed_flag) {}
-    strncpy((int8_t*)buf, terminal_buf, terminal_buf_size);
-    return terminal_buf_size;
+    uint32_t bytes_to_copy = nbytes < terminal_buf_size ? nbytes : terminal_buf_size;
+    strncpy((int8_t*)buf, terminal_buf, bytes_to_copy);
+    return bytes_to_copy;
 }
 
 /*
@@ -56,8 +57,6 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes) {
                 putc('\n');
                 continue;
             }
-        } else if (((char*)buf)[i] == '\0') {
-            break;
         } else if (length_of_print == MAX_LETTERS_IN_ROW) {
             if (get_screen_y() >= MAX_NUM_ROWS - 1) {
                 shift_video_up(1);
