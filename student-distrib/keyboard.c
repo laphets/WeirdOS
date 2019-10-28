@@ -141,22 +141,10 @@ void keyboard_handler() {
             terminal_buf_size = keyboard_buf_size;
             enter_pressed_flag = 1;
             keyboard_buf_size = 0;
-            if (get_screen_y() >= MAX_NUM_ROWS - 1) {
-                shift_video_up(1);
-            } else {
-                putc('\n');
-            }
+            putc(ascii);
         } else if ((ascii != '\b') && (keyboard_buf_size < KEYBOARD_BUF_MAX_SIZE-1)) {
             keyboard_buf[keyboard_buf_size++] = ascii;
             putc(ascii);
-            if (keyboard_buf_size == MAX_LETTERS_IN_ROW) {
-                if (get_screen_y() >= MAX_NUM_ROWS - 1) {
-                    shift_video_up(1);
-                }
-                else {
-                    putc('\n');
-                }
-            }
         }
     }
     send_eoi(KEYBOARD_IRQ);

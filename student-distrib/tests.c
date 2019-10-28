@@ -581,7 +581,6 @@ int rtc_test(){
 			}
 	}
 	char buf3[1] = "l";
-	char buf4[1] = "\n";
 	// printf("%s\nRTC Good Hertz Test: ", (result ? "Success" : "Fail"));
 	for(j = 6; j < 15; j++){
 		hertz_array[0] = hertzmap[j];

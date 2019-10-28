@@ -47,26 +47,7 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes) {
 int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes) {
     int i;
     int length_of_print = 0;
-    int init_screen_x = get_screen_x();
     for (i = 0; i < nbytes; i++) {
-        if (((char*)buf)[i] == '\n' || ((char*)buf)[i] == '\r') {
-            length_of_print++;
-            if (get_screen_y() >= MAX_NUM_ROWS-1) {
-                shift_video_up(1);
-                continue;
-            } else {
-                putc('\n');
-                continue;
-            }
-        } else if (((length_of_print + init_screen_x)%MAX_LETTERS_IN_ROW) == 0) {
-            if (get_screen_y() >= MAX_NUM_ROWS - 1) {
-                shift_video_up(1);
-            }
-            else {
-                putc('\n');
-            }
-        }
-
         if(((char*)buf)[i] == '\b' && length_of_print > 0) {
             length_of_print--;
             putc(((char*)buf)[i]);
