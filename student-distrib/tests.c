@@ -662,7 +662,7 @@ void launch_tests()
 	int idt_test_result, paging_test_result, fs_listfiles_test_result;
 	int fs_read_test_result, keyboard_translation_test_result;
 	int terimal_test_result, rtc_test_result;
-	unsigned char i;
+
 	/* Run Tests */
 	idt_test_result = idt_test();
 	paging_test_result = paging_test();
@@ -680,8 +680,5 @@ void launch_tests()
 	TEST_OUTPUT("keyboard_translation_test", keyboard_translation_test_result);
 	TEST_OUTPUT("terimal_test", terimal_test_result);
 	TEST_OUTPUT("rtc_test", rtc_test_result);
-	for (i = 0; i < 128;i++) {
-		putc(i);
-	}
 }
 
