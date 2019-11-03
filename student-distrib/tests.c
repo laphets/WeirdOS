@@ -558,6 +558,19 @@ int terminal_read_write() {
             result = FAIL;
     }
 
+	/* NULL buf read and write test */
+	unsigned char* null_buf = NULL;
+	check_result = terminal_write(1, null_buf, strlen(buf2));
+	if (check_result != -1) {
+		assertion_failure();
+		result = FAIL;
+	}
+	check_result = terminal_read(1, null_buf, strlen(buf2));
+	if (check_result != -1) {
+		assertion_failure();
+		result = FAIL;
+	}
+
     return result;
 }
 
@@ -649,7 +662,7 @@ void launch_tests()
 	int idt_test_result, paging_test_result, fs_listfiles_test_result;
 	int fs_read_test_result, keyboard_translation_test_result;
 	int terimal_test_result, rtc_test_result;
-
+	unsigned char i;
 	/* Run Tests */
 	idt_test_result = idt_test();
 	paging_test_result = paging_test();
@@ -667,5 +680,8 @@ void launch_tests()
 	TEST_OUTPUT("keyboard_translation_test", keyboard_translation_test_result);
 	TEST_OUTPUT("terimal_test", terimal_test_result);
 	TEST_OUTPUT("rtc_test", rtc_test_result);
+	for (i = 0; i < 128;i++) {
+		putc(i);
+	}
 }
 

@@ -29,12 +29,15 @@ int32_t terminal_close(int32_t fd) {
  * Function: Copies the keyboard buffer to the terminal buffer
  */
 int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes) {
-    enter_pressed_flag = 0;
-    terminal_buf_size = 0;
-    while (!enter_pressed_flag) {}
-    uint32_t bytes_to_copy = nbytes < terminal_buf_size ? nbytes : terminal_buf_size;
-    strncpy((int8_t*)buf, terminal_buf, bytes_to_copy);
-    return bytes_to_copy;
+    if (buf != NULL) {   
+        enter_pressed_flag = 0;
+        terminal_buf_size = 0;
+        while (!enter_pressed_flag) {}
+        uint32_t bytes_to_copy = nbytes < terminal_buf_size ? nbytes : terminal_buf_size;
+        strncpy((int8_t*)buf, terminal_buf, bytes_to_copy);
+        return bytes_to_copy;
+    }
+    return -1;
 }
 
 /*
@@ -47,14 +50,17 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes) {
 int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes) {
     int i;
     int length_of_print = 0;
-    for (i = 0; i < nbytes; i++) {
-        if(((char*)buf)[i] == '\b' && length_of_print > 0) {
-            length_of_print--;
-            putc(((char*)buf)[i]);
-        } else if (((char*)buf)[i] != '\b') {
-            length_of_print++;
-            putc(((char*)buf)[i]);
+    if (buf != NULL) {    
+        for (i = 0; i < nbytes; i++) {
+            if(((char*)buf)[i] == '\b' && length_of_print > 0) {
+                length_of_print--;
+                putc(((char*)buf)[i]);
+            } else if (((char*)buf)[i] != '\b') {
+                length_of_print++;
+                putc(((char*)buf)[i]);
+            }
         }
+        return length_of_print;
     }
-    return length_of_print;
+    return -1;
 }
