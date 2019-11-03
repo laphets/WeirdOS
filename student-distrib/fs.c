@@ -7,14 +7,14 @@ void* FS_END_ADDR = 0;
 #define FS_BLOCK_SIZE 4096
 #define FS_ENTRY_SIZE 64
 #define FS_DENTRY_NUM_MAX 63
+#define FD_TABLE_SIZE 20
 
 boot_block_t boot_block;
 
 /**
  * Array for file descriptor(should begin from 2)
  */
-file_descriptor_t file_descriptor_table[20];
-
+file_descriptor_t file_descriptor_table[FD_TABLE_SIZE];
 
 /**
  * Init read-only file system
@@ -40,19 +40,19 @@ void init_fs(uint32_t fs_start_addr, uint32_t fs_end_addr) {
  */
 int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry) {
     uint16_t i;
-    char current_name[33];
+    char current_name[FS_DENTRY_FILE_NAME_NULL_TERM_SIZE];
     for(i = 0; i < boot_block.dir_entry_num; i++) {
         void* target = FS_START_ADDR + FS_ENTRY_SIZE + i * FS_ENTRY_SIZE;
         /**
          * Then extract current name and add a 0 padding to the end
          */
-        memcpy(current_name, target, 32);
-        current_name[32] = 0;
+        memcpy(current_name, target, FS_DENTRY_FILE_NAME_SIZE);
+        current_name[FS_DENTRY_FILE_NAME_SIZE] = 0;
         if(strncmp((const char*)fname, (const char*)current_name, strlen((const char*)current_name)) == 0) {
             /* We find the dentry */
             memcpy(dentry, target, FS_ENTRY_SIZE);
-            memcpy((void*)dentry+64, dentry, 32);
-            dentry->file_name[32] = 0;
+            memcpy((void *)dentry + FS_ENTRY_SIZE, dentry, FS_DENTRY_FILE_NAME_SIZE);
+            dentry->file_name[FS_DENTRY_FILE_NAME_SIZE] = 0;
             return 0;
         }
     }
@@ -70,8 +70,8 @@ int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry) {
         return -1;
     void* target = FS_START_ADDR + FS_ENTRY_SIZE + index * FS_ENTRY_SIZE;
     memcpy(dentry, target, FS_ENTRY_SIZE);
-    memcpy((void*)dentry+64, dentry, 32);
-    dentry->file_name[32] = 0;
+    memcpy((void *)dentry + FS_ENTRY_SIZE, dentry, FS_DENTRY_FILE_NAME_SIZE);
+    dentry->file_name[FS_DENTRY_FILE_NAME_SIZE] = 0;
     return 0;
 }
 

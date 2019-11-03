@@ -3,7 +3,7 @@
 
 volatile static uint32_t count = 0;
 volatile char wait = 0;
-uint32_t hertzmap[16] = {NULL, 256, 128, 8192, 4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2};
+uint32_t hertzmap[NUM_RTC_VALUES] = {NULL, 256, 128, 8192, 4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2};
 
 /* int32_t rtc_open(const uint8_t *filename);
  * Description: Updates the clock to 2 Hz when 
@@ -47,11 +47,11 @@ int32_t rtc_close(int32_t fd) {
  * Side effect: Waits until next RTC interrupt before returning
  */
 int32_t rtc_read(int32_t fd, void *buf, int32_t nbytes) {
-wait = 1;
-while(wait){
-    continue;
-}
-return 0;
+    wait = 1;
+    while (wait) {
+        continue;
+    }
+    return 0;
 }
 
 /* int32_t rtc_write(int32_t fd, const void *buf, int32_t nbytes);
@@ -66,21 +66,21 @@ int32_t rtc_write(int32_t fd, const void *buf, int32_t nbytes) {
     unsigned int hertz, i;
     unsigned char rate, prev;
     /* Check for valid inputs */
-    if(!buf | (nbytes != 4)){
+    if (!buf | (nbytes != INT_BYTES_SIZE)) {
         return -1;
     }
     /* Get hertz value from buffer */
     hertz = *((int*) buf);
-    if(hertz > MAX_RTC_HZ){
+    if (hertz > MAX_RTC_HZ){
         return -1;
     }
     /* Check if hertz value is a power of two */
-    for(i = 1; i < 16; i++){
+    for (i = 1; i < NUM_RTC_VALUES; i++) {
         if(hertzmap[i] == hertz){
             break;
         }
     }
-    if(i == 16){ /* Not a power of two*/
+    if (i == NUM_RTC_VALUES) { /* Not a power of two*/
         return -1;
     }
     /* i is now the 4 bits of the rate */

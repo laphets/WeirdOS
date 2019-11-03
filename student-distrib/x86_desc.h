@@ -22,6 +22,12 @@
 /* Number of vectors in the interrupt descriptor table (IDT) */
 #define NUM_VEC     256
 
+/* Alignment values */
+#define DESCRIPTOR_SIZE
+#define GDT_ENTRY_SIZE
+#define LDT_ENTRY_SIZE
+#define IDT_ENTRY_SIZE
+
 #ifndef ASM
 
 /* This structure is used to load descriptor base registers
