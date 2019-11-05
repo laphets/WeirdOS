@@ -45,11 +45,11 @@ void enable_irq(uint32_t irq_num) {
     uint16_t port;
     uint8_t data;
 
-    if (irq_num < 8) {
+    if (irq_num < NUM_PIC_IRQS) {
         port = PIC_MASTER_IMR;
     } else {
         port = PIC_SLAVE_IMR;
-        irq_num -= 8;
+        irq_num -= NUM_PIC_IRQS;
     }
     data = inb(port) & ~(1 << irq_num);
     outb(data, port);
@@ -60,11 +60,11 @@ void disable_irq(uint32_t irq_num) {
     uint16_t port;
     uint8_t data;
 
-    if (irq_num < 8) {
+    if (irq_num < NUM_PIC_IRQS) {
         port = PIC_MASTER_IMR;
     } else {
         port = PIC_SLAVE_IMR;
-        irq_num -= 8;
+        irq_num -= NUM_PIC_IRQS;
     }
     data = inb(port) | (1 << irq_num);
     outb(data, port);
@@ -72,8 +72,8 @@ void disable_irq(uint32_t irq_num) {
 
 /* Send end-of-interrupt signal for the specified IRQ */
 void send_eoi(uint32_t irq_num) {
-    if(irq_num >= 8) {
-        outb(EOI | (irq_num - 8), PIC_SLAVE_CMD);
+    if(irq_num >= NUM_PIC_IRQS) {
+        outb(EOI | (irq_num - NUM_PIC_IRQS), PIC_SLAVE_CMD);
         outb(EOI | 2, PIC_MASTER_CMD);
     } else {
         outb(EOI | irq_num, PIC_MASTER_CMD);

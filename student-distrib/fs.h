@@ -13,13 +13,15 @@
 #define FS_FILE_TYPE_DIR 1
 #define FS_FILE_TYPE_RTC 0
 
+#define FS_DENTRY_FILE_NAME_SIZE 32
+#define FS_DENTRY_FILE_NAME_NULL_TERM_SIZE 33
 
 typedef struct dentry {
-    char file_name_bytes[32];
+    char file_name_bytes[FS_DENTRY_FILE_NAME_SIZE];
     uint32_t file_type;
     uint32_t inode_idx;
     uint8_t reserved[24];
-    char file_name[33];
+    char file_name[FS_DENTRY_FILE_NAME_NULL_TERM_SIZE];
 } dentry_t;
 
 typedef struct boot_block {

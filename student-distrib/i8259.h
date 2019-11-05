@@ -34,6 +34,9 @@
  * to declare the interrupt finished */
 #define EOI                 0x60
 
+/* Number of IRQs on one PIC */
+#define NUM_PIC_IRQS 8
+
 /* Externally-visible functions */
 
 /* Initialize both PICs */

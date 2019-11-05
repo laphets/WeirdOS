@@ -558,6 +558,19 @@ int terminal_read_write() {
             result = FAIL;
     }
 
+	/* NULL buf read and write test */
+	unsigned char* null_buf = NULL;
+	check_result = terminal_write(1, null_buf, strlen(buf2));
+	if (check_result != -1) {
+		assertion_failure();
+		result = FAIL;
+	}
+	check_result = terminal_read(1, null_buf, strlen(buf2));
+	if (check_result != -1) {
+		assertion_failure();
+		result = FAIL;
+	}
+
     return result;
 }
 

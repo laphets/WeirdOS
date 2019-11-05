@@ -29,6 +29,10 @@
 #define MAX_NUM_ROWS 25
 #define NUM_KEYBOARD_BUFS 5
 
+/* Macros for scancode and ascii table size info */
+#define TOTAL_NUM_SCANCODES 256
+#define TOTAL_NUM_ASCII_CODES 128
+
 uint8_t keyboard_flag;
 
 char keyboard_buf[KEYBOARD_BUF_MAX_SIZE];

@@ -12,6 +12,7 @@
 #define RTC_PORT_SELECT 0x70
 #define RTC_PORT_DATA 0x71
 
+#define NUM_RTC_VALUES 16
 #define RTC_DEFAULT_RATE 0x06
 
 #define RTC_REGISTER_A 0x8A
@@ -22,6 +23,7 @@
 #define MAX_RTC_HZ 1024
 #define LOW_4_BITS 0xF
 
+#define INT_BYTES_SIZE 4
 
 /* Updates the clock to 2 Hz when the RTC is opened */
 int32_t rtc_open(const uint8_t* filename);
@@ -52,6 +54,6 @@ void init_rtc_operator();
  *      will cause significant performance decrease
  * Since 0x0 is no output, it is represented as NULL
  */
-extern uint32_t hertzmap[16];
+extern uint32_t hertzmap[NUM_RTC_VALUES];
 
 #endif
