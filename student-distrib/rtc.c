@@ -151,3 +151,13 @@ void init_rtc() {
 
     count = 0;
 }
+
+/**
+ * Operator define
+ */
+void init_rtc_operator() {
+    rtc_operator.open = rtc_open;
+    rtc_operator.read = rtc_read;
+    rtc_operator.write = rtc_write;
+    rtc_operator.close = rtc_close;
+}

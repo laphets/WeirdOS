@@ -58,3 +58,13 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes) {
     }
     return length_of_print;
 }
+
+/**
+ * Operator define
+ */
+void init_terminal_operator() {
+    terminal_operator.open = terminal_open;
+    terminal_operator.read = terminal_read;
+    terminal_operator.write = terminal_write;
+    terminal_operator.close = terminal_close;
+}

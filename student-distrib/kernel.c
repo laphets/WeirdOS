@@ -5,16 +5,18 @@
 #include "multiboot.h"
 #include "x86_desc.h"
 #include "lib.h"
+#include "task.h"
 #include "i8259.h"
 #include "idt.h"
 #include "rtc.h"
 #include "keyboard.h"
 #include "paging.h"
 #include "fs.h"
+#include "syscall.h"
 #include "debug.h"
 #include "tests.h"
 
-#define RUN_TESTS 1
+#define RUN_TESTS 0
 
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
@@ -169,7 +171,16 @@ void entry(unsigned long magic, unsigned long addr) {
     init_rtc();
     init_keyboard();
 
-    
+    /* init_syscall */
+    init_file_operator();
+    init_directory_operator();
+    init_rtc_operator();
+    init_terminal_operator();
+    init_syscall_list();
+
+    /* Init task */
+    init_tasks();
+
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your
      * IDT correctly otherwise QEMU will triple fault and simple close
@@ -183,6 +194,8 @@ void entry(unsigned long magic, unsigned long addr) {
     launch_tests();
 #endif
     /* Execute the first program ("shell") ... */
+    int32_t ret = execute((const uint8_t*)"shell");
+    printf("execute_ret: %d\n", ret);
 
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile (".1: hlt; jmp .1;");

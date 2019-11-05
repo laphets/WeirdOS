@@ -42,5 +42,6 @@ page_directory_entry_t default_page_directory[PAGE_DIRECTORY_SIZE] __attribute__
 page_table_entry_t first_page_table[PAGE_TABLE_SIZE] __attribute__((aligned(PAGE_ALIGN_SIZE)));
 
 void init_paging();
+void flush_paging();
 
 #endif

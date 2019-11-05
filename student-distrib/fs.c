@@ -11,12 +11,6 @@ void* FS_END_ADDR = 0;
 boot_block_t boot_block;
 
 /**
- * Array for file descriptor(should begin from 2)
- */
-file_descriptor_t file_descriptor_table[20];
-
-
-/**
  * Init read-only file system
  * @param fs_start_addr start addr in memory
  * @param fs_end_addr end addr in memory
@@ -159,9 +153,7 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
  * @param filename should be '.'
  * @return 0 for success
  */
-int32_t dir_index = 0;
 int32_t dir_open(const uint8_t* filename) {
-    dir_index = 0;
     dentry_t file_info;
     return read_dentry_by_name(filename, &file_info);
 }
@@ -174,16 +166,17 @@ int32_t dir_open(const uint8_t* filename) {
  * @return -1 fail, or bytes copied
  */
 int32_t dir_read(int32_t fd, void* buf, int32_t nbytes) {
+    task_t* current_task = get_current_task();
     dentry_t file_info;
-    if(dir_index >= boot_block.dir_entry_num)
+    if(current_task->fd_table[fd].file_position >= boot_block.dir_entry_num)
         return 0;
-    if(read_dentry_by_index(dir_index, &file_info) == -1) {
+    if(read_dentry_by_index(current_task->fd_table[fd].file_position, &file_info) == -1) {
         return -1;
     }
     uint32_t file_name_length = strlen(file_info.file_name);
     int32_t bytes_to_copy = nbytes < file_name_length ? nbytes : file_name_length;
     memcpy(buf, file_info.file_name, bytes_to_copy);
-    dir_index++;
+    current_task->fd_table[fd].file_position++;
     return bytes_to_copy;
 }
 
@@ -204,6 +197,8 @@ int32_t dir_write(int32_t fd, const void *buf, int32_t nbytes) {
  * @return 0 on success
  */
 int32_t dir_close(int32_t fd) {
+    task_t* current_task = get_current_task();
+    current_task->fd_table[fd].file_position = 0;
     return 0;
 }
 
@@ -212,10 +207,8 @@ int32_t dir_close(int32_t fd) {
  * @param filename filename
  * @return 0 for success, -1 on fail
  */
-int32_t read_offset;
-dentry_t open_file_info;
 int32_t file_open(const uint8_t* filename) {
-    read_offset = 0;
+    dentry_t open_file_info;
     return read_dentry_by_name(filename, &open_file_info);
 }
 
@@ -227,8 +220,9 @@ int32_t file_open(const uint8_t* filename) {
  * @return -1 fail, or bytes copied
  */
 int32_t file_read(int32_t fd, void *buf, int32_t nbytes) {
-    int32_t bytes_read = read_data(open_file_info.inode_idx, read_offset, buf, nbytes);
-    read_offset += bytes_read;
+    task_t* current_task = get_current_task();
+    int32_t bytes_read = read_data(current_task->fd_table[fd].inode, current_task->fd_table[fd].file_position, buf, nbytes);
+    current_task->fd_table[fd].file_position += bytes_read;
     return bytes_read;
 }
 
@@ -249,6 +243,24 @@ int32_t file_write(int32_t fd, const void *buf, int32_t nbytes) {
  * @return 0 on success
  */
 int32_t file_close(int32_t fd) {
-    read_offset = 0;
+    task_t* current_task = get_current_task();
+    current_task->fd_table[fd].file_position = 0;
     return 0;
+}
+
+/**
+ * Operator define
+ */
+void init_file_operator() {
+    file_operator.open = file_open;
+    file_operator.read = file_read;
+    file_operator.write = file_write;
+    file_operator.close = file_close;
+}
+
+void init_directory_operator() {
+    directory_operator.open = dir_open;
+    directory_operator.read = dir_read;
+    directory_operator.write = dir_write;
+    directory_operator.close = dir_close;
 }
