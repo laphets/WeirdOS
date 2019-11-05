@@ -1,3 +1,10 @@
+# boot.S - start point for the kernel after GRUB gives us control
+# vim:ts=4 noexpandtab
+
+#define ASM     1
+
+#include "syscall.h"
+
 .global INTERRUPT_21
 .global INTERRUPT_28
 .global SYSCALL_80
@@ -27,16 +34,38 @@ INTERRUPT_28:
  * places the parameters in the appropriate registers for
  * the system call handler.
  * Side_Effet: calls the system call handler
+ * Push EAX, ECX, EDX, EBX, original ESP, EBP, ESI, and EDI.
  */
 SYSCALL_80:
-	pushal
-
+	/* pushal */
+	pushl %esp
+	pushl %ebp
+	pushl %esi
+	pushl %edi
+	pushfl
 	pushl %edx
-	pushl %ecx
-	pushl %ebx
-	pushl %eax
+    pushl %ecx
+    pushl %ebx
 
-	call syscall_handler
+	cmpl $SYSCALL_SIZE, %eax
+	jb CALL_HANDLER	# if syscall_size > eax, then call the handler
 
-	popal
+	# Then we handle some error
+	movl $-1, %eax
+	jmp RET
+
+CALL_HANDLER:
+	call *syscall_list(, %eax, 4)
+
+
+RET:
+	popl %ebx
+	popl %ecx
+	popl %edx
+	popfl
+	popl %edi
+	popl %esi
+	popl %ebp
+	popl %esp
+
 	iret

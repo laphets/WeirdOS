@@ -67,3 +67,13 @@ void init_paging()
                  : "r"(default_page_directory)
                  : "eax");
 }
+
+void flush_paging() {
+    asm volatile(
+            "movl %%cr3, %%eax;"
+            "movl %%eax, %%cr3;"
+            :
+            :
+            : "eax"
+            );
+}

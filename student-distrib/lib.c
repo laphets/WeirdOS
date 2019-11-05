@@ -695,6 +695,60 @@ int8_t* strncpy(int8_t* dest, const int8_t* src, uint32_t n) {
     return dest;
 }
 
+/*
+ * The strchr() function locates the ﬁrst occurrence of c (converted to a char) in the string pointed to by s.
+ * The terminating null character is considered to be part of the string.
+ */
+int8_t* strchr(const int8_t *s, int8_t c) {
+    while (*s != (int8_t)c)
+        if (!*s++)
+            return 0;
+    return (int8_t*)s;
+}
+
+/*
+ * The strcspn() function computes the length of the maximum initial segment of the string pointed to by s1
+ * which consists entirely of characters not from the string pointed to by s2.
+ */
+uint32_t strcspn(const int8_t *s1, const int8_t *s2) {
+    uint32_t ret=0;
+    while(*s1)
+        if(strchr(s2,*s1))
+            return ret;
+        else
+            s1++,ret++;
+    return ret;
+}
+
+/*
+ * The strspn() function computes the length of the maximum initial segment of the string pointed to by s1
+ * which consists entirely of characters from the string pointed to by s2.
+ */
+uint32_t strspn(const int8_t *s1, const int8_t *s2) {
+    uint32_t ret=0;
+    while(*s1 && strchr(s2,*s1++))
+        ret++;
+    return ret;
+}
+
+/*
+ * The strtok() function breaks the string s1 into tokens and null-terminates them.
+ * Delimiter-Characters at the beginning and end of str are skipped. On each subsequent call delim may change.
+ */
+int8_t* strtok(int8_t* str, const int8_t* delim) {
+    static int8_t* p=0;
+    if(str)
+        p=str;
+    else if(!p)
+        return 0;
+    str=p+strspn(p,delim);
+    p=str+strcspn(str,delim);
+    if(p==str)
+        return p=0;
+    p = *p ? *p=0,p+1 : 0;
+    return str;
+}
+
 /* void test_interrupts(uint32_t count)
  * Inputs: count -- # of interrupts after last change in RTC rate
  * Return Value: void

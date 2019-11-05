@@ -1,17 +1,23 @@
 boot.o: boot.S multiboot.h x86_desc.h types.h
-idtwrapper.o: idtwrapper.S
+idtwrapper.o: idtwrapper.S syscall.h
 x86_desc.o: x86_desc.S x86_desc.h types.h
-fs.o: fs.c fs.h types.h lib.h
+fs.o: fs.c fs.h types.h lib.h vfs.h task.h
 i8259.o: i8259.c i8259.h types.h lib.h
 idt.o: idt.c idt.h lib.h types.h x86_desc.h idthandler.h
 idthandler.o: idthandler.c idt.h lib.h types.h x86_desc.h idthandler.h
-kernel.o: kernel.c multiboot.h types.h x86_desc.h lib.h i8259.h idt.h \
-  idthandler.h rtc.h keyboard.h terminal.h paging.h fs.h debug.h tests.h
-keyboard.o: keyboard.c keyboard.h lib.h types.h i8259.h terminal.h
+kernel.o: kernel.c multiboot.h types.h x86_desc.h lib.h task.h vfs.h \
+  i8259.h idt.h idthandler.h rtc.h keyboard.h terminal.h paging.h fs.h \
+  syscall.h debug.h tests.h
+keyboard.o: keyboard.c keyboard.h lib.h types.h i8259.h terminal.h vfs.h \
+  task.h
 lib.o: lib.c lib.h types.h
 paging.o: paging.c paging.h types.h lib.h
-rtc.o: rtc.c rtc.h lib.h types.h x86_desc.h i8259.h
-syscall.o: syscall.c syscall.h types.h
-terminal.o: terminal.c terminal.h keyboard.h lib.h types.h i8259.h
+rtc.o: rtc.c rtc.h lib.h types.h x86_desc.h i8259.h vfs.h
+syscall.o: syscall.c syscall.h types.h lib.h fs.h vfs.h task.h paging.h \
+  terminal.h keyboard.h i8259.h rtc.h x86_desc.h
+task.o: task.c task.h lib.h types.h vfs.h
+terminal.o: terminal.c terminal.h keyboard.h lib.h types.h i8259.h vfs.h \
+  task.h
 tests.o: tests.c tests.h x86_desc.h types.h lib.h idt.h idthandler.h \
-  keyboard.h i8259.h terminal.h paging.h fs.h rtc.h
+  keyboard.h i8259.h terminal.h vfs.h task.h paging.h fs.h rtc.h
+vfs.o: vfs.c vfs.h types.h

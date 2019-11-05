@@ -4,9 +4,14 @@
 
 #include "types.h"
 #include "lib.h"
+#include "vfs.h"
+#include "task.h"
 
 #define FS_DENTRY_FILE_NAME_OFFSET 33
-#define FS_DENTRY_FILE_NAME_SIZE 32
+#define FS_FILE_NAME_SIZE 32
+#define FS_FILE_TYPE_FILE 2
+#define FS_FILE_TYPE_DIR 1
+#define FS_FILE_TYPE_RTC 0
 
 
 typedef struct dentry {
@@ -31,13 +36,14 @@ typedef struct inode {
 
 
 /* typedef enum file_type{STDIN_T, STDOUT_T, DIRECTORY_T, FILE_T, RTC_T} file_type_t; */
-
+/**
 typedef struct file_descriptor {
     void* file_operation_table_ptr;
     uint32_t inode;
     uint32_t file_pos;
     uint32_t flag;
 } file_descriptor_t;
+ */
 
 void init_fs(uint32_t fs_start_addr, uint32_t fs_end_addr);
 int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry);
@@ -54,5 +60,14 @@ int32_t file_open(const uint8_t *filename);
 int32_t file_read(int32_t fd, void *buf, int32_t nbytes);
 int32_t file_write(int32_t fd, const void *buf, int32_t nbytes);
 int32_t file_close(int32_t fd);
+
+
+file_operator_t file_operator;
+
+file_operator_t directory_operator;
+
+void init_file_operator();
+
+void init_directory_operator();
 
 #endif //MP3_GROUP_42_FS_H

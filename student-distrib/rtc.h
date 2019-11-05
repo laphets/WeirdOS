@@ -5,6 +5,8 @@
 #include "types.h"
 #include "x86_desc.h"
 #include "i8259.h"
+#include "vfs.h"
+
 
 #define RTC_IRQ 0x8
 #define RTC_PORT_SELECT 0x70
@@ -19,6 +21,7 @@
 #define OPEN_RTC_RATE 0xF
 #define MAX_RTC_HZ 1024
 #define LOW_4_BITS 0xF
+
 
 /* Updates the clock to 2 Hz when the RTC is opened */
 int32_t rtc_open(const uint8_t* filename);
@@ -37,6 +40,10 @@ void rtc_handler();
 
 /* Init rtc and set rate to 0x0F */
 void init_rtc();
+
+file_operator_t rtc_operator;
+
+void init_rtc_operator();
 
 /* hertzmap[16]:
  * Holds all the possible Hertz values of the RTC

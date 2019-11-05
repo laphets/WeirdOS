@@ -42,7 +42,7 @@ void SET_IDT_INTERRUPT_GATE(uint8_t index, const char* name, idt_handler_t handl
     idt[index].seg_selector = KERNEL_CS;
     idt[index].reserved4 = 0;
     /* 80386 32-bit trap gate: 0xF */
-    idt[index].reserved3 = 0;
+    idt[index].reserved3 = 1;
     idt[index].reserved2 = 1;
     idt[index].reserved1 = 1;
     idt[index].size = 1;
@@ -69,12 +69,14 @@ void SET_IDT_SYSCALL_GATE(uint8_t index, const char* name, idt_handler_t handler
     idt[index].seg_selector = KERNEL_CS;
     idt[index].reserved4 = 0;
     /* 80386 32-bit trap gate: 0xF */
-    idt[index].reserved3 = 0;
-    idt[index].reserved2 = 0;
-    idt[index].reserved1 = 0;
-    idt[index].size = 0;
+    idt[index].reserved3 = 1; /* !!! set to 1 */
+    idt[index].reserved2 = 1;
+    idt[index].reserved1 = 1;
+
+    idt[index].size = 1;
+    idt[index].reserved0 = 0;
     /* Storage Segment*/
-    idt[index].reserved0 = 1;
+//    idt[index].reserved0 = 1;
     /* DPL */
     idt[index].dpl = 3;
     /* Present */
