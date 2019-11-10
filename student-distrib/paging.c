@@ -68,6 +68,9 @@ void init_paging()
                  : "eax");
 }
 
+/*
+ * https://wiki.osdev.org/TLB
+ */
 void flush_paging() {
     asm volatile(
             "movl %%cr3, %%eax;"
