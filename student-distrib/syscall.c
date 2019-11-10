@@ -252,33 +252,33 @@ int32_t halt(uint8_t status) {
      */
     /* printf("sys_halt...\n"); */
     task_t* current_task = get_current_task();
+
     /**
-     * If it's the first task, we can't do halt
+     * If it's not the first task, we can just get the parent and restore to parent state
      */
-    if(current_task->parent == -1) {
-        return -1;
+    if(current_task->parent != -1)  {
+        task_t* parent_task = (task_t*)current_task->parent_addr;
+
+        /* Then we just setback the tss */
+        tss.esp0 = KERNEL_BOTTOM - parent_task->pid * PCB_BLOCK_SIZE ;
+
+        /* Reset parent's page */
+        page_directory_entry_t *user_page_directory = &default_page_directory[32];
+        user_page_directory->present = 1;
+        user_page_directory->rw = 1;
+        user_page_directory->us = 1;
+        user_page_directory->pwt = 0;
+        user_page_directory->pcd = 1;
+        user_page_directory->accessed = 0;
+        user_page_directory->dirty = 0;
+        user_page_directory->ps = 1;
+        user_page_directory->global = 0;
+        user_page_directory->avail = 0;
+        user_page_directory->address = ((2+parent_task->pid) << 10);
+
+        flush_paging();
     }
 
-    task_t* parent_task = (task_t*)current_task->parent_addr;
-
-    /* Then we just setback the tss */
-    tss.esp0 = KERNEL_BOTTOM - parent_task->pid * PCB_BLOCK_SIZE ;
-
-    /* Reset parent's page */
-    page_directory_entry_t *user_page_directory = &default_page_directory[32];
-    user_page_directory->present = 1;
-    user_page_directory->rw = 1;
-    user_page_directory->us = 1;
-    user_page_directory->pwt = 0;
-    user_page_directory->pcd = 1;
-    user_page_directory->accessed = 0;
-    user_page_directory->dirty = 0;
-    user_page_directory->ps = 1;
-    user_page_directory->global = 0;
-    user_page_directory->avail = 0;
-    user_page_directory->address = ((2+parent_task->pid) << 10);
-
-    flush_paging();
 
     /* Clean up data for current process */
 
@@ -293,6 +293,13 @@ int32_t halt(uint8_t status) {
     current_task->fd_size = 0;
     current_task->present = 0;
     current_task_num--;
+
+    /**
+     * If it's the first task, we can't do halt, and do some restart
+     */
+    if (current_task->parent == -1) {
+        execute((const uint8_t*)current_task->name);
+    }
 
     /* Then jump to execute return */
     asm volatile ("                  \n\
