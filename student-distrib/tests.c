@@ -660,7 +660,7 @@ int system_call_invalid_fds()
 		TEST_HEADER;
 
 		int result = PASS;
-
+		int32_t fd;
     uint8_t buf[128];
     int32_t  neg = -1;
     int32_t  big = 8;
@@ -670,21 +670,18 @@ int system_call_invalid_fds()
         result = FAIL;
 		if (write(neg, (unsigned char *)buf, 200) != -1 )
 		    result = FAIL;
-		if (close(neg, (unsigned char *)buf, 200) != -1 )
-		    result = FAIL;
 
 		if (read(big, (unsigned char *)buf, 200) != -1 )
 		        result = FAIL;
 		if (write(big, (unsigned char *)buf, 200) != -1 )
-				    result = FAIL;
-		if (close(big, (unsigned char *)buf, 200) != -1 )
 				    result = FAIL;
 
 		if (read(unopened, (unsigned char *)buf, 200) != -1 )
 		        result = FAIL;
 		if (write(unopened, (unsigned char *)buf, 200) != -1 )
 				    result = FAIL;
-	  if (close(unopened, (unsigned char *)buf, 200) != -1 )
+
+	  if (close(fd) != -1 )
 			    result = FAIL;
 
     return result;
@@ -706,7 +703,7 @@ int system_call_invalid_file_name(){
 			  result = FAIL;
 	 if (open((uint8_t*)"") != -1)
 			  result = FAIL;
-	 return result
+	 return result;
 }
 
 
