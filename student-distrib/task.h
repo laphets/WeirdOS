@@ -10,6 +10,8 @@
 #define MAX_FD_NUM 8
 #define IMAGE_START_ADDR 0x08048000
 #define FILE_NAME_SIZE 32
+
+/* max task we can have */
 #define MAX_TASK_NUM 8
 
 #define KERNEL_BOTTOM 0x800000
@@ -17,9 +19,10 @@
 
 #define TASK_STACK_SATRT_ADDR 0x8400000
 
-
+/* Record for current running processes */
 uint32_t current_task_num;
 
+/* Struct define for PCB */
 typedef struct task {
     uint8_t present;
     uint32_t pid;
@@ -38,12 +41,15 @@ typedef struct task {
     uint32_t prev_ebp;
 } task_t;
 
-
+/* Init for all the task structures */
 void init_tasks();
 
+/* Get current task by the esp position */
 task_t* get_current_task();
 
+/* Copy data from kernel to user space */
 void* copy_to_user(int8_t* dest, const int8_t* src, uint32_t n);
+/* Copy data from user space to kernel */
 void* copy_from_user(int8_t* dest, const int8_t* src, uint32_t n);
 
-#endif //MP3_GROUP_42_TASK_H
+#endif //_42_TASK_H

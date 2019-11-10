@@ -10,9 +10,11 @@ kernel.o: kernel.c multiboot.h types.h x86_desc.h lib.h task.h vfs.h \
   syscall.h debug.h tests.h
 keyboard.o: keyboard.c keyboard.h lib.h types.h i8259.h terminal.h vfs.h \
   task.h
+kmalloc.o: kmalloc.c kmalloc.h types.h lib.h
 lib.o: lib.c lib.h types.h
 paging.o: paging.c paging.h types.h lib.h
 rtc.o: rtc.c rtc.h lib.h types.h x86_desc.h i8259.h vfs.h
+rtl8139.o: rtl8139.c rtl8139.h
 syscall.o: syscall.c syscall.h types.h lib.h fs.h vfs.h task.h paging.h \
   terminal.h keyboard.h i8259.h rtc.h x86_desc.h
 task.o: task.c task.h lib.h types.h vfs.h

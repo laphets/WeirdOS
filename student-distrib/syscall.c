@@ -1,7 +1,12 @@
 #include "syscall.h"
 
+/* temp buffer size for read */
+#define TMP_BUF_SIZE 1000
+/* offset in file for the entry point */
+#define ENTRY_POINT_OFFSET 24
+
 /**
- * Init syscall list
+ * Init for all the syscall handler to the jump table
  */
 void init_syscall_list() {
     syscall_list[0] = NULL;
@@ -16,14 +21,16 @@ void init_syscall_list() {
 }
 
 /**
+ * Syscall for executing a command
  * For context switch, we should do the following things:
  * Set up EIP, CS, EFLAGS, ESP, SS
  * CS -> USER_CS
- * SS -> USER_DS?
+ * SS -> USER_DS
  * Finally, we need set TSS to new kernel-mode stack pointer(set to the new allocated kernel-stack?)
  * Our userspace pid should start at 1
+ * @param command command string to execute
+ * @return status, -1 for fail
  */
-
 int32_t execute(const uint8_t* command) {
     /**
      * First we should parse the command
@@ -37,6 +44,11 @@ int32_t execute(const uint8_t* command) {
      * ....
      * After executing halt, we will come here with return, then we return the value
      */
+
+    /* Check for the input */
+    if(command == NULL) {
+        return -1;
+    }
 
     cli();
     /* Init for task struct */
@@ -100,13 +112,14 @@ int32_t execute(const uint8_t* command) {
     /* Check for first 4 bytes for magic number */
     /* 0x7f 0x45 0x4c 0x46 */
     uint8_t magic_buf[4];
-    if (read_data(dentry.inode_idx, 0, magic_buf, 4) != 4) {
+    if (read_data(dentry.inode_idx, 0, magic_buf, 4 /* Read 4 bytes for magic buffer */) != 4) {
         printf("read_data fail\n");
         return -1;
     }
 
     /* printf("magic_buf: 0x%x 0x%x 0x%x 0x%x\n", magic_buf[0], magic_buf[1], magic_buf[2], magic_buf[3]); */
 
+    /* Check for the magic number, 0x7f,0x45,0x4c,0x46 */
     if (magic_buf[0] != 0x7f || magic_buf[1] != 0x45 || magic_buf[2] != 0x4c || magic_buf[3] != 0x46) {
         printf("magic_buf checking fail\n");
         return -1;
@@ -114,7 +127,7 @@ int32_t execute(const uint8_t* command) {
 
     /* Then read for the entry point */
     void* entry_point = NULL;
-    if (read_data(dentry.inode_idx, 24, (uint8_t*)&entry_point, 4) != 4) {
+    if (read_data(dentry.inode_idx, ENTRY_POINT_OFFSET, (uint8_t*)&entry_point, 4 /* Read 4 bytes for entry point */) != 4) {
         printf("read entry_point fail\n");
         return -1;
     }
@@ -136,19 +149,17 @@ int32_t execute(const uint8_t* command) {
     user_page_directory->ps = 1;
     user_page_directory->global = 0;
     user_page_directory->avail = 0;
-    user_page_directory->address = (uint32_t)((uint32_t)(2+task.pid) << 10); /* TODO: Set to the 8 + pid * (4) MB */
+    user_page_directory->address = (uint32_t)((uint32_t)(2+task.pid) << 10); /* Set to the 8 + pid * (4) MB */
 
     /* printf("refreshing paging...: 0x%x\n", *user_page_directory); */
 
-    /* TODO: Refresh the paging */
-    /* IDK */
+    /* Flush the paging */
     flush_paging();
-
 
     /* Then we should read and load the image into that location */
     /* 0x08048000 */
     uint32_t read_offset = 0;
-    uint32_t tmp_buf_size = 1000;   /* bug: if we set to 3000, it will crash */
+    uint32_t tmp_buf_size = TMP_BUF_SIZE;
     uint8_t tmp_buf[tmp_buf_size];
     int32_t bytes_read;
     while (1) {
@@ -243,6 +254,11 @@ int32_t execute(const uint8_t* command) {
     return -1;
 }
 
+/**
+ * Halt for a process
+ * @param status the return value to return from execute
+ * @return status, -1 for fail
+ */
 int32_t halt(uint8_t status) {
     /**
      * We should first figure out the current executing process
@@ -278,8 +294,6 @@ int32_t halt(uint8_t status) {
 
         flush_paging();
     }
-
-
     /* Clean up data for current process */
 
     /* Close all the open files */
@@ -317,7 +331,13 @@ int32_t halt(uint8_t status) {
     return -1;
 }
 
-
+/**
+ * Syscall for read from a file to some buffer
+ * @param fd file descriptor
+ * @param buf buffer to read to
+ * @param nbytes bytes to read
+ * @return status, -1 for fail
+ */
 int32_t read(int32_t fd, void* buf, int32_t nbytes) {
     /**
      * Resolve the file handler according to fd
@@ -326,6 +346,10 @@ int32_t read(int32_t fd, void* buf, int32_t nbytes) {
      */
     /* printf("sys_read...\n"); */
 
+    /* Check for input */
+    if(buf == NULL || nbytes < 0) {
+        return -1;
+    }
 
     /* Check for the fd range, we can't read stdout */
     if(fd < 0 || fd >= MAX_FD_NUM || fd == 1) {
@@ -344,6 +368,13 @@ int32_t read(int32_t fd, void* buf, int32_t nbytes) {
     return ret;
 }
 
+/**
+ * Syscall for write to a file by some file descriptor
+ * @param fd file descriptor
+ * @param buf buffer write from
+ * @param nbytes
+ * @return
+ */
 int32_t write(int32_t fd, const void* buf, int32_t nbytes) {
     /**
      * First resolve the file handler according to fd
@@ -351,6 +382,11 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes) {
      * (Seems like we may consider copy_from_user?)
      */
      /* printf("sys_write...\n"); */
+
+    /* Check for the input */
+    if(buf == NULL || nbytes < 0) {
+        return -1;
+    }
 
     /* Check for the fd range, we can't write stdin */
     if(fd < 0 || fd >= MAX_FD_NUM || fd == 0) {
@@ -369,6 +405,11 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes) {
     return ret;
 }
 
+/**
+ * Syscall for open a file
+ * @param filename file to open
+ * @return -1 if open fail
+ */
 int32_t open(const uint8_t* filename) {
     /**
      * We first try to resolve the filename(by first listing the directory, then find the file)
@@ -378,6 +419,11 @@ int32_t open(const uint8_t* filename) {
      */
 
     /* printf("sys_open...\n"); */
+
+    /* Check for the input */
+    if(filename == NULL) {
+        return -1;
+    }
 
     task_t* current_task = get_current_task();
 
@@ -432,6 +478,11 @@ int32_t open(const uint8_t* filename) {
     return fd;
 }
 
+/**
+ * Close the file descriptor and free that for later usage
+ * @param fd file descriptor
+ * @return status: -1 for fail
+ */
 int32_t close(int32_t fd) {
     /**
      * Close the file descriptor and free that for later usage
@@ -469,7 +520,19 @@ int32_t close(int32_t fd) {
     return 0;
 }
 
+/**
+ * Getargs syscall to get current process arguments
+ * @param buf the argument string will return to
+ * @param nbytes bytes to copy
+ * @return status, -1 for fail
+ */
 int32_t getargs(uint8_t* buf, int32_t nbytes) {
+    /**
+     * First check for some bad input
+     */
+    if(buf == NULL || nbytes < 0) {
+        return -1;
+    }
     task_t* current_task = get_current_task();
     if (current_task->argument_num == 0 || strlen(current_task->full_argument)+1 > nbytes) {
         return -1;

@@ -43,8 +43,12 @@ void rtc_handler();
 /* Init rtc and set rate to 0x0F */
 void init_rtc();
 
+/* Operator for rtc */
 file_operator_t rtc_operator;
 
+/**
+ * Init for file operator and its handler functions
+ */
 void init_rtc_operator();
 
 /* hertzmap[16]:
