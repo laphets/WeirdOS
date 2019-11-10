@@ -654,74 +654,102 @@ int rtc_test(){
 
 /* Checkpoint 3 tests */
 
-/* Checks for read, write, and close to fail for invalid/inactive FDs */
-int system_call_invalid_fds()
+/**
+ * Checks for read, write, and close to fail for invalid/inactive FDs
+ * @return pass or fail
+ */
+int syscall_rw_c_test()
 {
-		TEST_HEADER;
+    TEST_HEADER;
+    int result = PASS;
 
-		int result = PASS;
-		int32_t fd;
-    uint8_t buf[200];
-    int32_t  neg = -1;
-    int32_t  big = 8;
-    int32_t  unopened = 6;
+    int32_t tmp_buf_size = 200;
+    uint8_t buf[tmp_buf_size];
+    int32_t neg = -1;
+    int32_t big = MAX_FD_NUM;
+    int32_t unopened = 6;
 
-    if (read(neg, (unsigned char *)buf, 200) != -1 )
+    /*
+     * Test for read/write syscall for negative fd
+     */
+    if (read(neg, (unsigned char *)buf, tmp_buf_size) != -1 )
         result = FAIL;
-		if (write(neg, (unsigned char *)buf, 200) != -1 )
-		    result = FAIL;
+    if (write(neg, (unsigned char *)buf, tmp_buf_size) != -1 )
+        result = FAIL;
 
-		if (read(big, (unsigned char *)buf, 200) != -1 )
-		        result = FAIL;
-		if (write(big, (unsigned char *)buf, 200) != -1 )
-				    result = FAIL;
+    /**
+     * Test for read/write syscall for big fd
+     */
+    if (read(big, (unsigned char *)buf, tmp_buf_size) != -1 )
+        result = FAIL;
+    if (write(big, (unsigned char *)buf, tmp_buf_size) != -1 )
+        result = FAIL;
 
-		if (read(unopened, (unsigned char *)buf, 200) != -1 )
-		        result = FAIL;
-		if (write(unopened, (unsigned char *)buf, 200) != -1 )
-				    result = FAIL;
+    /**
+     * Test for read/write syscall for unopened fd
+     */
+    if (read(unopened, (unsigned char *)buf, tmp_buf_size) != -1 )
+        result = FAIL;
+    if (write(unopened, (unsigned char *)buf, tmp_buf_size) != -1 )
+        result = FAIL;
 
-	  if (close(fd) != -1 )
-			    result = FAIL;
+    /**
+     * Test bad input for buf
+     */
+    if (read(unopened, (unsigned char *)NULL, tmp_buf_size) != -1 )
+        result = FAIL;
+    if (write(unopened, (unsigned char *)NULL, tmp_buf_size) != -1 )
+        result = FAIL;
+
+    /**
+     * Test for close file descripor which is not present
+     */
+    if (close(neg) != -1 )
+        result = FAIL;
+    if (close(big) != -1 )
+        result = FAIL;
+    if (close(unopened) != -1 )
+        result = FAIL;
 
     return result;
 }
 
-
-
-
-/* Checks  if system_open catches invalid filenames */
-int system_call_invalid_file_name(){
-
+/**
+ * Checks if system_open catches invalid filenames
+ * @return pass or fail
+ */
+int syscall_open_test(){
 	TEST_HEADER;
-
 	int result = PASS;
 
-	 if (open((uint8_t*)"helloooo") != -1)
-			 result = FAIL;
-	 if (open((uint8_t*)"shel") != -1)
-			  result = FAIL;
-	 if (open((uint8_t*)"") != -1)
-			  result = FAIL;
+	/* Test for unexist file */
+    if (open((uint8_t*)"helloooo") != -1)
+        result = FAIL;
+    if (open((uint8_t*)"shel") != -1)
+        result = FAIL;
+    if (open((uint8_t*)"") != -1)
+        result = FAIL;
+    /* Test for bad input */
+    if (open((uint8_t*)NULL) != -1)
+        result = FAIL;
 
-	 return result;
+    return result;
 }
 
+/**
+ * Check for valid system call execute
+ * @return pass or fail
+ */
+int syscall_execute_test(){
+    TEST_HEADER;
 
-/*Check for valid system call*/
-int syscall_execute(){
-		TEST_HEADER;
-		
-		int result = PASS;
+    int result = PASS;
 
-    uint8_t mesg1[] = "\n 3 programs will now be executed.\n";
-    uint8_t mesg2[] = "\n Allow program to complete and halt.\n\n";
-
-    terminal_write(1, (void*)mesg1, strlen((int8_t*)mesg1));
-    terminal_write(1, (void*)mesg2, strlen((int8_t*)mesg2));
+    printf("Begin testing for syscall execute and halt...\n");
+    printf("Please type program you want to test in below shell...\n");
 
     if (execute((uint8_t*)"shell") != 0)
-      	result = FAIL;
+        result = FAIL;
     if (execute((uint8_t*)"testprint") != 0)
         result = FAIL;
     if (execute((uint8_t*)"syserr") != 0)
@@ -730,42 +758,24 @@ int syscall_execute(){
     return result;
 }
 
-
-
-
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
 
 /* Test suite entry point */
 void launch_tests()
 {
-	/* Variables to store results */
-	int idt_test_result, paging_test_result, fs_listfiles_test_result;
-	int fs_read_test_result, keyboard_translation_test_result;
-	int terimal_test_result, rtc_test_result;
-	int system_call_invalid_file_name_result, system_call_invalid_fds_result;
-  int system_execute_result;
 	/* Run Tests */
-	// idt_test_result = idt_test();
-	// paging_test_result = paging_test();
-	// fs_listfiles_test_result = fs_listfiles_test();
-	// fs_read_test_result = fs_read_test();
-	// keyboard_translation_test_result = keyboard_translation_test();
-	// terimal_test_result = terminal_read_write();
-	// rtc_test_result = rtc_test();
-	system_call_invalid_file_name_result = system_call_invalid_file_name();
-	system_call_invalid_fds_result = system_call_invalid_fds();
-	system_execute_result = syscall_execute();
+    TEST_OUTPUT("syscall_rw_c_test", syscall_rw_c_test());
+    TEST_OUTPUT("syscall_open_test", syscall_open_test());
+    TEST_OUTPUT("syscall_execute_test", syscall_execute_test());
 
-	/* Print test results */
-	//TEST_OUTPUT("idt_test", idt_test_result);
-  //TEST_OUTPUT("paging_test", paging_test_result);
-  //TEST_OUTPUT("fs_listfiles_test", fs_listfiles_test_result);
-  //TEST_OUTPUT("fs_read_test", fs_read_test_result);
-	//TEST_OUTPUT("keyboard_translation_test", keyboard_translation_test_result);
-	//TEST_OUTPUT("terimal_test", terimal_test_result);
-	//TEST_OUTPUT("rtc_test", rtc_test_result);
-	TEST_OUTPUT("system call_invalid_file_name", system_call_invalid_file_name_result);
-	TEST_OUTPUT("system_call_invalid_fds", system_call_invalid_fds_result);
-	TEST_OUTPUT("syscall_execute", system_execute_result);
+
+    TEST_OUTPUT("idt_test", idt_test());
+    TEST_OUTPUT("paging_test", paging_test());
+    TEST_OUTPUT("fs_listfiles_test", fs_listfiles_test());
+    TEST_OUTPUT("fs_read_test", fs_read_test());
+    TEST_OUTPUT("keyboard_translation_test", keyboard_translation_test());
+    TEST_OUTPUT("terimal_test", terminal_read_write());
+    TEST_OUTPUT("rtc_test", rtc_test());
+
 }
