@@ -8,6 +8,7 @@
 #include "types.h"
 #include "fs.h"
 #include "rtc.h"
+#include "syscall.h"
 
 #define PASS 1
 #define FAIL 0
