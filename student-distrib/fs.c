@@ -70,6 +70,9 @@ int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry) {
     return 0;
 }
 
+/**
+ * Get min value from two
+ */
 static int32_t get_min(uint32_t a, uint32_t b) {
     return a < b ? a : b;
 }
@@ -250,7 +253,7 @@ int32_t file_close(int32_t fd) {
 }
 
 /**
- * Operator define
+ * Init for file operator and its handler functions
  */
 void init_file_operator() {
     file_operator.open = file_open;
@@ -259,6 +262,9 @@ void init_file_operator() {
     file_operator.close = file_close;
 }
 
+/**
+ * Init for dir operator and its handler functions
+ */
 void init_directory_operator() {
     directory_operator.open = dir_open;
     directory_operator.read = dir_read;

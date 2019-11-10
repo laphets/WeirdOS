@@ -153,7 +153,7 @@ void init_rtc() {
 }
 
 /**
- * Operator define
+ * Init for rtc operator and its handler functions
  */
 void init_rtc_operator() {
     rtc_operator.open = rtc_open;

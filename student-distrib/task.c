@@ -10,7 +10,7 @@ void init_tasks() {
     uint32_t pid = 0;
     for(pid = 0; pid < MAX_TASK_NUM; pid++) {
         task_t task;
-        task.present = 0;
+        task.present = 0;   /* Set to unpresent */
         task.parent = -1;
         task.fd_size = 0;
         task.argument_num = 0;
@@ -22,6 +22,10 @@ void init_tasks() {
     }
 }
 
+/**
+ * Get current task pcb by the esp position
+ * @return pointer tp current pcb
+ */
 task_t* get_current_task() {
     uint32_t esp = 0;
     asm volatile("                  \n\
@@ -34,10 +38,12 @@ task_t* get_current_task() {
     return (task_t*)esp;
 }
 
+/* Copy data from kernel to user space */
 void* copy_to_user(int8_t* dest, const int8_t* src, uint32_t n) {
     return memcpy(dest, src, n);
 }
 
+/* Copy data from user space to kernel */
 void* copy_from_user(int8_t* dest, const int8_t* src, uint32_t n) {
     return memcpy(dest, src, n);
 }

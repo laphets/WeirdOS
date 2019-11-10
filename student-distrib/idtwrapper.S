@@ -1,4 +1,4 @@
-# boot.S - start point for the kernel after GRUB gives us control
+# idtwrapper.S - asm linkage for idt
 # vim:ts=4 noexpandtab
 
 #define ASM     1
@@ -10,7 +10,7 @@
 .global SYSCALL_80
 
 /*
- * interface between keyboard interrupt and keyboard handler
+ * Interface between keyboard interrupt and keyboard handler
  * Side_Effet: calls the keyboard handler
  */
 INTERRUPT_21:
@@ -20,7 +20,7 @@ INTERRUPT_21:
 	iret
 
 /*
- * interface between rtc interrupt and rtc handler
+ * Interface between rtc interrupt and rtc handler
  * Side_Effet: calls the rtc handler
  */
 INTERRUPT_28:
@@ -30,7 +30,7 @@ INTERRUPT_28:
 	iret
 
 /*
- * interface between system call and system call handler.
+ * Interface between system call and system call handler.
  * places the parameters in the appropriate registers for
  * the system call handler.
  * Side_Effet: calls the system call handler
@@ -48,16 +48,15 @@ SYSCALL_80:
     pushl %ebx
 
 	cmpl $SYSCALL_SIZE, %eax
-	jb CALL_HANDLER	# if syscall_size > eax, then call the handler
+	jb CALL_HANDLER	# if syscall_size > eax (eax in range), then call the corresponding handler
 
-	# Then we handle some error
+	# Then we handle some error by setting the return value -1
+ERROR_HANDLER:
 	movl $-1, %eax
 	jmp RET
 
 CALL_HANDLER:
-	call *syscall_list(, %eax, 4)
-
-
+	call *syscall_list(, %eax, 4) # call hanlder by jump table, which is defined in syscall.h
 RET:
 	popl %ebx
 	popl %ecx
