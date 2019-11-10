@@ -511,7 +511,7 @@ int terminal_read_write() {
 	char buf[200];  /* 200 is an enough number for the buffer container */
 	printf("Type something:\n");
 	check_result = terminal_read(fdint, (unsigned char *)buf, 200);
-	
+
 	/* Check for return value */
 	if(check_result == 0) {
             assertion_failure();
@@ -577,10 +577,10 @@ int terminal_read_write() {
 /* RTC Test:
  * Opens the RTC and tests the handler for 5 seconds @ 2 Hz
  * Writes all valid Hz values to the RTC then tests them
- *  	for 1 second each (Can't distinguish between 
+ *  	for 1 second each (Can't distinguish between
  * 		values > 30 Hz due to screen refresh)
  * Writes all valid Hz values > 1024 Hz which are rejected
- * 		due to kernel wanting to limit interrupts per 
+ * 		due to kernel wanting to limit interrupts per
  * 		second
  * Writes an invalid Hz value which is rejected
  * Writes a valid Hz value with an invalid nbytes value
@@ -652,6 +652,67 @@ int rtc_test(){
 
 
 /* Checkpoint 3 tests */
+
+/* Checks for read, write, and close to fail for invalid/inactive FDs */
+int system_call_invalid_fds()
+{
+		TEST_HEADER;
+
+		int result = PASS;
+
+    uint8_t buf[128];
+    int32_t  neg = -1;
+    int32_t  big = 8;
+    int32_t  unopened = 6;
+
+    if (read(neg, (unsigned char *)buf, 200) != -1 )
+        result = FAIL;
+		if (write(neg, (unsigned char *)buf, 200) != -1 )
+		    result = FAIL;
+		if (close(neg, (unsigned char *)buf, 200) != -1 )
+		    result = FAIL;
+
+		if (read(big, (unsigned char *)buf, 200) != -1 )
+		        result = FAIL;
+		if (write(big, (unsigned char *)buf, 200) != -1 )
+				    result = FAIL;
+		if (close(big, (unsigned char *)buf, 200) != -1 )
+				    result = FAIL;
+
+		if (read(unopened, (unsigned char *)buf, 200) != -1 )
+		        result = FAIL;
+		if (write(unopened, (unsigned char *)buf, 200) != -1 )
+				    result = FAIL;
+	  if (close(unopened, (unsigned char *)buf, 200) != -1 )
+			    result = FAIL;
+
+    return result;
+}
+
+
+
+
+/* Checks  if system_open catches invalid filenames */
+int system_call_invalid_file_name(){
+
+	TEST_HEADER;
+
+	int result = PASS;
+
+	 if (open((uint8_t*)"helloooo") != -1)
+			 result = FAIL;
+	 if (open((uint8_t*)"shel") != -1)
+			  result = FAIL;
+	 if (open((uint8_t*)"") != -1)
+			  result = FAIL;
+	 return result
+}
+
+
+
+
+
+
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
 
@@ -673,12 +734,11 @@ void launch_tests()
 	rtc_test_result = rtc_test();
 
 	/* Print test results */
-	TEST_OUTPUT("idt_test", idt_test_result);
-    TEST_OUTPUT("paging_test", paging_test_result);
-    TEST_OUTPUT("fs_listfiles_test", fs_listfiles_test_result);
-    TEST_OUTPUT("fs_read_test", fs_read_test_result);
+	//TEST_OUTPUT("idt_test", idt_test_result);
+  //TEST_OUTPUT("paging_test", paging_test_result);
+  //TEST_OUTPUT("fs_listfiles_test", fs_listfiles_test_result);
+  TEST_OUTPUT("fs_read_test", fs_read_test_result);
 	TEST_OUTPUT("keyboard_translation_test", keyboard_translation_test_result);
 	TEST_OUTPUT("terimal_test", terimal_test_result);
-	TEST_OUTPUT("rtc_test", rtc_test_result);
+	//TEST_OUTPUT("rtc_test", rtc_test_result);
 }
-
