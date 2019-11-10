@@ -661,7 +661,7 @@ int system_call_invalid_fds()
 
 		int result = PASS;
 		int32_t fd;
-    uint8_t buf[128];
+    uint8_t buf[200];
     int32_t  neg = -1;
     int32_t  big = 8;
     int32_t  unopened = 6;
@@ -703,10 +703,32 @@ int system_call_invalid_file_name(){
 			  result = FAIL;
 	 if (open((uint8_t*)"") != -1)
 			  result = FAIL;
+
 	 return result;
 }
 
 
+/*Check for valid system call*/
+int syscall_execute(){
+		TEST_HEADER;
+		
+		int result = PASS;
+
+    uint8_t mesg1[] = "\n 3 programs will now be executed.\n";
+    uint8_t mesg2[] = "\n Allow program to complete and halt.\n\n";
+
+    terminal_write(1, (void*)mesg1, strlen((int8_t*)mesg1));
+    terminal_write(1, (void*)mesg2, strlen((int8_t*)mesg2));
+
+    if (execute((uint8_t*)"shell") != 0)
+      	result = FAIL;
+    if (execute((uint8_t*)"testprint") != 0)
+        result = FAIL;
+    if (execute((uint8_t*)"syserr") != 0)
+        result = FAIL;
+
+    return result;
+}
 
 
 
@@ -721,22 +743,29 @@ void launch_tests()
 	int idt_test_result, paging_test_result, fs_listfiles_test_result;
 	int fs_read_test_result, keyboard_translation_test_result;
 	int terimal_test_result, rtc_test_result;
-
+	int system_call_invalid_file_name_result, system_call_invalid_fds_result;
+  int system_execute_result;
 	/* Run Tests */
-	idt_test_result = idt_test();
-	paging_test_result = paging_test();
-	fs_listfiles_test_result = fs_listfiles_test();
-	fs_read_test_result = fs_read_test();
-	keyboard_translation_test_result = keyboard_translation_test();
-	terimal_test_result = terminal_read_write();
-	rtc_test_result = rtc_test();
+	// idt_test_result = idt_test();
+	// paging_test_result = paging_test();
+	// fs_listfiles_test_result = fs_listfiles_test();
+	// fs_read_test_result = fs_read_test();
+	// keyboard_translation_test_result = keyboard_translation_test();
+	// terimal_test_result = terminal_read_write();
+	// rtc_test_result = rtc_test();
+	system_call_invalid_file_name_result = system_call_invalid_file_name();
+	system_call_invalid_fds_result = system_call_invalid_fds();
+	system_execute_result = syscall_execute();
 
 	/* Print test results */
 	//TEST_OUTPUT("idt_test", idt_test_result);
   //TEST_OUTPUT("paging_test", paging_test_result);
   //TEST_OUTPUT("fs_listfiles_test", fs_listfiles_test_result);
-  TEST_OUTPUT("fs_read_test", fs_read_test_result);
-	TEST_OUTPUT("keyboard_translation_test", keyboard_translation_test_result);
-	TEST_OUTPUT("terimal_test", terimal_test_result);
+  //TEST_OUTPUT("fs_read_test", fs_read_test_result);
+	//TEST_OUTPUT("keyboard_translation_test", keyboard_translation_test_result);
+	//TEST_OUTPUT("terimal_test", terimal_test_result);
 	//TEST_OUTPUT("rtc_test", rtc_test_result);
+	TEST_OUTPUT("system call_invalid_file_name", system_call_invalid_file_name_result);
+	TEST_OUTPUT("system_call_invalid_fds", system_call_invalid_fds_result);
+	TEST_OUTPUT("syscall_execute", system_execute_result);
 }
