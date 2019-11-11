@@ -674,11 +674,12 @@ int syscall_rw_c_test()
     TEST_HEADER;
     int result = PASS;
 
+		/* 200 is the enough size for buf container */
     int32_t tmp_buf_size = 200;
     uint8_t buf[tmp_buf_size];
     int32_t neg = -1;
     int32_t big = MAX_FD_NUM;
-    int32_t unopened = 6;
+    int32_t unopened = 6; //jump tale number frm system call
 
     /*
      * Test for read/write syscall for negative fd
