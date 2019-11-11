@@ -358,20 +358,30 @@ int keyboard_translation_test() {
 int fs_read_test() {
     TEST_HEADER;
     char buf[200]; /* 200 is the continer size we want to read from terminal */
-    printf("Type the file name you want to read:\n");
-    terminal_read(1, (unsigned char *)buf, 200);
 
-    clear();
+    /* Read the file name from user */
+    int cnt = 0;
+    printf("Type the file name you want to read:\n");
+    cnt = terminal_read(1, (unsigned char *)buf, 200);
+    if (cnt > 0 && '\n' == buf[cnt - 1])
+        cnt--;
+    buf[cnt] = '\0';
 
     if(file_open((const uint8_t*)buf) == -1) {
-        printf("File Not Exist\n");
+        printf("File Not Exist for file_open : %s\n", buf);
+        return FAIL;
+    }
+
+    dentry_t dentry;
+    if(read_dentry_by_name((const uint8_t*)buf, &dentry) == -1) {
+        printf("File Not Exist for read_dentry_by_name\n");
         return FAIL;
     }
 
     int read_length = 0;
     int total_length = 0;
     uint8_t* data[200]; /* 200 is the continer size each time we want to read something */
-    while((read_length = file_read(0, (uint8_t*)data, 200)) != 0) {
+    while((read_length = read_data(dentry.inode_idx, total_length, (uint8_t*)data, 200)) != 0) {
         if(read_length == -1) {
             return FAIL;
         }
@@ -380,11 +390,6 @@ int fs_read_test() {
     }
     printf("\ntotal_length: %d\n", total_length);
 
-    dentry_t dentry;
-    if(read_dentry_by_name((const uint8_t*)buf, &dentry) == -1) {
-        printf("File Not Exist\n");
-        return FAIL;
-    }
 //    uint8_t* dentry_data[6000];
 //    int32_t byte_read = read_data(dentry.inode_idx, 0, (uint8_t*)dentry_data, 6000);
 //    terminal_write(1, dentry_data, 6000);
@@ -657,6 +662,11 @@ int rtc_test(){
 
 /**
  * Checks for read, write, and close to fail for invalid/inactive FDs
+ * Test for read/write syscall for negative fd
+ * Test for read/write syscall for big fd
+ * Test for read/write syscall for unopened fd
+ * Test bad input for buf
+ * Test for close file descripor which is not present
  * @return pass or fail
  */
 int syscall_rw_c_test()
@@ -716,30 +726,40 @@ int syscall_rw_c_test()
 }
 
 /**
- * Checks if system_open catches invalid filenames
+ * Checks if system_open catches invalid filenames or bad inputs
+ * Test for unexist file
+ * Test for bad input
  * @return pass or fail
  */
 int syscall_open_test(){
 	TEST_HEADER;
 	int result = PASS;
-	int i;
-	int check_result = 0;
+
 	/* Test for unexist file */
-    if (open((uint8_t*)"helloooo") != -1)
+    if (open((uint8_t*)"helloooo") != -1) {
         result = FAIL;
-    if (open((uint8_t*)"shel") != -1)
+        printf("helloooo fail");
+    }
+    if (open((uint8_t*)"shel") != -1) {
         result = FAIL;
-    if (open((uint8_t*)"") != -1)
+        printf("shel fail");
+    }
+    if (open((uint8_t*)"") != -1) {
         result = FAIL;
+        printf("empty fail");
+    }
     /* Test for bad input */
-    if (open((uint8_t*)NULL) != -1)
+    if (open((uint8_t*)NULL) != -1) {
         result = FAIL;
+        printf("bad input fail");
+    }
 
     return result;
 }
 
 /**
  * Check for valid system call execute and halt
+ * And also calling userspace syserr for test
  * @return pass or fail
  */
 int syscall_execute_halt_test(){
@@ -748,26 +768,86 @@ int syscall_execute_halt_test(){
     int result = PASS;
 
     printf("Begin testing for syscall execute and halt...\n");
-    printf("Please type program you want to test in below shell...\n");
 
     /* We will add a fake PCB */
-    task_t fake_task;
-    fake_task.parent = -1;
-    fake_task.present = 1;
-    fake_task.pid = 0;
-    set_task(&fake_task);
+    task_t* fake_task = get_current_task();
+    fake_task->parent = -1;
+    fake_task->present = 1;
+    fake_task->pid = 0;
+    fake_task->fd_size = 2;
     current_task_num++;
 
+    printf("Begin testing for shell...\n");
     if (execute((uint8_t*)"shell") != 0)
         result = FAIL;
+    printf("Begin testing for testprint...\n");
     if (execute((uint8_t*)"testprint") != 0)
         result = FAIL;
+    printf("Begin intergrated testing for syserr...\n");
     if (execute((uint8_t*)"syserr") != 0)
         result = FAIL;
 
     /* Set back the task state */
     init_tasks();
 
+    return result;
+}
+
+/**
+ * Test for fd array under read/write/open/close syscalls
+ * @return pass or fail
+ */
+int syscall_fd_test() {
+    TEST_HEADER;
+
+    int result = PASS;
+
+    printf("Begin testing for syscall execute and halt...\n");
+
+    /* We will add a fake PCB */
+    task_t* fake_task = get_current_task();
+    fake_task->parent = -1;
+    fake_task->present = 1;
+    fake_task->pid = 0;
+    fake_task->fd_size = 2; /* Assume initial 2 is for stdin and stdout */
+    fake_task->fd_table[0].present = 1;
+    fake_task->fd_table[1].present = 1;
+    current_task_num++;
+
+    /* Test for fd under open syscall */
+    int fd = 0;
+    fd = open((uint8_t*)".");
+    if (fd == -1) {
+        result = FAIL;
+        printf("fd open fail");
+    }
+
+    if(fake_task->fd_size != 3 /* 2+1 (origin 2 + open 1 */) {
+        result = FAIL;
+        printf("fd_size fail");
+    }
+
+    /* Test for fd under read/write syscall */
+    int32_t tmp_buf_size = 200; /* Just set for a buffer size */
+    uint8_t buf[tmp_buf_size];
+    if(read(fd, buf, tmp_buf_size) == -1){
+        result = FAIL;
+        printf("fd read fail");
+    }
+
+    if(write(fd, buf, tmp_buf_size) != -1) {
+        result = FAIL;
+        printf("fd write fail");
+    }
+
+    /* Test for fd under close syscall */
+    if(close(fd) == -1 || fake_task->fd_size != 2) {
+        printf("fd close fail: fd_size: %d\n", fake_task->fd_size);
+        result = FAIL;
+    }
+
+    /* Reset task states */
+    init_tasks();
     return result;
 }
 
@@ -781,8 +861,16 @@ void launch_tests()
 	/* Run Tests */
     TEST_OUTPUT("syscall_rw_c_test", syscall_rw_c_test());
     TEST_OUTPUT("syscall_open_test", syscall_open_test());
+    TEST_OUTPUT("syscall_fd_test", syscall_fd_test());
     TEST_OUTPUT("syscall_execute_halt_test", syscall_execute_halt_test());
 
+    /* Ask user for history checkpoint tests */
+    char buf[1];
+    printf("Do you want to test for past checkpoints, type y/n:");
+    terminal_read(0, buf, 1);
+    if(buf[0] != 'y') {
+        return;
+    }
 
     TEST_OUTPUT("idt_test", idt_test());
     TEST_OUTPUT("paging_test", paging_test());
@@ -791,5 +879,4 @@ void launch_tests()
     TEST_OUTPUT("keyboard_translation_test", keyboard_translation_test());
     TEST_OUTPUT("terimal_test", terminal_read_write());
     TEST_OUTPUT("rtc_test", rtc_test());
-
 }

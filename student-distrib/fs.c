@@ -34,6 +34,9 @@ void init_fs(uint32_t fs_start_addr, uint32_t fs_end_addr) {
  * @return -1 on failure(non-existent file or invalid index)
  */
 int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry) {
+    if(fname == NULL) {
+        return -1;
+    }
     uint16_t i;
     char current_name[FS_DENTRY_FILE_NAME_NULL_TERM_SIZE];
     for(i = 0; i < boot_block.dir_entry_num; i++) {
@@ -43,6 +46,11 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry) {
          */
         memcpy(current_name, target, FS_DENTRY_FILE_NAME_SIZE);
         current_name[FS_DENTRY_FILE_NAME_SIZE] = 0;
+        /* printf("current_name: %s length:%d, fname: %s, length:%d\n", current_name, strlen((const char*)current_name), fname, strlen((const char*)fname)); */
+        if (strlen((const char*)current_name) != strlen((const char*)fname)) {
+            continue;
+        }
+        /* printf("current_name: %s, fname: %s\n", current_name, fname); */
         if(strncmp((const char*)fname, (const char*)current_name, strlen((const char*)current_name)) == 0) {
             /* We find the dentry */
             memcpy(dentry, target, FS_ENTRY_SIZE);

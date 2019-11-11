@@ -17,6 +17,12 @@
 #include "rtc.h"
 
 /**
+ * Placeholder for 0 syscall
+ * @return always fail for this call, let's say -1
+ */
+int32_t syscall0();
+
+/**
  * Syscall for executing a command
  * For context switch, we should do the following things:
  * Set up EIP, CS, EFLAGS, ESP, SS
