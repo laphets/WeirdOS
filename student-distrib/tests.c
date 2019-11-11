@@ -679,7 +679,7 @@ int syscall_rw_c_test()
     uint8_t buf[tmp_buf_size];
     int32_t neg = -1;
     int32_t big = MAX_FD_NUM;
-    int32_t unopened = 6; //jump tale number frm system call
+    int32_t unopened = 6; // number of unused fds.
 
     /*
      * Test for read/write syscall for negative fd
