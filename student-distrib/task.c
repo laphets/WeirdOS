@@ -21,6 +21,13 @@ void init_tasks() {
         memcpy((void*)(KERNEL_BOTTOM-(pid+1)*PCB_BLOCK_SIZE), (const void*)&task, sizeof(task));
     }
 }
+/**
+ * Set task for some pid
+ * @param task task to set
+ */
+void set_task(task_t* task) {
+    memcpy((void *)(KERNEL_BOTTOM - (task->pid + 1) * PCB_BLOCK_SIZE), (const void *)&task, sizeof(task));
+}
 
 /**
  * Get current task pcb by the esp position

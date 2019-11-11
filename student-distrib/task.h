@@ -41,8 +41,19 @@ typedef struct task {
     uint32_t prev_ebp;
 } task_t;
 
-/* Init for all the task structures */
+/**
+ * Init for all the task structures
+ * This fuction is going to initialize all the PCBs into kernel stack
+ * The first task is starts at [8MB-8KB, 8MB]
+ * The general task is at [8MB-(pid+1)*8KB, 8MB-(pid)*8KB]
+ */
 void init_tasks();
+
+/**
+ * Set task for some pid
+ * @param task task to set
+ */
+void set_task(task_t* task);
 
 /* Get current task by the esp position */
 task_t* get_current_task();

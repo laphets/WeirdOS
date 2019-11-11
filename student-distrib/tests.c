@@ -8,6 +8,8 @@
 #include "types.h"
 #include "fs.h"
 #include "rtc.h"
+#include "task.h"
+#include "syscall.h"
 
 #define PASS 1
 #define FAIL 0
@@ -511,7 +513,7 @@ int terminal_read_write() {
 	char buf[200];  /* 200 is an enough number for the buffer container */
 	printf("Type something:\n");
 	check_result = terminal_read(fdint, (unsigned char *)buf, 200);
-	
+
 	/* Check for return value */
 	if(check_result == 0) {
             assertion_failure();
@@ -577,10 +579,10 @@ int terminal_read_write() {
 /* RTC Test:
  * Opens the RTC and tests the handler for 5 seconds @ 2 Hz
  * Writes all valid Hz values to the RTC then tests them
- *  	for 1 second each (Can't distinguish between 
+ *  	for 1 second each (Can't distinguish between
  * 		values > 30 Hz due to screen refresh)
  * Writes all valid Hz values > 1024 Hz which are rejected
- * 		due to kernel wanting to limit interrupts per 
+ * 		due to kernel wanting to limit interrupts per
  * 		second
  * Writes an invalid Hz value which is rejected
  * Writes a valid Hz value with an invalid nbytes value
@@ -652,33 +654,142 @@ int rtc_test(){
 
 
 /* Checkpoint 3 tests */
+
+/**
+ * Checks for read, write, and close to fail for invalid/inactive FDs
+ * @return pass or fail
+ */
+int syscall_rw_c_test()
+{
+    TEST_HEADER;
+    int result = PASS;
+
+    int32_t tmp_buf_size = 200;
+    uint8_t buf[tmp_buf_size];
+    int32_t neg = -1;
+    int32_t big = MAX_FD_NUM;
+    int32_t unopened = 6;
+
+    /*
+     * Test for read/write syscall for negative fd
+     */
+    if (read(neg, (unsigned char *)buf, tmp_buf_size) != -1 )
+        result = FAIL;
+    if (write(neg, (unsigned char *)buf, tmp_buf_size) != -1 )
+        result = FAIL;
+
+    /**
+     * Test for read/write syscall for big fd
+     */
+    if (read(big, (unsigned char *)buf, tmp_buf_size) != -1 )
+        result = FAIL;
+    if (write(big, (unsigned char *)buf, tmp_buf_size) != -1 )
+        result = FAIL;
+
+    /**
+     * Test for read/write syscall for unopened fd
+     */
+    if (read(unopened, (unsigned char *)buf, tmp_buf_size) != -1 )
+        result = FAIL;
+    if (write(unopened, (unsigned char *)buf, tmp_buf_size) != -1 )
+        result = FAIL;
+
+    /**
+     * Test bad input for buf
+     */
+    if (read(unopened, (unsigned char *)NULL, tmp_buf_size) != -1 )
+        result = FAIL;
+    if (write(unopened, (unsigned char *)NULL, tmp_buf_size) != -1 )
+        result = FAIL;
+
+    /**
+     * Test for close file descripor which is not present
+     */
+    if (close(neg) != -1 )
+        result = FAIL;
+    if (close(big) != -1 )
+        result = FAIL;
+    if (close(unopened) != -1 )
+        result = FAIL;
+
+    return result;
+}
+
+/**
+ * Checks if system_open catches invalid filenames
+ * @return pass or fail
+ */
+int syscall_open_test(){
+	TEST_HEADER;
+	int result = PASS;
+	int i;
+	int check_result = 0;
+	/* Test for unexist file */
+    if (open((uint8_t*)"helloooo") != -1)
+        result = FAIL;
+    if (open((uint8_t*)"shel") != -1)
+        result = FAIL;
+    if (open((uint8_t*)"") != -1)
+        result = FAIL;
+    /* Test for bad input */
+    if (open((uint8_t*)NULL) != -1)
+        result = FAIL;
+
+    return result;
+}
+
+/**
+ * Check for valid system call execute and halt
+ * @return pass or fail
+ */
+int syscall_execute_halt_test(){
+    TEST_HEADER;
+
+    int result = PASS;
+
+    printf("Begin testing for syscall execute and halt...\n");
+    printf("Please type program you want to test in below shell...\n");
+
+    /* We will add a fake PCB */
+    task_t fake_task;
+    fake_task.parent = -1;
+    fake_task.present = 1;
+    fake_task.pid = 0;
+    set_task(&fake_task);
+    current_task_num++;
+
+    if (execute((uint8_t*)"shell") != 0)
+        result = FAIL;
+    if (execute((uint8_t*)"testprint") != 0)
+        result = FAIL;
+    if (execute((uint8_t*)"syserr") != 0)
+        result = FAIL;
+
+    /* Set back the task state */
+    init_tasks();
+
+    return result;
+}
+
+
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
 
 /* Test suite entry point */
 void launch_tests()
 {
-	/* Variables to store results */
-	int idt_test_result, paging_test_result, fs_listfiles_test_result;
-	int fs_read_test_result, keyboard_translation_test_result;
-	int terimal_test_result, rtc_test_result;
-
 	/* Run Tests */
-	idt_test_result = idt_test();
-	paging_test_result = paging_test();
-	fs_listfiles_test_result = fs_listfiles_test();
-	fs_read_test_result = fs_read_test();
-	keyboard_translation_test_result = keyboard_translation_test();
-	terimal_test_result = terminal_read_write();
-	rtc_test_result = rtc_test();
+    TEST_OUTPUT("syscall_rw_c_test", syscall_rw_c_test());
+    TEST_OUTPUT("syscall_open_test", syscall_open_test());
+    TEST_OUTPUT("syscall_execute_halt_test", syscall_execute_halt_test());
 
-	/* Print test results */
-	TEST_OUTPUT("idt_test", idt_test_result);
-    TEST_OUTPUT("paging_test", paging_test_result);
-    TEST_OUTPUT("fs_listfiles_test", fs_listfiles_test_result);
-    TEST_OUTPUT("fs_read_test", fs_read_test_result);
-	TEST_OUTPUT("keyboard_translation_test", keyboard_translation_test_result);
-	TEST_OUTPUT("terimal_test", terimal_test_result);
-	TEST_OUTPUT("rtc_test", rtc_test_result);
+
+    TEST_OUTPUT("idt_test", idt_test());
+    TEST_OUTPUT("paging_test", paging_test());
+    TEST_OUTPUT("fs_listfiles_test", fs_listfiles_test());
+    TEST_OUTPUT("fs_read_test", fs_read_test());
+    TEST_OUTPUT("keyboard_translation_test", keyboard_translation_test());
+    TEST_OUTPUT("terimal_test", terminal_read_write());
+    TEST_OUTPUT("rtc_test", rtc_test());
+
 }
-

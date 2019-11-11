@@ -21,5 +21,6 @@ task.o: task.c task.h lib.h types.h vfs.h
 terminal.o: terminal.c terminal.h keyboard.h lib.h types.h i8259.h vfs.h \
   task.h
 tests.o: tests.c tests.h x86_desc.h types.h lib.h idt.h idthandler.h \
-  keyboard.h i8259.h terminal.h vfs.h task.h paging.h fs.h rtc.h
+  keyboard.h i8259.h terminal.h vfs.h task.h paging.h fs.h rtc.h \
+  syscall.h
 vfs.o: vfs.c vfs.h types.h
