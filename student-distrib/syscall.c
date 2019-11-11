@@ -9,7 +9,7 @@
  * Init for all the syscall handler to the jump table
  */
 void init_syscall_list() {
-    syscall_list[0] = NULL;
+    syscall_list[0] = syscall0;
     syscall_list[1] = halt;
     syscall_list[2] = execute;
     syscall_list[3] = read;
@@ -18,6 +18,14 @@ void init_syscall_list() {
     syscall_list[6] = close;
     syscall_list[7] = getargs;
     syscall_list[8] = vidmap;
+}
+
+/**
+ * Placeholder for 0 syscall
+ * @return always fail for this call, let's say -1
+ */
+int32_t syscall0() {
+    return -1;
 }
 
 /**
@@ -70,7 +78,6 @@ int32_t execute(const uint8_t* command) {
         task.pid = current_task->pid+1;
     }
 
-
     /* Parse command */
     /**
      * TODO: We need some length checking here
@@ -90,6 +97,7 @@ int32_t execute(const uint8_t* command) {
     int8_t* token = strtok((int8_t*)command, (const int8_t*)" ");
     if (token != NULL) {
         memcpy((void*)task.name, (const void*)token, strlen((const int8_t*)token));
+        task.name[strlen((const int8_t*)token)] = '\0';
         token = strtok(NULL, " ");
     }
     while(token != NULL) {
@@ -102,7 +110,7 @@ int32_t execute(const uint8_t* command) {
     /* Then we check for the file */
     dentry_t dentry;
     if (read_dentry_by_name((const uint8_t*)task.name, &dentry) == -1) {
-        printf("read_dentry_by_name fail\n");
+        printf("read_dentry_by_name fail: %s\n", task.name);
         return -1;
     }
     /* Check for the file type */
@@ -432,7 +440,11 @@ int32_t open(const uint8_t* filename) {
         return -1;
     }
 
+    /* printf("fd_size: %d\n", current_task->fd_size); */
+
     /* Then we allocate the file descriptor */
+
+    /* If the fd size is full, then we can't add more */
     if(current_task->fd_size >= MAX_FD_NUM) {
         return -1;
     }
@@ -474,6 +486,7 @@ int32_t open(const uint8_t* filename) {
 
     /* Then we call the open function if necessary */
     fd_entry->operator->open(filename);
+    current_task->fd_size++;
 
     return fd;
 }
