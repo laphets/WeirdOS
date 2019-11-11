@@ -8,6 +8,7 @@
 #include "types.h"
 #include "fs.h"
 #include "rtc.h"
+#include "task.h"
 #include "syscall.h"
 
 #define PASS 1
@@ -737,10 +738,10 @@ int syscall_open_test(){
 }
 
 /**
- * Check for valid system call execute
+ * Check for valid system call execute and halt
  * @return pass or fail
  */
-int syscall_execute_test(){
+int syscall_execute_halt_test(){
     TEST_HEADER;
 
     int result = PASS;
@@ -748,12 +749,23 @@ int syscall_execute_test(){
     printf("Begin testing for syscall execute and halt...\n");
     printf("Please type program you want to test in below shell...\n");
 
+    /* We will add a fake PCB */
+    task_t fake_task;
+    fake_task.parent = -1;
+    fake_task.present = 1;
+    fake_task.pid = 0;
+    set_task(&fake_task);
+    current_task_num++;
+
     if (execute((uint8_t*)"shell") != 0)
         result = FAIL;
     if (execute((uint8_t*)"testprint") != 0)
         result = FAIL;
     if (execute((uint8_t*)"syserr") != 0)
         result = FAIL;
+
+    /* Set back the task state */
+    init_tasks();
 
     return result;
 }
@@ -767,7 +779,7 @@ void launch_tests()
 	/* Run Tests */
     TEST_OUTPUT("syscall_rw_c_test", syscall_rw_c_test());
     TEST_OUTPUT("syscall_open_test", syscall_open_test());
-    TEST_OUTPUT("syscall_execute_test", syscall_execute_test());
+    TEST_OUTPUT("syscall_execute_halt_test", syscall_execute_halt_test());
 
 
     TEST_OUTPUT("idt_test", idt_test());

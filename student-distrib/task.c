@@ -22,6 +22,14 @@ void init_tasks() {
     }
 }
 
+/**
+ * Set task for some pid
+ * @param task task to set
+ */
+void set_task(task_t* task) {
+    memcpy((void*)(KERNEL_BOTTOM-(task->pid+1)*PCB_BLOCK_SIZE), (const void*)&task, sizeof(task));
+}
+
 task_t* get_current_task() {
     uint32_t esp = 0;
     asm volatile("                  \n\
