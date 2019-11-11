@@ -735,21 +735,6 @@ int syscall_open_test(){
     if (open((uint8_t*)NULL) != -1)
         result = FAIL;
 
-			printf("hello\n");
-		 /* check all FDs plus 2 since 0 and 1 are opened by term */
-		for (i = 0; i < 8; i++)  {
-		    if (open((uint8_t*)".") == -1){
-		        check_result = 1;
-		        }
-		    }
-		/* Close all Fds but 0 and 1 */
-		for (i = 2; i < 8; i++){
-		     close(i);
-		  	}
-
-		if (check_result != 2)
-		    result = FAIL;
-
     return result;
 }
 
