@@ -18,6 +18,8 @@ void init_syscall_list() {
     syscall_list[6] = close;
     syscall_list[7] = getargs;
     syscall_list[8] = vidmap;
+    syscall_list[9] = set_handler;
+    syscall_list[10] = sigreturn;
 }
 
 /**
@@ -562,3 +564,21 @@ int32_t getargs(uint8_t* buf, int32_t nbytes) {
 int32_t vidmap(uint8_t** screen_start) {
     return -1;
 }
+
+/**
+ * Not implemented yet
+ * @param signum: the value of the signal
+ * @param handler_address: the pointer to the signal handler
+ * @return
+ */
+int32_t set_handler(int32_t signum, void* handler_address){
+    return -1;
+}
+
+/**
+ * Not implemented yet
+ * @return
+ */
+int32_t sigreturn(void){
+    return -1;
+};
