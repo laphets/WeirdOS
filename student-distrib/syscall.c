@@ -563,13 +563,20 @@ int32_t getargs(uint8_t* buf, int32_t nbytes) {
  */
 int32_t vidmap(uint8_t** screen_start) {
 
-    // check for bad input
+    /* First we should check for the range for screen_start, which means it should be inside user stack */
+    /* TODO: below need to be revised */
     if (screen_start == NULL || start_screen == (uint8_t **)_4MB_){
         return -1;
     }
-      task_t* current_task = get_current_task();
-      
 
+    task_t* current_task = get_current_task();
+
+    /* Then we should set up page entry for the 4-kb video memory mapping */
+
+
+    /* Finally store that virtual address to screen_start */
+
+    
 }
 
 /**
