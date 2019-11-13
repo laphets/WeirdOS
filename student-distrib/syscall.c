@@ -562,7 +562,14 @@ int32_t getargs(uint8_t* buf, int32_t nbytes) {
  * @return
  */
 int32_t vidmap(uint8_t** screen_start) {
-    return -1;
+
+    // check for bad input
+    if (screen_start == NULL || start_screen == (uint8_t **)_4MB_){
+        return -1;
+    }
+      task_t* current_task = get_current_task();
+      
+
 }
 
 /**
