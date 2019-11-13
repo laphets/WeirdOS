@@ -27,7 +27,7 @@ typedef struct task {
     uint8_t present;
     uint32_t pid;
     int32_t parent;
-    void* parent_addr;
+    struct task * parent_task;
     uint32_t fd_size;
     file_desc_t fd_table[MAX_FD_NUM];
     char name[FILE_NAME_SIZE + 1];
@@ -39,6 +39,8 @@ typedef struct task {
 
     uint32_t prev_esp;
     uint32_t prev_ebp;
+
+    uint8_t* video_addr;
 } task_t;
 
 /**
@@ -48,6 +50,12 @@ typedef struct task {
  * The general task is at [8MB-(pid+1)*8KB, 8MB-(pid)*8KB]
  */
 void init_tasks();
+
+/**
+ * Reset task to init state
+ * @param task pointer to task
+ */
+void reset_task(task_t* task);
 
 /**
  * Set task for some pid

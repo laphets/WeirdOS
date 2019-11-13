@@ -10,17 +10,27 @@ void init_tasks() {
     uint32_t pid = 0;
     for(pid = 0; pid < MAX_TASK_NUM; pid++) {
         task_t task;
-        task.present = 0;   /* Set to unpresent */
-        task.parent = -1;
-        task.fd_size = 0;
-        task.argument_num = 0;
-        int32_t fd = 0;
-        for(fd = 0; fd < MAX_FD_NUM; fd++) {
-            task.fd_table[fd].present = 0;
-        }
+        reset_task(&task);
         memcpy((void*)(KERNEL_BOTTOM-(pid+1)*PCB_BLOCK_SIZE), (const void*)&task, sizeof(task));
     }
 }
+
+/**
+ * Reset task to init state
+ * @param task pointer to task
+ */
+void reset_task(task_t* task) {
+    task->present = 0;  /* Set to unpresent */
+    task->parent = -1;
+    task->fd_size = 0;
+    task->argument_num = 0;
+    task->video_addr = NULL;
+    int32_t fd = 0;
+    for(fd = 0; fd < MAX_FD_NUM; fd++) {
+        task->fd_table[fd].present = 0;
+    }
+}
+
 /**
  * Set task for some pid
  * @param task task to set

@@ -4,7 +4,7 @@
 /**
  * Size for syscall, will be referenced from asm linkage
  */
-#define SYSCALL_SIZE 9
+#define SYSCALL_SIZE 10
 
 #ifndef ASM
 
@@ -89,11 +89,13 @@ int32_t getargs(uint8_t* buf, int32_t nbytes);
  */
 int32_t vidmap(uint8_t** screen_start);
 
+
 /**
- * Not implemented
- * int32_t set_handler(int32_t signum, void* handler_address);
- * int32_t sigreturn(void);
+ * Signal handling system calls. Currently return failure
+ * upon call
  */
+ int32_t set_handler(int32_t signum, void* handler_address);
+ int32_t sigreturn(void);
 
 /**
  * Jump table for syscalls

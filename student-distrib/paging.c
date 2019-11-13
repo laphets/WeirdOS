@@ -68,6 +68,55 @@ void init_paging()
                  : "eax");
 }
 
+/**
+ * Set user video memory map to virtual address of start_addr
+ * @param start_addr the virtual address to map
+ */
+void set_user_vm(uint8_t* start_addr) {
+    int32_t page_directory_idx = (uint32_t)start_addr / _4MB;
+    int32_t page_table_idx = ((uint32_t)start_addr % _4MB) / _4KB;
+
+    page_directory_entry_t *user_vm_page_directory = &default_page_directory[page_directory_idx];
+    user_vm_page_directory->present = 1;
+    user_vm_page_directory->rw = 1;
+    user_vm_page_directory->us = 1;
+    user_vm_page_directory->pwt = 0;
+    user_vm_page_directory->pcd = 0;
+    user_vm_page_directory->accessed = 0;
+    user_vm_page_directory->dirty = 0;
+    user_vm_page_directory->ps = 0;
+    user_vm_page_directory->global = 0;
+    user_vm_page_directory->avail = 0;
+    user_vm_page_directory->address = ((uint32_t)user_vm_page_table >> 12);
+
+    page_table_entry_t *vm_page_table_entry = &user_vm_page_table[page_table_idx];
+    vm_page_table_entry->present = 1;
+    vm_page_table_entry->rw = 1;
+    vm_page_table_entry->us = 1;
+    vm_page_table_entry->pwt = 0;
+    vm_page_table_entry->pcd = 0; /* video memory */
+    vm_page_table_entry->accessed = 0;
+    vm_page_table_entry->dirty = 0;
+    vm_page_table_entry->pat = 0;
+    vm_page_table_entry->global = 0;
+    vm_page_table_entry->avail = 0;
+    vm_page_table_entry->address = VIDEO_MEMORY_START; /* Just map to same addr */
+}
+
+/**
+ * Disable the current mapping from start_addr
+ * @param start_addr pointer to current mapped address
+ */
+void reset_user_vm(uint8_t* start_addr) {
+    int32_t page_directory_idx = (uint32_t)start_addr / _4MB;
+    int32_t page_table_idx = ((uint32_t)start_addr % _4MB) / _4KB;
+
+    page_directory_entry_t *user_vm_page_directory = &default_page_directory[page_directory_idx];
+    user_vm_page_directory->present = 1;
+    page_table_entry_t *vm_page_table_entry = &user_vm_page_table[page_table_idx];
+    vm_page_table_entry->present = 1;
+}
+
 /*
  * https://wiki.osdev.org/TLB
  */
