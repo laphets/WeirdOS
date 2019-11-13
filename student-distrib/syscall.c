@@ -4,6 +4,9 @@
 #define TMP_BUF_SIZE 1000
 /* offset in file for the entry point */
 #define ENTRY_POINT_OFFSET 24
+/* Define for user virtual buttom and upper */
+#define USER_VM_START 0x8000000
+#define USER_VM_END   0x8400000
 
 /**
  * Init for all the syscall handler to the jump table
@@ -63,6 +66,7 @@ int32_t execute(const uint8_t* command) {
     cli();
     /* Init for task struct */
     task_t task;
+    reset_task(&task);
     task.present = 1;
 
     if(current_task_num == 0) {
@@ -70,13 +74,13 @@ int32_t execute(const uint8_t* command) {
          * First userspace program
          */
         task.parent = -1;
-        task.parent_addr = NULL;
+        task.parent_task = NULL;
         task.pid = 0;
     } else {
         /* Get current task info */
         task_t* current_task = get_current_task();
         task.parent = current_task->pid;
-        task.parent_addr = current_task;
+        task.parent_task = current_task;
         task.pid = current_task->pid+1;
     }
 
@@ -213,6 +217,12 @@ int32_t execute(const uint8_t* command) {
 
     /* printf("changing TSS done\n"); */
 
+    /* Reset parent video mapping */
+    if(task.parent != -1 && task.parent_task->video_addr != NULL) {
+        reset_user_vm(task.parent_task->video_addr);
+        flush_paging();
+    }
+
     /* Update the current task num */
     current_task_num++;
 
@@ -280,10 +290,19 @@ int32_t halt(uint8_t status) {
     task_t* current_task = get_current_task();
 
     /**
+     * First clear for video memory mapping if needed
+     */
+    if(current_task->video_addr != NULL) {
+        reset_user_vm(current_task->video_addr);
+        current_task->video_addr = NULL;
+        flush_paging();
+    }
+
+    /**
      * If it's not the first task, we can just get the parent and restore to parent state
      */
     if(current_task->parent != -1)  {
-        task_t* parent_task = (task_t*)current_task->parent_addr;
+        task_t* parent_task = current_task->parent_task;
 
         /* Then we just setback the tss */
         tss.esp0 = KERNEL_BOTTOM - parent_task->pid * PCB_BLOCK_SIZE ;
@@ -302,6 +321,10 @@ int32_t halt(uint8_t status) {
         user_page_directory->avail = 0;
         user_page_directory->address = ((2+parent_task->pid) << 10);
 
+        if(parent_task->video_addr != NULL) {
+            set_user_vm(parent_task->video_addr);
+        }
+
         flush_paging();
     }
     /* Clean up data for current process */
@@ -314,8 +337,13 @@ int32_t halt(uint8_t status) {
             current_task->fd_table[fd].present = 0;
         }
     }
+    /**
+     * Clean up for current task
+     */
     current_task->fd_size = 0;
     current_task->present = 0;
+    current_task->video_addr = NULL;
+
     current_task_num--;
 
     /**
@@ -562,21 +590,24 @@ int32_t getargs(uint8_t* buf, int32_t nbytes) {
  * @return
  */
 int32_t vidmap(uint8_t** screen_start) {
-
-    /* First we should check for the range for screen_start, which means it should be inside user stack */
-    /* TODO: below need to be revised */
-    if (screen_start == NULL || start_screen == (uint8_t **)_4MB_){
+    /* First we should check for the range for screen_start, which means it should be inside user vm */
+    if ((uint32_t)screen_start < USER_VM_START || (uint32_t)screen_start >= USER_VM_END) {
         return -1;
     }
 
     task_t* current_task = get_current_task();
+    if(current_task->video_addr != NULL) {
+        *screen_start = current_task->video_addr;
+        return 0;
+    }
 
     /* Then we should set up page entry for the 4-kb video memory mapping */
+    current_task->video_addr = (uint8_t*)0x9000000;   /* TODO: A magic number here */
+    set_user_vm(current_task->video_addr);
+    flush_paging();
+    *screen_start = current_task->video_addr;
 
-
-    /* Finally store that virtual address to screen_start */
-
-    
+    return 0;
 }
 
 /**

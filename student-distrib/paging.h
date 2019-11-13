@@ -10,6 +10,9 @@
 #define VIDEO_MEMORY_START 0xB8
 #define VIDEO_MEMORY_START_ADDRESS 0xB8000
 
+#define _4MB 0x400000
+#define _4KB 0x1000
+
 typedef struct page_table_entry {
     uint32_t present : 1;    /* 1->valid, 0->not used */
     uint32_t rw         : 1; /* 1->readwrite, 0->only read */
@@ -41,7 +44,21 @@ typedef struct page_directory_entry {
 page_directory_entry_t default_page_directory[PAGE_DIRECTORY_SIZE] __attribute__((aligned(PAGE_ALIGN_SIZE)));
 page_table_entry_t first_page_table[PAGE_TABLE_SIZE] __attribute__((aligned(PAGE_ALIGN_SIZE)));
 
+page_table_entry_t user_vm_page_table[PAGE_TABLE_SIZE] __attribute__((aligned(PAGE_ALIGN_SIZE)));
+
 void init_paging();
 void flush_paging();
+
+/**
+ * Set user video memory map to virtual address of start_addr
+ * @param start_addr the virtual address to map
+ */
+void set_user_vm(uint8_t* start_addr);
+
+/**
+ * Disable the current mapping from start_addr
+ * @param start_addr pointer to current mapped address
+ */
+void reset_user_vm(uint8_t* start_addr);
 
 #endif
