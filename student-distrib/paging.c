@@ -112,9 +112,9 @@ void reset_user_vm(uint8_t* start_addr) {
     int32_t page_table_idx = ((uint32_t)start_addr % _4MB) / _4KB;
 
     page_directory_entry_t *user_vm_page_directory = &default_page_directory[page_directory_idx];
-    user_vm_page_directory->present = 1;
+    user_vm_page_directory->present = 0;
     page_table_entry_t *vm_page_table_entry = &user_vm_page_table[page_table_idx];
-    vm_page_table_entry->present = 1;
+    vm_page_table_entry->present = 0;
 }
 
 /*
