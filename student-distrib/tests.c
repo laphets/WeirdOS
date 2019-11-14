@@ -854,6 +854,63 @@ int syscall_fd_test() {
 
 
 /* Checkpoint 4 tests */
+
+/**
+ * Test for getargs syscall
+ * @return pass or fail
+ */
+int syscall_getargs_test() {
+	TEST_HEADER;
+
+	uint8_t* null_buf = NULL;
+	uint8_t valid_buf[4] = {'b','u','f','f'};
+	uint8_t string[4] = {' ',' ',' ','\0'};
+	int32_t nbytes = 1;
+	int32_t result = PASS;
+	task_t *current_task = get_current_task();
+	uint32_t argument_num_save = current_task->argument_num;
+	char full_argument_save[strlen(current_task->full_argument)];
+	strcpy(full_argument_save, current_task->full_argument);
+
+	if(getargs(null_buf, nbytes) != -1) {
+		printf("getargs NULL buf fail");
+		result = FAIL;
+	}
+
+	nbytes = -1;
+	if(getargs(valid_buf, nbytes) != -1) {
+		printf("getargs invalid nbytes fail");
+		result = FAIL;
+	}
+
+	nbytes = 4;
+	current_task->argument_num = 0;
+	strcpy(current_task->full_argument, (int8_t*)string);
+	if(getargs(valid_buf, nbytes) != -1) {
+		printf("getargs invalid argument_num fail");
+		result = FAIL;
+	}
+
+	nbytes = 3;
+	current_task->argument_num = 1;
+	if(getargs(valid_buf, nbytes) != -1) {
+		printf("getargs invalid buf size fail");
+		result = FAIL;
+	}
+
+	nbytes = 4;
+	current_task->argument_num = 1;
+	if(getargs(valid_buf, nbytes) != 0 && strncmp((int8_t*)valid_buf, (int8_t*)string, nbytes) != 0) {
+		printf("getargs valid fail");
+		result = FAIL;
+	}
+
+	current_task->argument_num = argument_num_save;
+	strcpy(current_task->full_argument, full_argument_save);
+
+	return result;
+} 
+
 /* Checkpoint 5 tests */
 
 /* Test suite entry point */
@@ -864,8 +921,9 @@ void launch_tests()
     TEST_OUTPUT("syscall_open_test", syscall_open_test());
     TEST_OUTPUT("syscall_fd_test", syscall_fd_test());
     TEST_OUTPUT("syscall_execute_halt_test", syscall_execute_halt_test());
+	TEST_OUTPUT("syscall_getargs_test", syscall_getargs_test());
 
-    /* Ask user for history checkpoint tests */
+	/* Ask user for history checkpoint tests */
     char buf[1];
     printf("Do you want to test for past checkpoints, type y/n:");
     terminal_read(0, buf, 1);
