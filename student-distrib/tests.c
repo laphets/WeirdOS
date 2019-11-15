@@ -872,13 +872,13 @@ int syscall_getargs_test() {
 	char full_argument_save[strlen(current_task->full_argument)];
 	strcpy(full_argument_save, current_task->full_argument);
 
-	if(getargs(null_buf, nbytes) != -1) {
+	if (getargs(null_buf, nbytes) != -1) {
 		printf("getargs NULL buf fail");
 		result = FAIL;
 	}
 
 	nbytes = -1;
-	if(getargs(valid_buf, nbytes) != -1) {
+	if (getargs(valid_buf, nbytes) != -1) {
 		printf("getargs invalid nbytes fail");
 		result = FAIL;
 	}
@@ -886,21 +886,21 @@ int syscall_getargs_test() {
 	nbytes = 4;
 	current_task->argument_num = 0;
 	strcpy(current_task->full_argument, (int8_t*)string);
-	if(getargs(valid_buf, nbytes) != -1) {
+	if (getargs(valid_buf, nbytes) != -1) {
 		printf("getargs invalid argument_num fail");
 		result = FAIL;
 	}
 
 	nbytes = 3;
 	current_task->argument_num = 1;
-	if(getargs(valid_buf, nbytes) != -1) {
+	if (getargs(valid_buf, nbytes) != -1) {
 		printf("getargs invalid buf size fail");
 		result = FAIL;
 	}
 
 	nbytes = 4;
 	current_task->argument_num = 1;
-	if(getargs(valid_buf, nbytes) != 0 && strncmp((int8_t*)valid_buf, (int8_t*)string, nbytes) != 0) {
+	if (getargs(valid_buf, nbytes) != 0 || strncmp((int8_t*)valid_buf, (int8_t*)string, nbytes) != 0) {
 		printf("getargs valid fail");
 		result = FAIL;
 	}
@@ -909,12 +909,65 @@ int syscall_getargs_test() {
 	strcpy(current_task->full_argument, full_argument_save);
 
 	return result;
-} 
+}
 
-/* Checkpoint 5 tests */
+/**
+ * Test for vidmap syscall
+ * @return pass or fail
+ */
+int syscall_vidmap_test() {
+	TEST_HEADER;
 
-/* Test suite entry point */
-void launch_tests()
+	uint8_t** screen_start;
+	int result = PASS;
+
+	page_directory_entry_t *user_page_directory = &default_page_directory[32];
+	user_page_directory->present = 1;
+	user_page_directory->rw = 1;
+	user_page_directory->us = 0;
+	user_page_directory->pwt = 0;
+	user_page_directory->pcd = 1;
+	user_page_directory->accessed = 0;
+	user_page_directory->dirty = 0;
+	user_page_directory->ps = 1;
+	user_page_directory->global = 1;
+	user_page_directory->avail = 0;
+	user_page_directory->address = (uint32_t)((uint32_t)(2 + 1) << 10); /* Set to the 8 + pid * (4) MB */
+	flush_paging();
+
+	screen_start = (uint8_t**)USER_VM_START - 1;
+	if (vidmap(screen_start) != -1) {
+		printf("vidmap bellow bound fail");
+		result = FAIL;
+	}
+
+	screen_start = (uint8_t**)USER_VM_END + 1;
+	if (vidmap(screen_start) != -1) {
+		printf("vidmap above bound fail");
+		result = FAIL;
+	}
+
+	int32_t page_directory_idx = (uint32_t)USER_VIDEO_ADDRESS / _4MB;
+	int32_t page_table_idx = ((uint32_t)USER_VIDEO_ADDRESS % _4MB) / _4KB;
+	screen_start = (uint8_t**)USER_VM_START;
+	if (vidmap(screen_start) != 0 || *screen_start != (uint8_t *)USER_VIDEO_ADDRESS ||
+		default_page_directory[page_directory_idx].address != (uint32_t)user_vm_page_table >> 12 ||
+		user_vm_page_table[page_table_idx].address != VIDEO_MEMORY_START)
+	{
+		printf("vidmap valid fail");
+		result = FAIL;
+	}
+
+	user_page_directory->present = 0;
+	flush_paging();
+	return result;
+}
+
+	/* Checkpoint 5 tests */
+
+	/* Test suite entry point */
+	void
+	launch_tests()
 {
 	/* Run Tests */
     TEST_OUTPUT("syscall_rw_c_test", syscall_rw_c_test());
@@ -922,6 +975,7 @@ void launch_tests()
     TEST_OUTPUT("syscall_fd_test", syscall_fd_test());
     TEST_OUTPUT("syscall_execute_halt_test", syscall_execute_halt_test());
 	TEST_OUTPUT("syscall_getargs_test", syscall_getargs_test());
+	TEST_OUTPUT("syscall_vidmap_test", syscall_vidmap_test());
 
 	/* Ask user for history checkpoint tests */
     char buf[1];
