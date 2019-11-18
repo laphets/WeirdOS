@@ -5,9 +5,20 @@
 
 #include "syscall.h"
 
+.global INTERRUPT_20
 .global INTERRUPT_21
 .global INTERRUPT_28
 .global SYSCALL_80
+
+/*
+ * Interface between keyboard interrupt and keyboard handler
+ * Side_Effet: calls the keyboard handler
+ */
+INTERRUPT_20:
+	pushal
+	call pit_handler
+	popal
+	iret
 
 /*
  * Interface between keyboard interrupt and keyboard handler

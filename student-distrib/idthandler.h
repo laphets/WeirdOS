@@ -57,6 +57,7 @@ void TRAP_15();
 /**
  * The defination for interrupt handler
  */
+extern void INTERRUPT_20();    /* For pit */
 extern void INTERRUPT_21();    /* For keyboard */
 extern void INTERRUPT_28();    /* For RTC */
 

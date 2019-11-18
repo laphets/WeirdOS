@@ -3,6 +3,7 @@
 
 #include "lib.h"
 #include "vfs.h"
+#include "terminal.h"
 
 #define MAX_ARGUMENT_SIZE_EACH 20
 #define MAX_ARGUMENT_SZIE 2048
@@ -22,10 +23,12 @@
 /* Record for current running processes */
 uint32_t current_task_num;
 
+volatile uint8_t execute_as_root;
+
 /* Struct define for PCB */
 typedef struct task {
     uint8_t present;
-    uint32_t pid;
+    int32_t pid;
     int32_t parent;
     struct task * parent_task;
     uint32_t fd_size;
@@ -40,7 +43,12 @@ typedef struct task {
     uint32_t prev_esp;
     uint32_t prev_ebp;
 
-    uint8_t* video_addr;
+    uint32_t schd_esp;
+    uint32_t schd_ebp;
+
+    uint8_t* video_addr; /* For videomap */
+
+    uint32_t terminal_id;
 } task_t;
 
 /**
@@ -65,6 +73,19 @@ void set_task(task_t* task);
 
 /* Get current task by the esp position */
 task_t* get_current_task();
+
+/**
+ * Get task by the provided pid
+ * @param pid the pid for the task
+ * @return task_t struct
+ */
+task_t* get_task_by_pid(uint32_t pid);
+
+/**
+ * Get a available pid for next task
+ * @return pid or -1 if it's full
+ */
+int32_t get_avil_pid();
 
 /* Copy data from kernel to user space */
 void* copy_to_user(int8_t* dest, const int8_t* src, uint32_t n);

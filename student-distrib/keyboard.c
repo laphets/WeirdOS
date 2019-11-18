@@ -73,6 +73,14 @@ char handle_special_keys(uint8_t ascii) {
         clear();
         return 1;
     }
+
+    /* If the key is combo of CTRL+number, we just switch to that terminal */
+    if((keyboard_flag & CTRL_BIT_MASK) && (ascii >= (uint8_t)'1' && ascii <= (uint8_t)'5')) {
+        send_eoi(KEYBOARD_IRQ);
+        switch_terminal((uint32_t)(ascii - (uint8_t)'1'), 0 /* 0 for active terminal switch */);
+        return 1;
+    }
+
     return 0;
 }
 
@@ -122,7 +130,9 @@ scancode2char(uint8_t scancode)
 /**
  * Interrupt handler for keyboard, will be called in idtwrapper.S
  */
-void keyboard_handler() {
+void keyboard_handler(registers_t registers) {
+    cli();
+
     uint8_t scancode;
     unsigned char ascii;
     scancode = inb(KEYBOARD_PORT);
@@ -133,20 +143,24 @@ void keyboard_handler() {
              * Check for Backspace
              */
             keyboard_buf_size--;
-            putc(ascii);
+            putc2buffer((char*)VIDEO_MEMORY_START_ADDRESS, ascii);
         } else if (ascii == '\n' || ascii == '\r') {
             keyboard_buf[keyboard_buf_size++] = ascii;
             strncpy(terminal_buf, keyboard_buf, keyboard_buf_size);
             terminal_buf_size = keyboard_buf_size;
-            enter_pressed_flag = 1;
+            terminal_t* active_terminal = &terminal_list[current_active_terminal];
+            /* kprintf("enter received: %d\n", active_terminal); */
+            active_terminal->enter_pressed_flag = 1;
             keyboard_buf_size = 0;
-            putc(ascii);
+            putc2buffer((char*)VIDEO_MEMORY_START_ADDRESS, ascii);
         } else if ((ascii != '\b') && (keyboard_buf_size < KEYBOARD_BUF_MAX_SIZE-1)) {
             keyboard_buf[keyboard_buf_size++] = ascii;
-            putc(ascii);
+            putc2buffer((char*)VIDEO_MEMORY_START_ADDRESS, ascii);
         }
     }
+    sti();
     send_eoi(KEYBOARD_IRQ);
+    /* printf("Keyboard Interrupt: register: 0x%x\n", registers.eip); */
 }
 
 /**

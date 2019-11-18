@@ -1,5 +1,4 @@
 #include "rtc.h"
-#include "i8259.h"
 
 volatile static uint32_t count = 0;
 volatile char wait = 0;
@@ -103,9 +102,10 @@ int32_t rtc_write(int32_t fd, const void *buf, int32_t nbytes) {
  * Output: none
  * Side effect: Resets the wait flag & increments count
  */
-void rtc_handler() {
+void rtc_handler(registers_t registers) {
     /* Status Register C will contain a bitmask telling which interrupt happened */
     /* We should read register C */
+    cli();
     outb(RTC_REGISTER_C, RTC_PORT_SELECT);
     inb(RTC_PORT_DATA);
     /* Call back to test RTC */
@@ -113,8 +113,9 @@ void rtc_handler() {
     /* Send the EOI */
     send_eoi(RTC_IRQ);
     wait = 0;
-	// printf("RTC Interrupt\n");
+//    printf("RTC Interrupt: register: 0x%x\n", registers.eip);
     count++;
+    sti();
 }
 
 /**

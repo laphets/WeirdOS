@@ -7,22 +7,32 @@
 #define TOP_RIGHT_CHAR 79
 
 #include "types.h"
+#include "terminal.h"
+#include "scheduler.h"
+
+int32_t init_ed;
+
+int32_t kputs(int8_t* s);
+int32_t kprintf(int8_t *format, ...);
 
 int32_t printf(int8_t *format, ...);
 int32_t printf_error(int8_t *format, ...);
 void putc(uint8_t c);
+void putc2buffer(char* video_mem_local, uint8_t c);
 int32_t puts(int8_t *s);
 int8_t *itoa(uint32_t value, int8_t* buf, int32_t radix);
 int8_t *strrev(int8_t* s);
 uint32_t strlen(const int8_t* s);
 void clear(void);
+void clear_vm_buffer(char* video_mem);
 void reset_cursor_pos();
+void set_cursor_pos(int x, int y);
 
-void update_cursor_pos(int x, int y);
+void update_cursor_pos(char* video_mem_local, int x, int y);
 int get_screen_y();
 int get_screen_x();
 void reset_screen_x();
-void shift_video_up(int num_row_shift);
+void shift_video_up(char* video_mem, int num_row_shift);
 void blue_screen();
 void test_interrupts(uint32_t count);
 

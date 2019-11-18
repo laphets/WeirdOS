@@ -6,6 +6,8 @@
 #include "types.h"
 #include "i8259.h"
 #include "terminal.h"
+#include "scheduler.h"
+
 
 /* Macros for mapping keyboard scan codes */
 #define KEYBOARD_IRQ 0x1
@@ -17,6 +19,10 @@
 #define KEYBOARD_RIGHT_SHIFT_RELEASE 0xB6
 #define KEYBOARD_CTRL_PRESS 0x1D
 #define KEYBOARD_CTRL_RELEASE 0x9D
+
+/* For MacOS keyboard mapping */
+#define KEYBOARD_OPTION_PRESS 56
+#define KEYBOARD_OPTION_RELEASE 184
 
 /* Macros for mapping bit masks to keep track of special keys */
 #define CAPS_LOCK_BIT_MASK 0x1

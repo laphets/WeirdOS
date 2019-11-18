@@ -1,5 +1,8 @@
 #include "paging.h"
 
+/**
+ * Init for kernel and video memory paging structure
+ */
 void init_paging()
 {
     /**
@@ -34,18 +37,7 @@ void init_paging()
     first_page_directory->avail = 0;
     first_page_directory->address = ((uint32_t)first_page_table >> 12);
 
-    page_table_entry_t *vm_page_table = &first_page_table[VIDEO_MEMORY_START];
-    vm_page_table->present = 1;
-    vm_page_table->rw = 1;
-    vm_page_table->us = 0; /* may be changed by vidmap(?) */
-    vm_page_table->pwt = 0;
-    vm_page_table->pcd = 0; /* video memory */
-    vm_page_table->accessed = 0;
-    vm_page_table->dirty = 0;
-    vm_page_table->pat = 0;
-    vm_page_table->global = 1; /* set to 1 to enable TLB */
-    vm_page_table->avail = 0;
-    vm_page_table->address = VIDEO_MEMORY_START; /* Just map to same addr */
+    set_kernel_vm((uint8_t*)VIDEO_MEMORY_START_ADDRESS);
 
     /**
       * Then we enable the paging
@@ -69,10 +61,30 @@ void init_paging()
 }
 
 /**
+ * Set video memory paging into somewhere under kernel space
+ * This function is mostly used by setting to an unshown addr for inactive terminal
+ * @param phys_addr the phys_addr we want to set into
+ */
+void set_kernel_vm(uint8_t* phys_addr) {
+    page_table_entry_t *vm_page_table = &first_page_table[(uint32_t)phys_addr >> 12];
+    vm_page_table->present = 1;
+    vm_page_table->rw = 1;
+    vm_page_table->us = 0; /* may be changed by vidmap(?) */
+    vm_page_table->pwt = 0;
+    vm_page_table->pcd = 0; /* video memory */
+    vm_page_table->accessed = 0;
+    vm_page_table->dirty = 0;
+    vm_page_table->pat = 0;
+    vm_page_table->global = 1; /* set to 1 to enable TLB */
+    vm_page_table->avail = 0;
+    vm_page_table->address = ((uint32_t)phys_addr >> 12); /* Just map to same addr */
+}
+
+/**
  * Set user video memory map to virtual address of start_addr
  * @param start_addr the virtual address to map
  */
-void set_user_vm(uint8_t* start_addr) {
+void set_user_vm(char* video_mem, uint8_t* start_addr) {
     int32_t page_directory_idx = (uint32_t)start_addr / _4MB;
     int32_t page_table_idx = ((uint32_t)start_addr % _4MB) / _4KB;
 
@@ -100,7 +112,7 @@ void set_user_vm(uint8_t* start_addr) {
     vm_page_table_entry->pat = 0;
     vm_page_table_entry->global = 0;
     vm_page_table_entry->avail = 0;
-    vm_page_table_entry->address = VIDEO_MEMORY_START; /* Just map to same addr */
+    vm_page_table_entry->address = ((uint32_t)video_mem >> 12); /* Just map to same addr */
 }
 
 /**
@@ -118,6 +130,7 @@ void reset_user_vm(uint8_t* start_addr) {
 }
 
 /*
+ * Flush paging by reset cr3
  * https://wiki.osdev.org/TLB
  */
 void flush_paging() {

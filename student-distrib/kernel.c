@@ -15,6 +15,7 @@
 #include "syscall.h"
 #include "debug.h"
 #include "tests.h"
+#include "pit.h"
 
 #define RUN_TESTS 0
 
@@ -25,6 +26,7 @@
 /* Check if MAGIC is valid and print the Multiboot information structure
    pointed by ADDR. */
 void entry(unsigned long magic, unsigned long addr) {
+    init_ed = 0;
     printf("Hello world");
     multiboot_info_t *mbi;
     uint32_t fs_start_addr, fs_end_addr;
@@ -170,6 +172,7 @@ void entry(unsigned long magic, unsigned long addr) {
     /* Set up device interrupt */
     init_rtc();
     init_keyboard();
+    init_pit();
 
     /* init vfs operators */
     init_file_operator();
@@ -180,12 +183,17 @@ void entry(unsigned long magic, unsigned long addr) {
 
     /* Init task */
     init_tasks();
+    init_scheduler();
+
+    /* Init terminals */
+    init_terminal();
 
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your
      * IDT correctly otherwise QEMU will triple fault and simple close
      * without showing you any output */
     printf("Enabling Interrupts\n");
+    init_ed = 1;
     sti();
 
 
@@ -194,8 +202,9 @@ void entry(unsigned long magic, unsigned long addr) {
     launch_tests();
 #endif
     /* Execute the first program ("shell") ... */
-    int32_t ret = execute((const uint8_t*)"shell");
-    printf("execute_ret: %d\n", ret);
+//    int32_t ret = execute((const uint8_t*)"shell");
+//    printf("execute_ret: %d\n", ret);
+    launch_terminal();
 
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile (".1: hlt; jmp .1;");

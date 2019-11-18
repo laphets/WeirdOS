@@ -6,6 +6,7 @@
 #include "x86_desc.h"
 #include "i8259.h"
 #include "vfs.h"
+#include "idt.h"
 
 
 #define RTC_IRQ 0x8

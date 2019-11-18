@@ -7,6 +7,7 @@
  */
 void init_tasks() {
     current_task_num = 0;
+    execute_as_root = 0;
     uint32_t pid = 0;
     for(pid = 0; pid < MAX_TASK_NUM; pid++) {
         task_t task;
@@ -53,6 +54,33 @@ task_t* get_current_task() {
     : "esp");
     esp &= 0xffffe000; /* 8KB Mask */
     return (task_t*)esp;
+}
+
+/**
+ * Get task by the provided pid
+ * @param pid the pid for the task
+ * @return task_t struct
+ */
+task_t* get_task_by_pid(uint32_t pid) {
+    if(pid > MAX_TASK_NUM)
+        return NULL;
+    return (task_t*)(KERNEL_BOTTOM-(pid+1)*PCB_BLOCK_SIZE);
+}
+
+/**
+ * Get a available pid for next task
+ * @return pid or -1 if it's full
+ */
+int32_t get_avil_pid() {
+    /* Find a slot for the pid */
+    int32_t pid = 0;
+    for(pid = 0; pid < MAX_TASK_NUM; pid++) {
+        if(get_task_by_pid(pid)->present == 0) {
+            return pid;
+        }
+    }
+
+    return -1;
 }
 
 /* Copy data from kernel to user space */

@@ -44,16 +44,32 @@ typedef struct page_directory_entry {
 page_directory_entry_t default_page_directory[PAGE_DIRECTORY_SIZE] __attribute__((aligned(PAGE_ALIGN_SIZE)));
 page_table_entry_t first_page_table[PAGE_TABLE_SIZE] __attribute__((aligned(PAGE_ALIGN_SIZE)));
 
+/* The page table is used to mapping for user space video memory */
 page_table_entry_t user_vm_page_table[PAGE_TABLE_SIZE] __attribute__((aligned(PAGE_ALIGN_SIZE)));
 
+/**
+ * Init for kernel and video memory paging structure
+ */
 void init_paging();
+
+/*
+ * Flush paging by reset cr3
+ * https://wiki.osdev.org/TLB
+ */
 void flush_paging();
+
+/**
+ * Set video memory paging into somewhere under kernel space
+ * This function is mostly used by setting to an unshown addr for inactive terminal
+ * @param phys_addr the phys_addr we want to set into
+ */
+void set_kernel_vm(uint8_t* phys_addr);
 
 /**
  * Set user video memory map to virtual address of start_addr
  * @param start_addr the virtual address to map
  */
-void set_user_vm(uint8_t* start_addr);
+void set_user_vm(char* video_mem, uint8_t* start_addr);
 
 /**
  * Disable the current mapping from start_addr
