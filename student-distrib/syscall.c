@@ -453,25 +453,8 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes) {
         return -1;
     }
 
-//    uint32_t before_addr = 0;
-//    task_t* before_task = get_current_task();
-//    if(current_task->terminal_id == current_active_terminal ) {
-//        before_task = get_current_task();
-//        page_table_entry_t *vm_page_table = &first_page_table[VIDEO_MEMORY_START];
-//        before_addr = vm_page_table->address;
-//        vm_page_table->address = (VIDEO_MEMORY_START_ADDRESS >> 12);
-//        flush_paging();
-//    }
-
     int32_t ret = fd_entry->operator->write(fd, buf, nbytes);
     /* printf("sys_write: code: %d\n", ret); */
-//    if(current_task->terminal_id == current_active_terminal ) {
-//        printf("before addr: 0x%x, active_terminal: %d, running_terminal: %d\n", before_addr, active_terminal, current_running_terminal);
-//        printf("before task: tid: %d, pid: %d\n", before_task->terminal_id, before_task->pid);
-//        page_table_entry_t *vm_page_table = &first_page_table[VIDEO_MEMORY_START];
-//        vm_page_table->address = before_addr;
-//        flush_paging();
-//    }
     return ret;
 }
 
