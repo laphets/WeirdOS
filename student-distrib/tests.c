@@ -226,7 +226,7 @@ int keyboard_translation_test() {
 	if ('\b' != keyboard_handler_tester(0xE)) {
 		printf("0xE"); result = FAIL;
 	}
-	if ('\t' != keyboard_handler_tester(0xF)) {
+	if (0 != keyboard_handler_tester(0xF)) {
 		printf("0xF"); result = FAIL;
 	}
 	if ('q' != keyboard_handler_tester(0x10)) {
