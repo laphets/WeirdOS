@@ -776,7 +776,17 @@ int syscall_execute_halt_test(){
     fake_task->present = 1;
     fake_task->pid = 0;
     fake_task->fd_size = 2;
+    fake_task->terminal_id= 0;
     current_task_num++;
+
+    current_active_terminal = 0;
+    current_running_terminal = 0;
+    terminal_t* terminal = &terminal_list[0];
+    terminal->present = 1;
+    terminal_buf = (char*)terminal->terminal_buf;
+    terminal->enter_pressed_flag = 0;
+    clear_vm_buffer((char*)terminal->unshown_vm_addr);
+//    clear();
 
     printf("Begin testing for shell...\n");
     if (execute((uint8_t*)"shell") != 0)
@@ -790,6 +800,7 @@ int syscall_execute_halt_test(){
 
     /* Set back the task state */
     init_tasks();
+    init_terminal();
 
     return result;
 }
@@ -963,12 +974,22 @@ int syscall_vidmap_test() {
 	return result;
 }
 
+void launch_fake_terminal() {
+    current_active_terminal = 0;
+    current_running_terminal = 0;
+    terminal_t* terminal = &terminal_list[0];
+    terminal->present = 1;
+    terminal_buf = (char*)terminal->terminal_buf;
+    terminal->enter_pressed_flag = 0;
+    terminal->root_task_pid = 0;
+    terminal->current_task_pid = 0;
+    clear_vm_buffer((char*)terminal->unshown_vm_addr);
+}
+
 	/* Checkpoint 5 tests */
 
 	/* Test suite entry point */
-	void
-	launch_tests()
-{
+void launch_tests() {
 	/* Run Tests */
     TEST_OUTPUT("syscall_rw_c_test", syscall_rw_c_test());
     TEST_OUTPUT("syscall_open_test", syscall_open_test());
@@ -976,6 +997,9 @@ int syscall_vidmap_test() {
     TEST_OUTPUT("syscall_execute_halt_test", syscall_execute_halt_test());
 	TEST_OUTPUT("syscall_getargs_test", syscall_getargs_test());
 	TEST_OUTPUT("syscall_vidmap_test", syscall_vidmap_test());
+
+	/* Start a fake terminal */
+    launch_fake_terminal();
 
 	/* Ask user for history checkpoint tests */
     char buf[1];
@@ -992,4 +1016,6 @@ int syscall_vidmap_test() {
     TEST_OUTPUT("keyboard_translation_test", keyboard_translation_test());
     TEST_OUTPUT("terimal_test", terminal_read_write());
     TEST_OUTPUT("rtc_test", rtc_test());
+
+    init_terminal();
 }

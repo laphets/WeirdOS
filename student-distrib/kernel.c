@@ -17,7 +17,7 @@
 #include "tests.h"
 #include "pit.h"
 
-#define RUN_TESTS 0
+#define RUN_TESTS 1
 
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
