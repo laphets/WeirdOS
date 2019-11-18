@@ -5,6 +5,14 @@
  * Size for syscall, will be referenced from asm linkage
  */
 #define SYSCALL_SIZE 10
+/* temp buffer size for read */
+#define TMP_BUF_SIZE 1000
+/* offset in file for the entry point */
+#define ENTRY_POINT_OFFSET 24
+/* Define for user virtual bottom and upper */
+#define USER_VM_START 0x8000000
+#define USER_VM_END 0x8400000
+#define USER_VIDEO_ADDRESS 0x9000000
 
 #ifndef ASM
 

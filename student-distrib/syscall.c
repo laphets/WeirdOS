@@ -1,13 +1,5 @@
 #include "syscall.h"
 
-/* temp buffer size for read */
-#define TMP_BUF_SIZE 1000
-/* offset in file for the entry point */
-#define ENTRY_POINT_OFFSET 24
-/* Define for user virtual buttom and upper */
-#define USER_VM_START 0x8000000
-#define USER_VM_END   0x8400000
-
 /**
  * Init for all the syscall handler to the jump table
  */
@@ -642,7 +634,7 @@ int32_t vidmap(uint8_t** screen_start) {
     }
 
     /* Then we should set up page entry for the 4-kb video memory mapping */
-    current_task->video_addr = (uint8_t*)0x9000000;   /* TODO: A magic number here */
+    current_task->video_addr = (uint8_t *)USER_VIDEO_ADDRESS; /* TODO: A magic number here */
     set_user_vm((char*)VIDEO_MEMORY_START_ADDRESS, current_task->video_addr);
     flush_paging();
     *screen_start = current_task->video_addr;
