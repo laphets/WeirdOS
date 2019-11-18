@@ -9,15 +9,16 @@
  * Init for scheduler that nothing is currently running
  */
 void init_scheduler() {
-    current_running_terminal = -1;
+    current_running_terminal = -1   /* Set -1 for a notenabled number */;
 }
 
 /**
  * The following code is Deprecated!!
  * The feature is moved into terminal.c instead
+ * PLEASE IGNORE
  */
 void schedule() {
-    if(current_running_terminal == -1 || current_active_terminal == -1)
+    if(current_running_terminal == -1 /* notenabled */ || current_active_terminal == -1 /* notenabled */)
         return;
     int32_t turns = 0;
     next_running_terminal = current_running_terminal;

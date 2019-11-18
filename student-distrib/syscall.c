@@ -617,7 +617,7 @@ int32_t vidmap(uint8_t** screen_start) {
     }
 
     /* Then we should set up page entry for the 4-kb video memory mapping */
-    current_task->video_addr = (uint8_t *)USER_VIDEO_ADDRESS; /* TODO: A magic number here */
+    current_task->video_addr = (uint8_t *)USER_VIDEO_ADDRESS;
     set_user_vm((char*)VIDEO_MEMORY_START_ADDRESS, current_task->video_addr);
     flush_paging();
     *screen_start = current_task->video_addr;
