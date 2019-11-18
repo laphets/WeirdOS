@@ -101,7 +101,7 @@ int32_t execute(const uint8_t* command) {
     }
     while(token != NULL) {
         memcpy((void*)task.argument_list[task.argument_num++], (const void*)token, strlen((const int8_t*)token));
-//        task.argument_list[task.argument_num-1][strlen((const int8_t*)token)] = '\0';
+        task.argument_list[task.argument_num-1][strlen((const int8_t*)token)] = '\0';
         token = strtok(NULL, (const int8_t*)" ");
     }
 
