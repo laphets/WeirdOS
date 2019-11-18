@@ -13,7 +13,7 @@
 #define FILE_NAME_SIZE 32
 
 /* max task we can have */
-#define MAX_TASK_NUM 8
+#define MAX_TASK_NUM 16
 
 #define KERNEL_BOTTOM 0x800000
 #define PCB_BLOCK_SIZE 0x2000
