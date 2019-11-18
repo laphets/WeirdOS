@@ -5,7 +5,7 @@
  * Init for terminal list
  */
 void init_terminal() {
-    current_active_terminal = -1;
+    current_active_terminal = -1;   /* Set -1 for a notenable number */
     int tid = 0;
     for(tid = 0; tid < MAX_TERMINAL_NUM; tid++) {
         terminal_t* terminal = &terminal_list[tid];
@@ -53,11 +53,11 @@ void switch_terminal(uint32_t tid, uint8_t type) {
     if(type > 1)
         return;
 
-    if(type == 1) {
+    if(type == TYPE_SWITCH_RUNNING_TERMINAL) {
         /**
          * Schedule next running terminal
          */
-        if(current_running_terminal == -1 || current_active_terminal == -1)
+        if(current_running_terminal == -1 /* Not enable */ || current_active_terminal == -1 /* Not enable */)
             return;
         int32_t turns = 0;
         next_running_terminal = current_running_terminal;
