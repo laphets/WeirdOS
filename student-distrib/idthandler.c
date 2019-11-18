@@ -71,10 +71,12 @@ void TRAP_E(uint32_t code, uint32_t eip) {
     :  "=r"(esp)
     :
     : "esp");
-    printf("0x0E PAGE_FAULT | UNIT_TESTING_FAIL\n");
-    printf("esp: 0x%x, [esp]: 0x%x, [esp+4]: 0x%x, [esp+8]: 0x%x, [esp-4]: 0x%x\n", esp, *esp, *(esp+1), *(esp+2), *(esp-1));
-    printf("Technical Information:\n\n*** CODE: 0x%x  STOP: 0x%x  MEMORY ACCESS LOCATION: 0x%x ***\n", code, eip, location);
+    kprintf("0x0E PAGE_FAULT | UNIT_TESTING_FAIL\n");
+    kprintf("esp: 0x%x, [esp]: 0x%x, [esp+4]: 0x%x, [esp+8]: 0x%x, [esp-4]: 0x%x\n", esp, *esp, *(esp+1), *(esp+2), *(esp-1));
+    kprintf("Technical Information:\n\n*** CODE: 0x%x  STOP: 0x%x  MEMORY ACCESS LOCATION: 0x%x ***\n", code, eip, location);
 
+
+    cli();
 //    blue_screen();
 //    printf_error("0x0E PAGE_FAULT | UNIT_TESTING_FAIL\n\n");
 //    show_msg();

@@ -69,20 +69,13 @@ int32_t execute(const uint8_t* command) {
     reset_task(&task);
     task.present = 1;
 
-    if(current_task_num == 0) {
-        /**
-         * First userspace program
-         */
-        task.parent = -1;
-        task.parent_task = NULL;
-        task.pid = 0;
-    } else {
-        /* Get current task info */
-        task_t* current_task = get_current_task();
-        task.parent = current_task->pid;
-        task.parent_task = current_task;
-        task.pid = current_task->pid+1;
+    /* Then fetch for some available pid */
+    int32_t pid = get_avil_pid();
+    if (pid == -1) {
+        return -1;
     }
+    task.pid = pid;
+
 
     /* Parse command */
     /**
@@ -108,6 +101,7 @@ int32_t execute(const uint8_t* command) {
     }
     while(token != NULL) {
         memcpy((void*)task.argument_list[task.argument_num++], (const void*)token, strlen((const int8_t*)token));
+//        task.argument_list[task.argument_num-1][strlen((const int8_t*)token)] = '\0';
         token = strtok(NULL, (const int8_t*)" ");
     }
 
@@ -216,6 +210,29 @@ int32_t execute(const uint8_t* command) {
     tss.esp0 = KERNEL_BOTTOM - task.pid * PCB_BLOCK_SIZE ;
 
     /* printf("changing TSS done\n"); */
+    if(current_task_num == 0 || execute_as_root == 1) {
+        /**
+         * Set for the root userspace program
+         */
+        execute_as_root = 0;
+        task.parent = -1;
+        task.parent_task = NULL;
+
+        /* Add some binding to the terminal */
+        task.terminal_id = current_active_terminal;
+        terminal_list[current_active_terminal].root_task_pid = task.pid;
+        terminal_list[current_active_terminal].current_task_pid = task.pid;
+        current_running_terminal = current_active_terminal;
+    } else {
+        /* Get current task info */
+        task_t* parent_task = get_current_task();
+        task.parent = parent_task->pid;
+        task.parent_task = parent_task;
+
+        /* Add some binding to the terminal */
+        task.terminal_id = parent_task->terminal_id;
+        terminal_list[task.terminal_id].current_task_pid = task.pid;
+    }
 
     /* Reset parent video mapping */
     if(task.parent != -1 && task.parent_task->video_addr != NULL) {
@@ -234,6 +251,8 @@ int32_t execute(const uint8_t* command) {
     : "=r"(task.prev_ebp), "=r"(task.prev_esp)
     :
     : "ebp", "esp");
+//    task.schd_ebp = task.prev_ebp;
+//    task.schd_esp = task.prev_esp;
 
     /* printf("store task stack done\n"); */
 
@@ -322,7 +341,7 @@ int32_t halt(uint8_t status) {
         user_page_directory->address = ((2+parent_task->pid) << 10);
 
         if(parent_task->video_addr != NULL) {
-            set_user_vm(parent_task->video_addr);
+            set_user_vm((char*)VIDEO_MEMORY_START_ADDRESS, parent_task->video_addr);
         }
 
         flush_paging();
@@ -350,7 +369,11 @@ int32_t halt(uint8_t status) {
      * If it's the first task, we can't do halt, and do some restart
      */
     if (current_task->parent == -1) {
+        execute_as_root = 1;
         execute((const uint8_t*)current_task->name);
+    } else {
+        /* Reset for the terminal */
+        terminal_list[current_task->terminal_id].current_task_pid = current_task->parent_task->pid;
     }
 
     /* Then jump to execute return */
@@ -438,8 +461,25 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes) {
         return -1;
     }
 
+//    uint32_t before_addr = 0;
+//    task_t* before_task = get_current_task();
+//    if(current_task->terminal_id == current_active_terminal ) {
+//        before_task = get_current_task();
+//        page_table_entry_t *vm_page_table = &first_page_table[VIDEO_MEMORY_START];
+//        before_addr = vm_page_table->address;
+//        vm_page_table->address = (VIDEO_MEMORY_START_ADDRESS >> 12);
+//        flush_paging();
+//    }
+
     int32_t ret = fd_entry->operator->write(fd, buf, nbytes);
     /* printf("sys_write: code: %d\n", ret); */
+//    if(current_task->terminal_id == current_active_terminal ) {
+//        printf("before addr: 0x%x, active_terminal: %d, running_terminal: %d\n", before_addr, active_terminal, current_running_terminal);
+//        printf("before task: tid: %d, pid: %d\n", before_task->terminal_id, before_task->pid);
+//        page_table_entry_t *vm_page_table = &first_page_table[VIDEO_MEMORY_START];
+//        vm_page_table->address = before_addr;
+//        flush_paging();
+//    }
     return ret;
 }
 
@@ -603,7 +643,7 @@ int32_t vidmap(uint8_t** screen_start) {
 
     /* Then we should set up page entry for the 4-kb video memory mapping */
     current_task->video_addr = (uint8_t*)0x9000000;   /* TODO: A magic number here */
-    set_user_vm(current_task->video_addr);
+    set_user_vm((char*)VIDEO_MEMORY_START_ADDRESS, current_task->video_addr);
     flush_paging();
     *screen_start = current_task->video_addr;
 

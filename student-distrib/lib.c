@@ -25,10 +25,24 @@ void clear(void) {
     reset_cursor_pos();
 }
 
+/**
+ * Clear for a virtual memory buffer
+ * @param video_mem video_memory pointer
+ */
+void clear_vm_buffer(char* video_mem) {
+    int32_t i;
+    for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
+        *(uint8_t *)(video_mem + (i << 1)) = ' ';
+        *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
+    }
+}
+
 /*
  * From: https://wiki.osdev.org/Text_Mode_Cursor
  */
-void update_cursor_pos(int x, int y) {
+void update_cursor_pos(char* video_mem_local, int x, int y) {
+    if(video_mem_local != video_mem)
+        return;
 	uint16_t pos = y * NUM_COLS + x;
 	outb(0x0F, 0x3D4);
 	outb((uint8_t) (pos & 0xFF), 0x3D5);
@@ -43,9 +57,24 @@ void update_cursor_pos(int x, int y) {
 void reset_cursor_pos() {
     screen_y = 0;
     screen_x = 0;
-    update_cursor_pos(screen_x, screen_y);
+    update_cursor_pos(video_mem, screen_x, screen_y);
 }
 
+/**
+ * Set for the current cursor position
+ * @param x the x position we want to set
+ * @param y the y position we want to set
+ */
+void set_cursor_pos(int x, int y) {
+    screen_y = y;
+    screen_x = x;
+    update_cursor_pos(video_mem, screen_x, screen_y);
+}
+
+/**
+ * Deprecated!, print a char for error message
+ * @param c
+ */
 void putc_error(uint8_t c) {
     if(c == '\n' || c == '\r') {
         screen_y = (screen_y + 1) % NUM_ROWS;
@@ -58,6 +87,10 @@ void putc_error(uint8_t c) {
         screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
     }
 }
+/**
+ * Deprecated! print an error string for error message
+ * @param s
+ */
 int32_t puts_error(int8_t* s) {
     register int32_t index = 0;
 
@@ -67,6 +100,10 @@ int32_t puts_error(int8_t* s) {
     }
     return index;
 }
+/**
+ * Deprecated!, print a fotmat string for error message
+ * @param format
+ */
 int32_t printf_error(int8_t *format, ...) {
 
     /* Pointer to the format string */
@@ -175,6 +212,10 @@ int32_t printf_error(int8_t *format, ...) {
     }
     return (buf - format);
 }
+/**
+ * Deprecated! Show a blue screen when fault occurs
+ * @param c
+ */
 void blue_screen() {
     cli();
     int32_t i;
@@ -313,6 +354,135 @@ format_char_switch:
     return (buf - format);
 }
 
+/**
+ * Directly print a string into current video memory
+ * @param s the string we want to print
+ * @return number of char we ahd printed
+ */
+int32_t kputs(int8_t* s) {
+    register int32_t index = 0;
+    while (s[index] != '\0') {
+        putc2buffer(video_mem, s[index]);
+        index++;
+    }
+    return index;
+}
+
+/**
+ * Directly print a format string into current video memory
+ * @param format the format string container
+ * @param ... other parameters
+ * @return number that printed
+ */
+int32_t kprintf(int8_t *format, ...) {
+
+    /* Pointer to the format string */
+    int8_t* buf = format;
+
+    /* Stack pointer for the other parameters */
+    int32_t* esp = (void *)&format;
+    esp++;
+
+    while (*buf != '\0') {
+        switch (*buf) {
+            case '%':
+            {
+                int32_t alternate = 0;
+                buf++;
+
+                format_char_switch:
+                /* Conversion specifiers */
+                switch (*buf) {
+                    /* Print a literal '%' character */
+                    case '%':
+                        putc2buffer(video_mem,'%');
+                        break;
+
+                        /* Use alternate formatting */
+                    case '#':
+                        alternate = 1;
+                        buf++;
+                        /* Yes, I know gotos are bad.  This is the
+                         * most elegant and general way to do this,
+                         * IMHO. */
+                        goto format_char_switch;
+
+                        /* Print a number in hexadecimal form */
+                    case 'x':
+                    {
+                        int8_t conv_buf[64];
+                        if (alternate == 0) {
+                            itoa(*((uint32_t *)esp), conv_buf, 16);
+                            kputs(conv_buf);
+                        } else {
+                            int32_t starting_index;
+                            int32_t i;
+                            itoa(*((uint32_t *)esp), &conv_buf[8], 16);
+                            i = starting_index = strlen(&conv_buf[8]);
+                            while(i < 8) {
+                                conv_buf[i] = '0';
+                                i++;
+                            }
+                            kputs(&conv_buf[starting_index]);
+                        }
+                        esp++;
+                    }
+                        break;
+
+                        /* Print a number in unsigned int form */
+                    case 'u':
+                    {
+                        int8_t conv_buf[36];
+                        itoa(*((uint32_t *)esp), conv_buf, 10);
+                        kputs(conv_buf);
+                        esp++;
+                    }
+                        break;
+
+                        /* Print a number in signed int form */
+                    case 'd':
+                    {
+                        int8_t conv_buf[36];
+                        int32_t value = *((int32_t *)esp);
+                        if(value < 0) {
+                            conv_buf[0] = '-';
+                            itoa(-value, &conv_buf[1], 10);
+                        } else {
+                            itoa(value, conv_buf, 10);
+                        }
+                        kputs(conv_buf);
+                        esp++;
+                    }
+                        break;
+
+                        /* Print a single character */
+                    case 'c':
+                        putc2buffer(video_mem, (uint8_t) *((int32_t *)esp));
+                        esp++;
+                        break;
+
+                        /* Print a NULL-terminated string */
+                    case 's':
+                        kputs(*((int8_t **)esp));
+                        esp++;
+                        break;
+
+                    default:
+                        break;
+                }
+
+            }
+                break;
+
+            default:
+                putc2buffer(video_mem, *buf);
+                break;
+        }
+        buf++;
+    }
+    return (buf - format);
+}
+
 /* int32_t puts(int8_t* s);
  *   Inputs: int_8* s = pointer to a string of characters
  *   Return Value: Number of bytes written
@@ -326,55 +496,98 @@ int32_t puts(int8_t* s) {
     return index;
 }
 
+/**
+ * Put a char into video_mem_local buffer
+ * @param video_mem_local a buffer for video memory, can be real or unshown
+ * @param c the char we want to output
+ */
+void putc2buffer(char* video_mem_local, uint8_t c) {
+    if(c == 0) {
+        return;
+    }
+    int screen_x_local = screen_x;
+    int screen_y_local = screen_y;
+    uint8_t put_to_buffer = 0;
+
+    if(init_ed == 1 && video_mem_local != video_mem && current_active_terminal != current_running_terminal) {
+        /* In this case we should have own copy */
+        terminal_t* terminal = &terminal_list[current_running_terminal];
+        screen_x_local = terminal->screen_x;
+        screen_y_local = terminal->screen_y;
+        put_to_buffer = 1;
+    }
+
+    if(c == '\n' || c == '\r') {
+        if (screen_y_local >= NUM_ROWS - 1) {
+            shift_video_up(video_mem_local, 1);
+            screen_x_local = 0;
+            update_cursor_pos(video_mem_local, screen_x_local, screen_y_local);
+        } else {
+            screen_y_local = (screen_y_local + 1) % NUM_ROWS;
+            screen_x_local = 0;
+        }
+        update_cursor_pos(video_mem_local, screen_x_local, screen_y_local);
+    } else if (c == '\b') {
+        if (screen_x_local > 0) {
+            screen_x_local--;
+        } else if(screen_y_local > 0) {
+            screen_x_local = NUM_COLS - 1;
+            screen_y_local--;
+        }
+        *(uint8_t *)(video_mem_local + ((NUM_COLS * screen_y_local + screen_x_local) << 1)) = ' ';
+        *(uint8_t *)(video_mem_local + ((NUM_COLS * screen_y_local + screen_x_local) << 1) + 1) = ATTRIB;
+    } else {
+        *(uint8_t *)(video_mem_local + ((NUM_COLS * screen_y_local + screen_x_local) << 1)) = c;
+        *(uint8_t *)(video_mem_local + ((NUM_COLS * screen_y_local + screen_x_local) << 1) + 1) = ATTRIB;
+        screen_x_local++;
+    }
+
+    if (screen_x_local < NUM_COLS) {
+        update_cursor_pos(video_mem_local, screen_x_local, screen_y_local);
+    } else {
+        if (screen_y_local >= NUM_ROWS - 1) {
+            shift_video_up(video_mem_local, 1);
+            screen_x_local = 0;
+            update_cursor_pos(video_mem_local, screen_x_local, screen_y_local);
+        } else {
+            screen_y_local = (screen_y_local + 1) % NUM_ROWS;
+            screen_x_local = 0;
+        }
+        update_cursor_pos(video_mem_local, screen_x_local, screen_y_local);
+    }
+
+    if(!put_to_buffer) {
+        screen_x = screen_x_local;
+        screen_y = screen_y_local;
+        update_cursor_pos(video_mem, screen_x_local, screen_y_local);
+    } else {
+        terminal_t* terminal = &terminal_list[current_running_terminal];
+        terminal->screen_x = screen_x_local;
+        terminal->screen_y = screen_y_local;
+    }
+}
+
 /* void putc(uint8_t c);
  * Inputs: uint_8* c = character to print
  * Return Value: void
  *  Function: Output a character to the console */
 void putc(uint8_t c) {
-    if(c == 0) {
-        return;
-    }
-    if(c == '\n' || c == '\r') {
-        if (get_screen_y() >= NUM_ROWS - 1) {
-            shift_video_up(1);
-        } else {
-            screen_y = (screen_y + 1) % NUM_ROWS;
-            screen_x = 0;
+    char* video_mem_local = video_mem;
+    if(init_ed == 1 && current_active_terminal != -1) {
+        /* Then we should put to current running's unshown buffer */
+        if(current_running_terminal != 1 && terminal_list[current_running_terminal].present && current_running_terminal != current_active_terminal) {
+            video_mem_local = (char*)terminal_list[current_running_terminal].unshown_vm_addr;
+            /* kprintf("current_active: %d, current_running: %d\n", current_active_terminal, current_running_terminal); */
         }
-        update_cursor_pos(screen_x, screen_y);
-    } else if (c == '\b') { 
-        if (screen_x > 0) {
-            screen_x--;
-        } else if(screen_y > 0) {
-            screen_x = NUM_COLS - 1;
-            screen_y--;
-        }
-        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = ' ';
-        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
-    } else {
-        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = c;
-        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
-        screen_x++;
     }
-
-    if (screen_x < NUM_COLS) {
-        update_cursor_pos(screen_x, screen_y);
-    } else {
-        if (get_screen_y() >= NUM_ROWS - 1) {
-            shift_video_up(1);
-        } else {
-            screen_y = (screen_y + 1) % NUM_ROWS;
-            screen_x = 0;
-        }
-        update_cursor_pos(screen_x, screen_y);
-    }
+    putc2buffer(video_mem_local, c);
 }
 
 /* void shift_video_up(int num_row_shift);
  * Inputs: int num_row_shift = number of rows to shift up
  * Return Value: void
  * Function: Shift the screen up by num_row_shift lines */
-void shift_video_up(int num_row_shift) {
+void shift_video_up(char* video_mem, int num_row_shift) {
     int row,col;
     for (row = 0; row < (NUM_ROWS - num_row_shift); row++)
     {
@@ -390,9 +603,6 @@ void shift_video_up(int num_row_shift) {
             *(uint8_t *)(video_mem + ((NUM_COLS * row + col) << 1)) = ' ';
         }
     }
-    screen_x = 0;
-    update_cursor_pos(screen_x, screen_y);
-
 }
 
 /* int get_screen_y();

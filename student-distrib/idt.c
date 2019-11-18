@@ -121,6 +121,7 @@ void init_trap() {
  * SIDE_EFFECT: loads interrupts on idt
  */
 void init_interrupt() {
+    SET_IDT_INTERRUPT_GATE(PIT_IDT, "pit", INTERRUPT_20);
     SET_IDT_INTERRUPT_GATE(KEYBOARD_IDT, "keyboard", INTERRUPT_21);
     SET_IDT_INTERRUPT_GATE(RTC_IDT, "rtc", INTERRUPT_28);
 }
