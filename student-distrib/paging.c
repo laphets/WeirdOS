@@ -37,7 +37,11 @@ void init_paging()
     first_page_directory->avail = 0;
     first_page_directory->address = ((uint32_t)first_page_table >> 12);
 
-    set_kernel_vm((uint8_t*)VIDEO_MEMORY_START_ADDRESS);
+
+    uint32_t vm_entry = 0xA0;
+    for(vm_entry = 0xA0; vm_entry <= 0xBF; vm_entry++) {
+        set_kernel_vm((uint8_t*)(vm_entry << 12));
+    }
 
     /**
       * Then we enable the paging

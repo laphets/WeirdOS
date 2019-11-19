@@ -115,6 +115,10 @@ void rtc_handler(registers_t registers) {
     wait = 0;
 //    printf("RTC Interrupt: register: 0x%x\n", registers.eip);
     count++;
+
+//    draw_rect(0, 0, SCROLL_X_DIM-1, SCROLL_Y_DIM-1, count);
+//    show_screen();
+
     sti();
 }
 

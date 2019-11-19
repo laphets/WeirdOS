@@ -17,7 +17,7 @@ void init_terminal() {
         terminal->inactive_video_mem = NULL;
         terminal->enter_pressed_flag = 0;
         /* We will map the unshown_vm_addr into kernel space at 0x80000 + tid * 4KB */
-        terminal->unshown_vm_addr = 0x80000 + tid * 0x1000 /* 4KB */ ; /* TODO: Record the layout mapping here */
+        terminal->unshown_vm_addr = 0x80000 + tid * 0x1000 /* 4KB */ ; /* TODO: Record the layout mapping here!!! We set the backup vm to 0x80000 */
         set_kernel_vm((uint8_t*)terminal->unshown_vm_addr);   /* Set up the paging mapping */
         memset(terminal->terminal_buf, 0, MAX_TERMINAL_BUF_SIZE);
     }

@@ -2,47 +2,53 @@ boot.o: boot.S multiboot.h x86_desc.h types.h
 idtwrapper.o: idtwrapper.S syscall.h
 x86_desc.o: x86_desc.S x86_desc.h types.h
 fs.o: fs.c fs.h types.h lib.h terminal.h keyboard.h i8259.h scheduler.h \
-  paging.h vfs.h task.h syscall.h rtc.h x86_desc.h idt.h idthandler.h
+  paging.h vfs.h task.h syscall.h rtc.h x86_desc.h idt.h idthandler.h \
+  vga.h
+gui.o: gui.c gui.h
 i8259.o: i8259.c i8259.h types.h lib.h terminal.h keyboard.h scheduler.h \
   paging.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h idt.h \
-  idthandler.h
+  idthandler.h vga.h
 idt.o: idt.c idt.h lib.h types.h terminal.h keyboard.h i8259.h \
-  scheduler.h paging.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h \
+  scheduler.h paging.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h vga.h \
   idthandler.h
 idthandler.o: idthandler.c idt.h lib.h types.h terminal.h keyboard.h \
   i8259.h scheduler.h paging.h vfs.h task.h syscall.h fs.h rtc.h \
-  x86_desc.h idthandler.h
+  x86_desc.h vga.h idthandler.h
 kernel.o: kernel.c multiboot.h types.h x86_desc.h lib.h terminal.h \
   keyboard.h i8259.h scheduler.h paging.h vfs.h task.h syscall.h fs.h \
-  rtc.h idt.h idthandler.h debug.h tests.h pit.h
+  rtc.h idt.h idthandler.h vga.h debug.h tests.h pit.h
 keyboard.o: keyboard.c keyboard.h lib.h types.h terminal.h vfs.h task.h \
   syscall.h fs.h paging.h rtc.h x86_desc.h i8259.h idt.h idthandler.h \
-  scheduler.h
+  vga.h scheduler.h
 lib.o: lib.c lib.h types.h terminal.h keyboard.h i8259.h scheduler.h \
   paging.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h idt.h \
-  idthandler.h
+  idthandler.h vga.h
+mouse.o: mouse.c mouse.h
 paging.o: paging.c paging.h types.h lib.h terminal.h keyboard.h i8259.h \
   scheduler.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h idt.h \
-  idthandler.h
+  idthandler.h vga.h
 pit.o: pit.c pit.h types.h lib.h terminal.h keyboard.h i8259.h \
   scheduler.h paging.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h idt.h \
-  idthandler.h
+  idthandler.h vga.h
 rtc.o: rtc.c rtc.h lib.h types.h terminal.h keyboard.h i8259.h \
   scheduler.h paging.h vfs.h task.h syscall.h fs.h x86_desc.h idt.h \
-  idthandler.h
+  idthandler.h vga.h
 scheduler.o: scheduler.c scheduler.h terminal.h keyboard.h lib.h types.h \
   i8259.h vfs.h task.h syscall.h fs.h paging.h rtc.h x86_desc.h idt.h \
-  idthandler.h
+  idthandler.h vga.h
 syscall.o: syscall.c syscall.h types.h lib.h terminal.h keyboard.h \
   i8259.h scheduler.h paging.h vfs.h task.h fs.h rtc.h x86_desc.h idt.h \
-  idthandler.h
+  idthandler.h vga.h
 task.o: task.c task.h lib.h types.h terminal.h keyboard.h i8259.h \
   scheduler.h paging.h vfs.h syscall.h fs.h rtc.h x86_desc.h idt.h \
-  idthandler.h
+  idthandler.h vga.h
 terminal.o: terminal.c terminal.h keyboard.h lib.h types.h scheduler.h \
   paging.h i8259.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h idt.h \
-  idthandler.h
+  idthandler.h vga.h
 tests.o: tests.c tests.h x86_desc.h types.h lib.h terminal.h keyboard.h \
   i8259.h scheduler.h paging.h vfs.h task.h syscall.h fs.h rtc.h idt.h \
-  idthandler.h
+  idthandler.h vga.h
 vfs.o: vfs.c vfs.h types.h
+vga.o: vga.c vga.h lib.h types.h terminal.h keyboard.h i8259.h \
+  scheduler.h paging.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h idt.h \
+  idthandler.h

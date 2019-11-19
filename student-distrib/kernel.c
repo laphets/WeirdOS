@@ -16,6 +16,7 @@
 #include "debug.h"
 #include "tests.h"
 #include "pit.h"
+#include "vga.h"
 
 #define RUN_TESTS 0
 
@@ -165,6 +166,8 @@ void entry(unsigned long magic, unsigned long addr) {
 
     /* Init paging */
     init_paging();
+
+    init_vga();
 
     /* Init filesystem */
     init_fs(fs_start_addr, fs_end_addr);
