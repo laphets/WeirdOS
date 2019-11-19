@@ -117,7 +117,7 @@ void rtc_handler(registers_t registers) {
     count++;
 
 //    draw_rect(0, 0, SCROLL_X_DIM-1, SCROLL_Y_DIM-1, count);
-//    show_screen();
+    show_screen();
 
     sti();
 }

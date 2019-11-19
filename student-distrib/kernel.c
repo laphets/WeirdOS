@@ -167,7 +167,7 @@ void entry(unsigned long magic, unsigned long addr) {
     /* Init paging */
     init_paging();
 
-    init_vga();
+//    init_vga();
 
     /* Init filesystem */
     init_fs(fs_start_addr, fs_end_addr);
