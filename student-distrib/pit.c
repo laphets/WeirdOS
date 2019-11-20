@@ -15,6 +15,7 @@ void pit_handler() {
     cli();
     /* We will trigger schedule here */
     switch_terminal(0, 1);
+    sti();
 }
 
 /**

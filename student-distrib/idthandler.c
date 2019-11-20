@@ -57,8 +57,12 @@ void TRAP_D() {
     :  "=r"(esp)
     :
     : "esp");
-    printf("0x0D: General protection fault\n");
-    printf("esp: 0x%x, [esp]: 0x%x, [esp+4]: 0x%x, [esp+8]: 0x%x, [esp-4]: 0x%x\n", esp, *esp, *(esp+1), *(esp+2), *(esp-1));
+    if(gui_enabled) {
+        render_string(20, 20, "0x0E PAGE_FAULT | UNIT_TESTING_FAIL\n", 0);
+    } else {
+        printf("0x0D: General protection fault\n");
+        printf("esp: 0x%x, [esp]: 0x%x, [esp+4]: 0x%x, [esp+8]: 0x%x, [esp-4]: 0x%x\n", esp, *esp, *(esp+1), *(esp+2), *(esp-1));
+    }
 }
 void TRAP_E(uint32_t code, uint32_t eip) {
     int32_t location;
@@ -71,9 +75,14 @@ void TRAP_E(uint32_t code, uint32_t eip) {
     :  "=r"(esp)
     :
     : "esp");
-    kprintf("0x0E PAGE_FAULT | UNIT_TESTING_FAIL\n");
-    kprintf("esp: 0x%x, [esp]: 0x%x, [esp+4]: 0x%x, [esp+8]: 0x%x, [esp-4]: 0x%x\n", esp, *esp, *(esp+1), *(esp+2), *(esp-1));
-    kprintf("Technical Information:\n\n*** CODE: 0x%x  STOP: 0x%x  MEMORY ACCESS LOCATION: 0x%x ***\n", code, eip, location);
+    if(gui_enabled) {
+        render_string(20, 20, "0x0E PAGE_FAULT | UNIT_TESTING_FAIL\n", 0);
+    } else {
+        kprintf("0x0E PAGE_FAULT | UNIT_TESTING_FAIL\n");
+        kprintf("esp: 0x%x, [esp]: 0x%x, [esp+4]: 0x%x, [esp+8]: 0x%x, [esp-4]: 0x%x\n", esp, *esp, *(esp+1), *(esp+2), *(esp-1));
+        kprintf("Technical Information:\n\n*** CODE: 0x%x  STOP: 0x%x  MEMORY ACCESS LOCATION: 0x%x ***\n", code, eip, location);
+
+    }
 
 
     cli();

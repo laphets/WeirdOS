@@ -12,6 +12,9 @@ static int screen_x;
 static int screen_y;
 static char* video_mem = (char *)VIDEO;
 
+static int svga_screen_x = 0;
+static int svga_screen_y = 0;
+
 /* void clear(void);
  * Inputs: void
  * Return Value: none

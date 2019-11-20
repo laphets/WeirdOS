@@ -105,7 +105,8 @@ int32_t rtc_write(int32_t fd, const void *buf, int32_t nbytes) {
 void rtc_handler(registers_t registers) {
     /* Status Register C will contain a bitmask telling which interrupt happened */
     /* We should read register C */
-    cli();
+    /* kprintf("RTC Interrupt: register: 0x%x\n", registers.eip); */
+//    cli();
     outb(RTC_REGISTER_C, RTC_PORT_SELECT);
     inb(RTC_PORT_DATA);
     /* Call back to test RTC */
@@ -113,13 +114,14 @@ void rtc_handler(registers_t registers) {
     /* Send the EOI */
     send_eoi(RTC_IRQ);
     wait = 0;
-//    printf("RTC Interrupt: register: 0x%x\n", registers.eip);
     count++;
 
-//    draw_rect(0, 0, SCROLL_X_DIM-1, SCROLL_Y_DIM-1, count);
-    show_screen();
+    if(gui_enabled) {
+        show_screen();
+    }
 
-    sti();
+
+//    sti();
 }
 
 /**

@@ -9,6 +9,7 @@
 #include "types.h"
 #include "terminal.h"
 #include "scheduler.h"
+#include "gui.h"
 
 int32_t init_ed;
 

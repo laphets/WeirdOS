@@ -44,6 +44,25 @@ void init_paging()
     }
 
     /**
+     * Set for SVGA mapping
+     */
+    uint32_t vbe_idx = (VBE_ADDR >> 22);
+    default_page_directory[vbe_idx].present = 1;
+    default_page_directory[vbe_idx].us = 0;
+    default_page_directory[vbe_idx].rw = 1;
+    default_page_directory[vbe_idx].global = 1;
+    default_page_directory[vbe_idx].ps = 1;
+    default_page_directory[vbe_idx].address = (vbe_idx << 10);
+
+//    default_page_directory[vbe_idx].address =
+    default_page_directory[vbe_idx+1].present = 1;
+    default_page_directory[vbe_idx+1].us = 0;
+    default_page_directory[vbe_idx+1].rw = 1;
+    default_page_directory[vbe_idx+1].global = 1;
+    default_page_directory[vbe_idx+1].ps = 1;
+    default_page_directory[vbe_idx+1].address = ((vbe_idx+1) << 10);
+
+    /**
       * Then we enable the paging
       * First set up cr3 to be the page_directory
       * Then set up cr0 to or with 0x80000000 to enable paging

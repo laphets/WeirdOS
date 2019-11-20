@@ -8,11 +8,12 @@
 .global INTERRUPT_20
 .global INTERRUPT_21
 .global INTERRUPT_28
+.global INTERRUPT_2C
 .global SYSCALL_80
 
 /*
- * Interface between keyboard interrupt and keyboard handler
- * Side_Effet: calls the keyboard handler
+ * Interface between pit interrupt and pit handler
+ * Side_Effet: calls the pit handler
  */
 INTERRUPT_20:
 	pushal
@@ -37,6 +38,16 @@ INTERRUPT_21:
 INTERRUPT_28:
 	pushal
 	call rtc_handler
+	popal
+	iret
+
+/*
+ * Interface between mouse interrupt and mouse handler
+ * Side_Effet: calls the mouse handler
+ */
+INTERRUPT_2C:
+	pushal
+	call mouse_handler
 	popal
 	iret
 
