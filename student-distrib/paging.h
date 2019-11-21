@@ -41,6 +41,11 @@ typedef struct page_directory_entry {
     uint32_t address : 20; /* the base address for page frame */
 } page_directory_entry_t;
 
+//typedef struct page_directory {
+//    page_directory_entry_t entry_list[PAGE_DIRECTORY_SIZE] __attribute__((aligned(PAGE_ALIGN_SIZE)));
+//    page_table_entry_t* default_page_table_list[]
+//} page_directory_t;
+
 page_directory_entry_t default_page_directory[PAGE_DIRECTORY_SIZE] __attribute__((aligned(PAGE_ALIGN_SIZE)));
 page_table_entry_t first_page_table[PAGE_TABLE_SIZE] __attribute__((aligned(PAGE_ALIGN_SIZE)));
 
@@ -50,7 +55,7 @@ page_table_entry_t user_vm_page_table[PAGE_TABLE_SIZE] __attribute__((aligned(PA
 /**
  * Init for kernel and video memory paging structure
  */
-void init_paging();
+void init_paging(uint32_t mem_upper);
 
 /*
  * Flush paging by reset cr3
@@ -76,5 +81,16 @@ void set_user_vm(char* video_mem, uint8_t* start_addr);
  * @param start_addr pointer to current mapped address
  */
 void reset_user_vm(uint8_t* start_addr);
+
+uint32_t placement_addr;
+#define MAX_FRAMES_NUM 64000
+#define START_PLACEMENT_ADDR 0xA000000 /* We start from 160MB */
+uint32_t frames_num;
+/* Frames store the physical avaliablity */
+uint32_t* frames; /* Each element can store the status of 32 pdes */
+
+uint32_t kmalloc(uint32_t size, uint8_t should_align);
+page_table_entry_t* get_page(uint32_t addr, int8_t shoud_make);
+void alloc_frame(page_table_entry_t* pte, int is_kernel, int rw, int for_video);
 
 #endif

@@ -17,7 +17,7 @@
 #include "tests.h"
 #include "pit.h"
 
-#define RUN_TESTS 0
+#define RUN_TESTS 1
 
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
@@ -164,7 +164,7 @@ void entry(unsigned long magic, unsigned long addr) {
      * PIC, any other initialization stuff... */
 
     /* Init paging */
-    init_paging();
+    init_paging(((unsigned)mbi->mem_upper) << 10);
 
     /* Init filesystem */
     init_fs(fs_start_addr, fs_end_addr);
@@ -204,7 +204,7 @@ void entry(unsigned long magic, unsigned long addr) {
     /* Execute the first program ("shell") ... */
 //    int32_t ret = execute((const uint8_t*)"shell");
 //    printf("execute_ret: %d\n", ret);
-    launch_terminal();
+//    launch_terminal();
 
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile (".1: hlt; jmp .1;");

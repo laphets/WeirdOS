@@ -1,10 +1,26 @@
 #include "paging.h"
 
+
+/* Then the following code will provide some memory management */
+/* Ref: http://www.jamesmolloy.co.uk/tutorial_html/6.-Paging.html */
+
+void init_frame_status(uint32_t mem_upper) {
+    placement_addr = START_PLACEMENT_ADDR;
+    frames_num = (mem_upper - placement_addr) / _4KB;
+    frames = kmalloc(sizeof(uint32_t) * (frames_num/32), 0);
+    memset_dword(frames, 0, frames_num/32);
+//    placement_addr = START_PLACEMENT_ADDR;
+//    frames_num = (mem_upper - placement_addr) / _4KB;
+//    if(frames_num > MAX_FRAMES_NUM)
+//        frames_num = MAX_FRAMES_NUM;
+}
+
 /**
  * Init for kernel and video memory paging structure
  */
-void init_paging()
+void init_paging(uint32_t mem_upper)
 {
+    init_frame_status(mem_upper);
     /**
      * Init page directory for kernel
      */
@@ -38,6 +54,14 @@ void init_paging()
     first_page_directory->address = ((uint32_t)first_page_table >> 12);
 
     set_kernel_vm((uint8_t*)VIDEO_MEMORY_START_ADDRESS);
+
+    /* Allocate dynamic parts, and init for their frame */
+    int32_t i = START_PLACEMENT_ADDR;
+    while(i < placement_addr) {
+        kprintf("i: 0x%x placement_addr: 0x%x\n", i, placement_addr);
+        alloc_frame(get_page(i, 1), 1, 1, 0);
+        i += _4KB;
+    }
 
     /**
       * Then we enable the paging
@@ -142,3 +166,113 @@ void flush_paging() {
             : "eax"
             );
 }
+
+
+uint32_t kmalloc(uint32_t size, uint8_t should_align) {
+    if(should_align && (placement_addr & 0xFFF)) {
+        placement_addr &= 0xFFFFF000;
+        placement_addr += _4KB;
+    }
+    uint32_t begin = placement_addr;
+    placement_addr += size;
+    return begin;
+}
+
+void set_frame(uint32_t frame_addr) {
+    uint32_t frame = frame_addr/_4KB;
+    uint32_t index = frame / 32;
+    uint32_t offset = frame % 32;
+    frames[index] |= (1 << offset);
+}
+void clear_frame(uint32_t frame_addr) {
+    uint32_t frame = frame_addr/_4KB;
+    uint32_t index = frame / 32;
+    uint32_t offset = frame % 32;
+    frames[index] &= ~(1 << offset);
+}
+uint32_t test_frame(uint32_t frame_addr) {
+    uint32_t frame = frame_addr/_4KB;
+    uint32_t index = frame / 32;
+    uint32_t offset = frame % 32;
+    return (frames[index] & (1 << offset));
+}
+uint32_t get_avail_frame() {
+    uint32_t i, j;
+    for(i = 0; i < frames_num / 32; i++) {
+        if(frames[i] == 0xFFFFFFFF) {
+            /* This 32 frames are all full, we go to next one */
+            continue;
+        }
+        for(j = 0; j < 32; j++) {
+            if((frames[i] & (1 << j)) == 0) {
+                return i * 32 + j;
+            }
+        }
+    }
+    /* We just assume there will always be available frames for us to use */
+    return 0;
+}
+
+/* We will just use simple bitmap instead of buddy system */
+void alloc_frame(page_table_entry_t* pte, int is_kernel, int rw, int for_video) {
+    if(pte->address != 0)
+        return;
+    uint32_t frame_idx = get_avail_frame();
+    set_frame(frame_idx * _4KB);
+    pte->present = 1;
+    pte->rw = rw;
+    pte->us = (is_kernel)? 0 : 1;
+    pte->global = (is_kernel)? 1 : 0;
+    pte->pwt = 0;
+    pte->pcd = (for_video)? 0 : 1;
+    pte->accessed = 0;
+    pte->dirty = 0;
+    pte->pat = 1;
+    pte->avail = 0;
+    pte->address = (START_PLACEMENT_ADDR >> 12) + frame_idx;
+}
+void free_frame(page_table_entry_t* pte) {
+    if(pte->present != 1)
+        return;
+    pte->present = 0;
+    pte->address = 0;
+}
+
+page_table_entry_t* get_pagetable(uint32_t pd_index) {
+    if(pd_index < 0 || pd_index >= PAGE_DIRECTORY_SIZE)
+        return NULL;
+    page_directory_entry_t* pde = &default_page_directory[pd_index];
+//    if(pde->present == 0 || pde->ps != 0)
+//        return NULL;
+    return (pde->address << 12);
+}
+
+page_table_entry_t* get_page(uint32_t addr, int8_t shoud_make) {
+    addr /= _4KB;
+    uint32_t pd_idx = addr / 1024; /* Get the first 10 bits */
+    uint32_t pt_idx = addr % 1024;
+    page_directory_entry_t* pde = &default_page_directory[pd_idx];
+
+    if(pde->present == 1 && get_pagetable(pd_idx)->present == 1) {
+        return &(get_pagetable(pd_idx)[pt_idx]);
+    } else if (shoud_make == 1) {
+        if(pde->present == 0) {
+            page_table_entry_t* page_table = kmalloc(PAGE_TABLE_SIZE * sizeof(page_table_entry_t), 1);
+            pde->address = ((uint32_t)page_table >> 12);
+            pde->present = 1;
+            memset(page_table, 0, PAGE_TABLE_SIZE * sizeof(page_table_entry_t));
+        }
+        page_table_entry_t* page_table = get_pagetable(pd_idx);
+        page_table_entry_t* pte = &page_table[pt_idx];
+        pte->address = NULL;
+        return pte;
+    } else {
+        return NULL;
+    }
+
+
+}
+
+
+
+

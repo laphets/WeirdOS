@@ -20,13 +20,14 @@ make vmdebug
 ```
 
 ## Memory Layout
+Seems for Qumu on my local machine(MacOS), the physical memory start from `693KB` to `260992KB` (under memory of `256MB`), the `693KB` is like `0x9fc00`, so we may not use memory below that.
 ```
 
 ------------------------------------------------
 0-4MB Kernel Memory(V=P)
 
 --------------------
-Terminal Unshown Video Memory 0x80000 + tid * 4KB
+Terminal Unshown Video Memory 0x200000(2MB) + tid * 4KB
 --------------------
 Video Memory VGA 0xA0000-0xBF000
 --------------------
