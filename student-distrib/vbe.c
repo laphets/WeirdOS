@@ -26,7 +26,6 @@
 #define VBE_DISPI_LFB_ENABLED           0x40
 #define VBE_DISPI_NOCLEARMEM            0x80
 
-#define VBE_DISPI_INDEX_FB_BASE_HI      0x0B
 
 void vbe_write(uint16_t index, uint16_t value)
 {
@@ -41,9 +40,7 @@ void vbe_set(uint16_t xres, uint16_t yres, uint16_t bpp)
     vbe_write(VBE_DISPI_INDEX_XRES, xres);
     vbe_write(VBE_DISPI_INDEX_YRES, yres);
     vbe_write(VBE_DISPI_INDEX_BPP, bpp);
-    vbe_write(VBE_DISPI_INDEX_FB_BASE_HI, VBE_ADDR >> 16);
-//    vbe_write(VBE_DISPI_INDEX_ENABLE, VBE_DISPI_ENABLED | VBE_DISPI_LFB_ENABLED);
-    vbe_write(VBE_DISPI_INDEX_ENABLE, VBE_DISPI_ENABLED);
+    vbe_write(VBE_DISPI_INDEX_ENABLE, VBE_DISPI_ENABLED | VBE_DISPI_LFB_ENABLED);
 }
 
 void veb_clear() {
