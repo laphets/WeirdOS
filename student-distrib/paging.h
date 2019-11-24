@@ -3,6 +3,7 @@
 
 #include "types.h"
 #include "lib.h"
+#include "kheap.h"
 
 #define PAGE_DIRECTORY_SIZE 1024
 #define PAGE_TABLE_SIZE 1024
@@ -89,8 +90,9 @@ uint32_t frames_num;
 /* Frames store the physical avaliablity */
 uint32_t* frames; /* Each element can store the status of 32 pdes */
 
-uint32_t kmalloc(uint32_t size, uint8_t should_align);
+void* kmalloc(uint32_t size, uint8_t should_align);
 page_table_entry_t* get_page(uint32_t addr, int8_t shoud_make);
 void alloc_frame(page_table_entry_t* pte, int is_kernel, int rw, int for_video);
+void free_frame(page_table_entry_t* pte);
 
 #endif

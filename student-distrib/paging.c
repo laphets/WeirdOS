@@ -63,6 +63,11 @@ void init_paging(uint32_t mem_upper)
         i += _4KB;
     }
 
+    /* Then we should pre map some paging for our heap */
+    for(i = KHEAP_START_ADDR; i < KHEAP_START_ADDR+KHEAP_INIT_SIZE; i+= _4KB) {
+        alloc_frame(get_page(i, 1), 1, 1, 0);
+    }
+
     /**
       * Then we enable the paging
       * First set up cr3 to be the page_directory
@@ -82,6 +87,9 @@ void init_paging(uint32_t mem_upper)
                  :
                  : "r"(default_page_directory)
                  : "eax");
+
+    /* Finally we our heap in paging setuped mode */
+    init_heap();
 }
 
 /**
@@ -168,14 +176,28 @@ void flush_paging() {
 }
 
 
-uint32_t kmalloc(uint32_t size, uint8_t should_align) {
-    if(should_align && (placement_addr & 0xFFF)) {
-        placement_addr &= 0xFFFFF000;
-        placement_addr += _4KB;
+void* kmalloc(uint32_t size, uint8_t should_align) {
+    if(heap.present) {
+        /**
+         * When heap is inited, we will just use routine from heap
+         */
+        return heap_malloc(size, should_align);
+    } else {
+        /**
+         * When heap is not inited, we will use the following subroutine
+         */
+        if(should_align && (placement_addr & 0xFFF)) {
+            placement_addr &= 0xFFFFF000;
+            placement_addr += _4KB;
+        }
+        uint32_t begin = placement_addr;
+        placement_addr += size;
+        return begin;
     }
-    uint32_t begin = placement_addr;
-    placement_addr += size;
-    return begin;
+}
+
+void kfree(void* target) {
+    heap_free(target);
 }
 
 void set_frame(uint32_t frame_addr) {
@@ -214,6 +236,13 @@ uint32_t get_avail_frame() {
 }
 
 /* We will just use simple bitmap instead of buddy system */
+/**
+ * The following function will bind the page to an available frame
+ * @param pte
+ * @param is_kernel
+ * @param rw
+ * @param for_video
+ */
 void alloc_frame(page_table_entry_t* pte, int is_kernel, int rw, int for_video) {
     if(pte->address != 0)
         return;
@@ -232,10 +261,11 @@ void alloc_frame(page_table_entry_t* pte, int is_kernel, int rw, int for_video) 
     pte->address = (START_PLACEMENT_ADDR >> 12) + frame_idx;
 }
 void free_frame(page_table_entry_t* pte) {
-    if(pte->present != 1)
+    if(pte->address == 0)
         return;
-    pte->present = 0;
+    free_frame(pte->address);
     pte->address = 0;
+    pte->present = 0;
 }
 
 page_table_entry_t* get_pagetable(uint32_t pd_index) {
@@ -247,6 +277,12 @@ page_table_entry_t* get_pagetable(uint32_t pd_index) {
     return (pde->address << 12);
 }
 
+/**
+ * Get a page for a address, should_make will make one if not exist
+ * @param addr
+ * @param shoud_make
+ * @return
+ */
 page_table_entry_t* get_page(uint32_t addr, int8_t shoud_make) {
     addr /= _4KB;
     uint32_t pd_idx = addr / 1024; /* Get the first 10 bits */
