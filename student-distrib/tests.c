@@ -997,6 +997,16 @@ int kmalloc_test() {
     for(i = 0; i < 40; i++)
         kprintf("0x%x ", frames[i]);
     kprintf("\nPlacement Addr: 0x%x\n", placement_addr);
+
+    for(i = 0; i < 10; i++) {
+        int32_t* data = kmalloc(sizeof(int32_t));
+        int32_t* data1 = kmalloc(sizeof(int32_t));
+        *data = 1;
+        kprintf("0x%x: %d\n",data, *data);
+        kfree(data);
+        kfree(data1);
+    }
+    return result;
 }
 
 	/* Test suite entry point */

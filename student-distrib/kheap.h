@@ -8,6 +8,7 @@
 #define _KHEAP_H
 
 #include "lib.h"
+#include "debug.h"
 
 #define KHEAP_MAGIC 0xDEADBEAF  /* Really a magic number */
 #define KHEAP_MIN_SIZE 0x1000000

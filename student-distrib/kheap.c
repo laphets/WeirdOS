@@ -14,7 +14,7 @@ ordered_array_t ordered_array;
 void init_ordered_array(uint32_t capacity) {
     ordered_array.size = 0;
     ordered_array.capacity = capacity;
-    ordered_array.array = kmalloc(capacity * sizeof(void*), 0);
+    ordered_array.array = (header_t**)KHEAP_START_ADDR; /* We just set to start addr */
     memset(ordered_array.array, 0, capacity * sizeof(void*));
 }
 
@@ -44,6 +44,7 @@ header_t* ordered_array_find(uint32_t idx) {
     return ordered_array.array[idx];
 }
 
+
 void ordered_array_delete(uint32_t idx) {
     if(idx >= ordered_array.size)
         return;
@@ -54,13 +55,23 @@ void ordered_array_delete(uint32_t idx) {
     ordered_array.size--;
 }
 
+void ordered_array_delete_header(header_t* header) {
+    int32_t i = 0;
+    for(i = 0;i < ordered_array.size; i++) {
+        if(ordered_array.array[i] == header) {
+            ordered_array_delete(i);
+            break;
+        }
+    }
+}
+
 int32_t find_hole(uint32_t size, uint8_t should_align) {
     uint32_t i = 0;
     while(i < ordered_array.size) {
         header_t* header = ordered_array_find(i);
         if(should_align) {
             /* Then we should calculate the new required hole size for the aligned mapping */
-            uint32_t start_addr = header;
+            uint32_t start_addr = (uint32_t)header;
             uint32_t offset = _4KB - (start_addr + sizeof(header_t) % _4KB);
             uint32_t remain_hole_size = header->size - offset;
             if(remain_hole_size >= size)
@@ -109,7 +120,7 @@ int32_t heap_contract(uint32_t new_size) {
 }
 
 footer_t* getfooter(header_t* header) {
-    return ((uint32_t)header + header->size - sizeof(footer_t));
+    return (footer_t*)((uint32_t)header + header->size - sizeof(footer_t));
 }
 
 uint32_t heap_malloc(uint32_t size, uint8_t should_align) {
@@ -158,7 +169,7 @@ uint32_t heap_malloc(uint32_t size, uint8_t should_align) {
 
         } else {
             /* IF there is no such block, we create a new hole then, and insert into the array */
-            right_most_header = heap.start_addr + old_heap_size;
+            right_most_header = (header_t*)(heap.start_addr + old_heap_size);
             right_most_header->magic = KHEAP_MAGIC;
             right_most_header->size = size;
             right_most_header->is_hole = 1;
@@ -196,7 +207,7 @@ uint32_t heap_malloc(uint32_t size, uint8_t should_align) {
         offseted_footer->header = offseted_header;
         ordered_array_insert(offseted_header);
 
-        header = (uint32_t)offseted_footer + sizeof(footer_t);
+        header = (header_t*)((uint32_t)offseted_footer + sizeof(footer_t));
         header->magic = KHEAP_MAGIC;
         header->is_hole = 1;
         header->size = (uint32_t)footer - (uint32_t)header;
@@ -215,10 +226,10 @@ uint32_t heap_malloc(uint32_t size, uint8_t should_align) {
         first_footer->header = first_header;
         first_footer->magic = KHEAP_MAGIC;
 
-        header_t* second_header = (uint32_t)first_footer + sizeof(footer_t);
+        header_t* second_header = (header_t*)((uint32_t)first_footer + sizeof(footer_t));
         footer_t* second_footer = footer;
 
-        second_header->size = (uint32_t)second_header - (uint32_t)second_footer;
+        second_header->size = (uint32_t)second_footer + sizeof(footer_t) - (uint32_t)second_header;
         second_header->is_hole = 1;
         second_header->magic = KHEAP_MAGIC;
         second_footer->magic = KHEAP_MAGIC;
@@ -253,29 +264,30 @@ void heap_free(void* target) {
     if(target_footer->magic != KHEAP_MAGIC)
         return;
 
-    uint8_t should_add_back = 1;
+    ordered_array_delete_header(target_header);
 
     /* Then check for the left blcok */
     footer_t* left_footer = (target - sizeof(footer_t));
-    if(left_footer->magic == KHEAP_MAGIC) {
+    if((uint32_t)left_footer > heap.start_addr && left_footer->magic == KHEAP_MAGIC) {
         header_t* left_header = left_footer->header;
         if(left_header->magic == KHEAP_MAGIC && left_header->is_hole) {
             /* Then we merge those holes */
+            ordered_array_delete_header(left_header);
             target_header = left_header;
+            target_header->is_hole = 1;
             target_footer->header = target_header;
             target_header->size = (uint32_t)target_footer - (uint32_t)target_header + sizeof(footer_t);
-            should_add_back = 0;
         }
     }
 
     /* Then check for the right block */
-    header_t* right_header = (uint32_t)target_footer + sizeof(footer_t);
-    ASSERT(right_header->magic == KHEAP_MAGIC);
-    if(right_header->magic == KHEAP_MAGIC) {
+    header_t* right_header = (header_t*)((uint32_t)target_footer + sizeof(footer_t));
+    if((uint32_t)right_header < heap.end_addr && right_header->magic == KHEAP_MAGIC) {
         footer_t* right_footer = getfooter(right_header);
         ASSERT(right_footer->magic == KHEAP_MAGIC);
         if(right_footer->magic == KHEAP_MAGIC) {
             /* Then we merge holes */
+            ordered_array_delete_header(right_header);
             target_footer = right_footer;
             target_header->size = (uint32_t)target_footer - (uint32_t)target_header + sizeof(footer_t);
         }
@@ -284,11 +296,12 @@ void heap_free(void* target) {
     /* TODO: Then we check whether we can contrat the heap */
 
     /* Finally, we readd the hole */
-    if(should_add_back)
-        ordered_array_insert(target_header);
+    target_header->is_hole = 1;
+    ordered_array_insert(target_header);
 }
 
 void init_heap() {
+    kprintf("Begin init heap...\n");
     init_ordered_array(KHEAP_ORDERED_ARRAY_SIZE);
     heap.start_addr = KHEAP_START_ADDR + KHEAP_ORDERED_ARRAY_SIZE;
     heap.end_addr = KHEAP_START_ADDR + KHEAP_INIT_SIZE;
@@ -299,7 +312,7 @@ void init_heap() {
         heap.start_addr += _4KB;
     }
 
-    header_t* header = heap.start_addr;
+    header_t* header = (header_t*)heap.start_addr;
     header->magic = KHEAP_MAGIC;
     header->is_hole = 1;
     header->size = heap.end_addr - heap.start_addr;
@@ -307,6 +320,8 @@ void init_heap() {
     footer_t* footer = getfooter(header);
     footer->magic = KHEAP_MAGIC;
     footer->header = header;
+
+    ordered_array_insert(header);
 
     heap.present = 1;
 }

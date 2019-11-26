@@ -7,7 +7,7 @@
 void init_frame_status(uint32_t mem_upper) {
     placement_addr = START_PLACEMENT_ADDR;
     frames_num = (mem_upper - placement_addr) / _4KB;
-    frames = kmalloc(sizeof(uint32_t) * (frames_num/32), 0);
+    frames = kmalloc_a(sizeof(uint32_t) * (frames_num/32), 0);
     memset_dword(frames, 0, frames_num/32);
 //    placement_addr = START_PLACEMENT_ADDR;
 //    frames_num = (mem_upper - placement_addr) / _4KB;
@@ -20,6 +20,7 @@ void init_frame_status(uint32_t mem_upper) {
  */
 void init_paging(uint32_t mem_upper)
 {
+    heap.present = 0;
     init_frame_status(mem_upper);
     /**
      * Init page directory for kernel
@@ -55,8 +56,17 @@ void init_paging(uint32_t mem_upper)
 
     set_kernel_vm((uint8_t*)VIDEO_MEMORY_START_ADDRESS);
 
+    /* Then we should pre map some paging for our heap */
+    int32_t i;
+    for(i = KHEAP_START_ADDR; i < KHEAP_START_ADDR+KHEAP_INIT_SIZE; i+= _4KB) {
+        get_page(i, 1);
+    }
+//    for(i = KHEAP_START_ADDR; i < KHEAP_START_ADDR+KHEAP_INIT_SIZE; i+= _4KB) {
+//        alloc_frame(get_page(i, 1), 1, 1, 0);
+//    }
+
     /* Allocate dynamic parts, and init for their frame */
-    int32_t i = START_PLACEMENT_ADDR;
+    i = START_PLACEMENT_ADDR;
     while(i < placement_addr) {
         kprintf("i: 0x%x placement_addr: 0x%x\n", i, placement_addr);
         alloc_frame(get_page(i, 1), 1, 1, 0);
@@ -67,6 +77,8 @@ void init_paging(uint32_t mem_upper)
     for(i = KHEAP_START_ADDR; i < KHEAP_START_ADDR+KHEAP_INIT_SIZE; i+= _4KB) {
         alloc_frame(get_page(i, 1), 1, 1, 0);
     }
+
+    kprintf("Begin freshing paging...\n");
 
     /**
       * Then we enable the paging
@@ -176,12 +188,12 @@ void flush_paging() {
 }
 
 
-void* kmalloc(uint32_t size, uint8_t should_align) {
-    if(heap.present) {
+void* kmalloc_a(uint32_t size, uint8_t should_align) {
+    if(heap.present == 1) {
         /**
          * When heap is inited, we will just use routine from heap
          */
-        return heap_malloc(size, should_align);
+        return (void*)heap_malloc(size, should_align);
     } else {
         /**
          * When heap is not inited, we will use the following subroutine
@@ -192,8 +204,12 @@ void* kmalloc(uint32_t size, uint8_t should_align) {
         }
         uint32_t begin = placement_addr;
         placement_addr += size;
-        return begin;
+        return (void*)begin;
     }
+}
+
+void* kmalloc(uint32_t size) {
+    return kmalloc_a(size, 0);
 }
 
 void kfree(void* target) {
@@ -263,7 +279,7 @@ void alloc_frame(page_table_entry_t* pte, int is_kernel, int rw, int for_video) 
 void free_frame(page_table_entry_t* pte) {
     if(pte->address == 0)
         return;
-    free_frame(pte->address);
+    clear_frame(pte->address << 12);
     pte->address = 0;
     pte->present = 0;
 }
@@ -274,7 +290,7 @@ page_table_entry_t* get_pagetable(uint32_t pd_index) {
     page_directory_entry_t* pde = &default_page_directory[pd_index];
 //    if(pde->present == 0 || pde->ps != 0)
 //        return NULL;
-    return (pde->address << 12);
+    return (page_table_entry_t*)(pde->address << 12);
 }
 
 /**
@@ -289,17 +305,18 @@ page_table_entry_t* get_page(uint32_t addr, int8_t shoud_make) {
     uint32_t pt_idx = addr % 1024;
     page_directory_entry_t* pde = &default_page_directory[pd_idx];
 
-    if(pde->present == 1 && get_pagetable(pd_idx)->present == 1) {
+    if(pde->present == 1 && get_pagetable(pd_idx)[pt_idx].present == 1) {
         return &(get_pagetable(pd_idx)[pt_idx]);
     } else if (shoud_make == 1) {
         if(pde->present == 0) {
-            page_table_entry_t* page_table = kmalloc(PAGE_TABLE_SIZE * sizeof(page_table_entry_t), 1);
+            page_table_entry_t* page_table = kmalloc_a(PAGE_TABLE_SIZE * sizeof(page_table_entry_t), 1);
             pde->address = ((uint32_t)page_table >> 12);
             pde->present = 1;
             memset(page_table, 0, PAGE_TABLE_SIZE * sizeof(page_table_entry_t));
         }
         page_table_entry_t* page_table = get_pagetable(pd_idx);
         page_table_entry_t* pte = &page_table[pt_idx];
+        pte->present = 0;
         pte->address = NULL;
         return pte;
     } else {
