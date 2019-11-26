@@ -179,4 +179,10 @@ do {                                    \
     );                                  \
 } while (0)
 
+/**
+ * Some assertion library
+ */
+void throw(const char *file, uint32_t line, const char *desc);
+//#define ASSERT(b) ((b) ? (void)0 : throw(__FILE__, __LINE__, #b))
+
 #endif /* _LIB_H */

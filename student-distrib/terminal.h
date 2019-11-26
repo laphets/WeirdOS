@@ -11,6 +11,7 @@
 
 /* Macros for the terminal buffer */
 #define MAX_TERMINAL_BUF_SIZE 128
+#define UNSHOWN_VM_START_ADDR 0x200000
 
 #define TYPE_SWITCH_ACTIVE_TERMINAL 0
 #define TYPE_SWITCH_RUNNING_TERMINAL 1
