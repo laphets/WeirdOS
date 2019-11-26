@@ -19,8 +19,8 @@
 #include "vga.h"
 #include "mouse.h"
 
-#define RUN_TESTS 0
 #define ENABLE_GUI 1
+#define RUN_TESTS 1
 
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
@@ -168,7 +168,7 @@ void entry(unsigned long magic, unsigned long addr) {
      * PIC, any other initialization stuff... */
 
     /* Init paging */
-    init_paging();
+    init_paging(((unsigned)mbi->mem_upper) << 10);
 
 #if (ENABLE_GUI == 1)
     init_vga();
@@ -213,7 +213,7 @@ void entry(unsigned long magic, unsigned long addr) {
     /* Execute the first program ("shell") ... */
 //    int32_t ret = execute((const uint8_t*)"shell");
 //    printf("execute_ret: %d\n", ret);
-    launch_terminal();
+//    launch_terminal();
 
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile (".1: hlt; jmp .1;");

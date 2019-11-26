@@ -5,60 +5,53 @@ font.o: font.c font.h vga.h lib.h types.h terminal.h keyboard.h i8259.h \
   scheduler.h paging.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h idt.h \
   idthandler.h gui.h vbe.h
 fs.o: fs.c fs.h types.h lib.h terminal.h keyboard.h i8259.h scheduler.h \
-  paging.h vfs.h task.h syscall.h rtc.h x86_desc.h idt.h idthandler.h \
-  vga.h vbe.h font.h gui.h
-gui.o: gui.c gui.h vga.h lib.h types.h terminal.h keyboard.h i8259.h \
-  scheduler.h paging.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h idt.h \
-  idthandler.h vbe.h font.h
+  paging.h kheap.h debug.h vfs.h task.h syscall.h rtc.h x86_desc.h idt.h \
+  idthandler.h
 i8259.o: i8259.c i8259.h types.h lib.h terminal.h keyboard.h scheduler.h \
-  paging.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h idt.h \
-  idthandler.h vga.h vbe.h font.h gui.h
+  paging.h kheap.h debug.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h \
+  idt.h idthandler.h
 idt.o: idt.c idt.h lib.h types.h terminal.h keyboard.h i8259.h \
-  scheduler.h paging.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h vga.h \
-  vbe.h font.h gui.h idthandler.h
+  scheduler.h paging.h kheap.h debug.h vfs.h task.h syscall.h fs.h rtc.h \
+  x86_desc.h idthandler.h
 idthandler.o: idthandler.c idt.h lib.h types.h terminal.h keyboard.h \
-  i8259.h scheduler.h paging.h vfs.h task.h syscall.h fs.h rtc.h \
-  x86_desc.h vga.h vbe.h font.h gui.h idthandler.h
+  i8259.h scheduler.h paging.h kheap.h debug.h vfs.h task.h syscall.h \
+  fs.h rtc.h x86_desc.h idthandler.h
 kernel.o: kernel.c multiboot.h types.h x86_desc.h lib.h terminal.h \
-  keyboard.h i8259.h scheduler.h paging.h vfs.h task.h syscall.h fs.h \
-  rtc.h idt.h idthandler.h vga.h vbe.h font.h gui.h debug.h tests.h pit.h \
-  mouse.h
+  keyboard.h i8259.h scheduler.h paging.h kheap.h debug.h vfs.h task.h \
+  syscall.h fs.h rtc.h idt.h idthandler.h tests.h pit.h
 keyboard.o: keyboard.c keyboard.h lib.h types.h terminal.h vfs.h task.h \
-  syscall.h fs.h paging.h rtc.h x86_desc.h i8259.h idt.h idthandler.h \
-  vga.h vbe.h font.h gui.h scheduler.h
-lib.o: lib.c lib.h types.h terminal.h keyboard.h i8259.h scheduler.h \
-  paging.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h idt.h \
-  idthandler.h vga.h vbe.h font.h gui.h
-mouse.o: mouse.c mouse.h lib.h types.h terminal.h keyboard.h i8259.h \
+  syscall.h fs.h paging.h kheap.h debug.h rtc.h x86_desc.h i8259.h idt.h \
+  idthandler.h scheduler.h
+kheap.o: kheap.c kheap.h lib.h types.h terminal.h keyboard.h i8259.h \
   scheduler.h paging.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h idt.h \
-  idthandler.h vga.h vbe.h font.h gui.h
+  idthandler.h debug.h
+lib.o: lib.c lib.h types.h terminal.h keyboard.h i8259.h scheduler.h \
+  paging.h kheap.h debug.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h \
+  idt.h idthandler.h
 paging.o: paging.c paging.h types.h lib.h terminal.h keyboard.h i8259.h \
   scheduler.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h idt.h \
-  idthandler.h vga.h vbe.h font.h gui.h
+  idthandler.h kheap.h debug.h
 pit.o: pit.c pit.h types.h lib.h terminal.h keyboard.h i8259.h \
-  scheduler.h paging.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h idt.h \
-  idthandler.h vga.h vbe.h font.h gui.h
+  scheduler.h paging.h kheap.h debug.h vfs.h task.h syscall.h fs.h rtc.h \
+  x86_desc.h idt.h idthandler.h
 rtc.o: rtc.c rtc.h lib.h types.h terminal.h keyboard.h i8259.h \
-  scheduler.h paging.h vfs.h task.h syscall.h fs.h gui.h vga.h vbe.h \
-  font.h x86_desc.h idt.h idthandler.h
+  scheduler.h paging.h kheap.h debug.h vfs.h task.h syscall.h fs.h \
+  x86_desc.h idt.h idthandler.h
 scheduler.o: scheduler.c scheduler.h terminal.h keyboard.h lib.h types.h \
-  gui.h vga.h vbe.h font.h i8259.h vfs.h task.h syscall.h fs.h paging.h \
-  rtc.h x86_desc.h idt.h idthandler.h
+  i8259.h vfs.h task.h syscall.h fs.h paging.h kheap.h debug.h rtc.h \
+  x86_desc.h idt.h idthandler.h
 syscall.o: syscall.c syscall.h types.h lib.h terminal.h keyboard.h \
-  i8259.h scheduler.h paging.h vfs.h task.h gui.h vga.h vbe.h font.h fs.h \
-  rtc.h x86_desc.h idt.h idthandler.h
+  i8259.h scheduler.h paging.h kheap.h debug.h vfs.h task.h fs.h rtc.h \
+  x86_desc.h idt.h idthandler.h
 task.o: task.c task.h lib.h types.h terminal.h keyboard.h i8259.h \
-  scheduler.h paging.h vfs.h syscall.h fs.h rtc.h x86_desc.h idt.h \
-  idthandler.h vga.h vbe.h font.h gui.h
+  scheduler.h paging.h kheap.h debug.h vfs.h syscall.h fs.h rtc.h \
+  x86_desc.h idt.h idthandler.h
 terminal.o: terminal.c terminal.h keyboard.h lib.h types.h scheduler.h \
-  paging.h gui.h vga.h vbe.h font.h i8259.h vfs.h task.h syscall.h fs.h \
-  rtc.h x86_desc.h idt.h idthandler.h
+  paging.h kheap.h debug.h i8259.h vfs.h task.h syscall.h fs.h rtc.h \
+  x86_desc.h idt.h idthandler.h
 tests.o: tests.c tests.h x86_desc.h types.h lib.h terminal.h keyboard.h \
-  i8259.h scheduler.h paging.h vfs.h task.h syscall.h fs.h rtc.h idt.h \
-  idthandler.h vga.h vbe.h font.h gui.h
-vbe.o: vbe.c vbe.h lib.h types.h terminal.h keyboard.h i8259.h \
-  scheduler.h paging.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h idt.h \
-  idthandler.h vga.h font.h gui.h
+  i8259.h scheduler.h paging.h kheap.h debug.h vfs.h task.h syscall.h \
+  fs.h rtc.h idt.h idthandler.h
 vfs.o: vfs.c vfs.h types.h
 vga.o: vga.c vga.h lib.h types.h terminal.h keyboard.h i8259.h \
   scheduler.h paging.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h idt.h \

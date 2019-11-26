@@ -977,3 +977,7 @@ void test_interrupts(uint32_t count) {
     video_mem[(TOP_RIGHT_CHAR - 1) << 1] = count % 100 / 10 + '0';
     video_mem[TOP_RIGHT_CHAR << 1] = count % 10 + '0';
 }
+
+void throw(const char *file, uint32_t line, const char *desc) {
+    kprintf("ERROR: file: %s, line: %s, desc: %s\n", desc);
+}

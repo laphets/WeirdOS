@@ -5,7 +5,7 @@
  * Init for terminal list
  */
 void init_terminal() {
-    current_active_terminal = -1;
+    current_active_terminal = -1;   /* Set -1 for a notenable number */
     int tid = 0;
     for(tid = 0; tid < MAX_TERMINAL_NUM; tid++) {
         terminal_t* terminal = &terminal_list[tid];
@@ -17,7 +17,7 @@ void init_terminal() {
         terminal->inactive_video_mem = NULL;
         terminal->enter_pressed_flag = 0;
         /* We will map the unshown_vm_addr into kernel space at 0x80000 + tid * 4KB */
-        terminal->unshown_vm_addr = 0x80000 + tid * 0x1000 /* 4KB */ ; /* TODO: Record the layout mapping here!!! We set the backup vm to 0x80000 */
+        terminal->unshown_vm_addr = UNSHOWN_VM_START_ADDR + tid * 0x1000 /* 4KB */ ; /* TODO: Record the layout mapping here */
         set_kernel_vm((uint8_t*)terminal->unshown_vm_addr);   /* Set up the paging mapping */
         memset(terminal->terminal_buf, 0, MAX_TERMINAL_BUF_SIZE);
     }
@@ -53,11 +53,11 @@ void switch_terminal(uint32_t tid, uint8_t type) {
     if(type > 1)
         return;
 
-    if(type == 1) {
+    if(type == TYPE_SWITCH_RUNNING_TERMINAL) {
         /**
          * Schedule next running terminal
          */
-        if(current_running_terminal == -1 || current_active_terminal == -1)
+        if(current_running_terminal == -1 /* Not enable */ || current_active_terminal == -1 /* Not enable */)
             return;
         int32_t turns = 0;
         next_running_terminal = current_running_terminal;

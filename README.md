@@ -19,6 +19,41 @@ make vm
 make vmdebug
 ```
 
+## Memory Layout
+Seems for Qumu on my local machine(MacOS), the physical memory start from `693KB` to `260992KB` (under memory of `256MB`), the `693KB` is like `0x9fc00`, so we may not use memory below that.
+```
+
+------------------------------------------------
+0-4MB Kernel Memory(V=P)
+
+--------------------
+Terminal Unshown Video Memory 0x200000(2MB) + tid * 4KB
+--------------------
+Video Memory VGA 0xA0000-0xBF000
+--------------------
+
+------------------------------------------------
+4MB-8MB Kernel Memory(V=P)
+
+
+--------------------
+8KB each
+PCB↓
+Task Kernel Stack ↑
+--------------------
+------------------------------------------------
+8MB+ User Memory(V: 128MB=0x08000000, P:)
+--------------------
+4MB each
+Task User Stack ↑
+--------------------
+
+User Video Memory 0x9000000
+
+VBE 0xFD000000 4GB (V=P)
+------------------------------------------------
+```
+
 ## LOGISTICS
 - Checkpoint 1 due Monday 10/21/2019, 6pm in GitLab
 - Checkpoint 2 due Monday 10/28/2019, 6pm in GitLab

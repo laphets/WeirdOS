@@ -77,7 +77,7 @@ char handle_special_keys(uint8_t ascii) {
     /* If the key is combo of CTRL+number, we just switch to that terminal */
     if((keyboard_flag & CTRL_BIT_MASK) && (ascii >= (uint8_t)'1' && ascii <= (uint8_t)'5')) {
         send_eoi(KEYBOARD_IRQ);
-        switch_terminal((uint32_t)(ascii - (uint8_t)'1'), 0 /* 0 for active terminal switch */);
+        switch_terminal((uint32_t)(ascii - (uint8_t)'1'), TYPE_SWITCH_ACTIVE_TERMINAL /* 0 for active terminal switch */);
         return 1;
     }
 
