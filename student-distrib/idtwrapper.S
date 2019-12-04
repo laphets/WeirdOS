@@ -8,6 +8,7 @@
 .global INTERRUPT_20
 .global INTERRUPT_21
 .global INTERRUPT_28
+.global INTERRUPT_2B
 .global SYSCALL_80
 
 /*
@@ -39,6 +40,17 @@ INTERRUPT_28:
 	call rtc_handler
 	popal
 	iret
+
+/*
+ * Interface between rtl8139 interrupt and rtl8139 handler
+ * Side_Effet: calls the rtl8139 handler
+ */
+INTERRUPT_2B:
+	pushal
+	call rtl8139_handler
+	popal
+	iret
+
 
 /*
  * Interface between system call and system call handler.

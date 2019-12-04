@@ -16,8 +16,12 @@
 #include "debug.h"
 #include "tests.h"
 #include "pit.h"
+#include "pci.h"
+#include "rtl8139.h"
+#include "ethernet.h"
+#include "arp.h"
 
-#define RUN_TESTS 1
+#define RUN_TESTS 0
 
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
@@ -188,6 +192,12 @@ void entry(unsigned long magic, unsigned long addr) {
     /* Init terminals */
     init_terminal();
 
+    /* Init pci */
+    init_pci();
+
+    /* Init rtl8139 */
+    init_rtl8139();
+
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your
      * IDT correctly otherwise QEMU will triple fault and simple close
@@ -195,6 +205,17 @@ void entry(unsigned long magic, unsigned long addr) {
     printf("Enabling Interrupts\n");
     init_ed = 1;
     sti();
+
+    uint8_t* packet = kmalloc(200);
+    int d = 0;
+    for(d = 0; d < 200; d++) {
+        packet[d] = d;
+    }
+    rtl8139_send(packet, 200);
+    rtl8139_send(packet, 200);
+
+    uint8_t dhcp_ip[4] = {10, 0, 2, 3};
+    arp_send(broadcast_mac_addr, dhcp_ip);
 
 
 #if (RUN_TESTS == 1)

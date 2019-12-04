@@ -42,6 +42,8 @@ typedef struct {
 
 kheap_t heap;
 
+uint32_t vitrual2phys(uint32_t vitual_addr);
+
 uint32_t heap_malloc(uint32_t size, uint8_t should_align);
 void heap_free(void* target);
 void init_heap();

@@ -978,3 +978,33 @@ void test_interrupts(uint32_t count) {
 void throw(const char *file, uint32_t line, const char *desc) {
     kprintf("ERROR: file: %s, line: %s, desc: %s\n", desc);
 }
+
+uint16_t flip_word(uint16_t data) {
+    uint32_t byte0 = *((uint8_t*)(&data));
+    uint32_t byte1 = *((uint8_t*)(&data) + 1);
+    return ((byte0 << 8) | byte1);
+}
+
+uint16_t flip_long(uint32_t data) {
+    uint32_t byte0 = *((uint8_t*)(&data));
+    uint32_t byte1 = *((uint8_t*)(&data) + 1);
+    uint32_t byte2 = *((uint8_t*)(&data) + 2);
+    uint32_t byte3 = *((uint8_t*)(&data) + 3);
+    return ((byte0 << 24) | (byte1 << 16) | (byte2 << 8) | byte3);
+}
+
+uint16_t htons(uint16_t hostshort) {
+    return flip_word(hostshort);
+}
+
+uint32_t htonl(uint32_t hostlong) {
+    return flip_long(hostlong);
+}
+
+uint16_t ntohs(uint16_t netshort) {
+    return flip_word(netshort);
+}
+
+uint32_t ntohl(uint32_t netlong) {
+    return flip_long(netlong);
+}

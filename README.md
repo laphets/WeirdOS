@@ -19,6 +19,10 @@ make vm
 make vmdebug
 ```
 
+## PCI Note
+To register rel8139, we need first read pci for that device and then enable 
+the memory map and io
+
 ## Memory Layout
 Seems for Qumu on my local machine(MacOS), the physical memory start from `693KB` to `260992KB` (under memory of `256MB`), the `693KB` is like `0x9fc00`, so we may not use memory below that.
 ```

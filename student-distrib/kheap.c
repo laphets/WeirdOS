@@ -300,6 +300,15 @@ void heap_free(void* target) {
     ordered_array_insert(target_header);
 }
 
+uint32_t vitrual2phys(uint32_t vitual_addr) {
+    if(heap.present == 1) {
+        page_table_entry_t* pte = get_page(vitual_addr, 0);
+        return (pte->address << 12) + (vitual_addr&0xFFF);
+    }
+
+    return 0;
+}
+
 void init_heap() {
     kprintf("Begin init heap...\n");
     init_ordered_array(KHEAP_ORDERED_ARRAY_SIZE);
