@@ -38,6 +38,8 @@ void ip_recv(ip_t* ip_packet) {
     *((uint8_t*)(&ip_packet->version_IHT_ptr)) = ntohb(*((uint8_t*)(&ip_packet->version_IHT_ptr)), 4);
     *((uint8_t*)(&ip_packet->flags_fghigh5_ptr)) = ntohb(*((uint8_t*)(&ip_packet->flags_fghigh5_ptr)), 3);
 
+    ip_packet->total_length = ntohs(ip_packet->total_length);
+
     uint32_t data_ptr = (uint32_t)ip_packet + 4 * (uint32_t)ip_packet->IHL;
     kprintf("IP packet recv!!!! version: %d, IHL: %d\n", ip_packet->version, ip_packet->IHL);
     switch(ip_packet->protocol) {
@@ -48,7 +50,7 @@ void ip_recv(ip_t* ip_packet) {
         }
         case IP_PROTOCOL_TCP: {
             /* TCP Packet */
-            tcp_recv(data_ptr);
+            tcp_recv(data_ptr, ip_packet->total_length - ip_packet->IHL * 4);
             break;
         }
         case IP_PROTOCOL_ICMP: {
@@ -148,6 +150,19 @@ void ip_send(uint8_t* target_ip, uint16_t protocol, uint8_t* data, uint32_t leng
     /* Then solve the header checksum */
     ip_fresh_checksum(ip_packet);
 
+    uint8_t real_ip[4];
+    memcpy(real_ip, target_ip, IPv4_ADDR_SIZE);
+
+    if(target_ip[0] != 10) {
+        /* Plain checking for subnet */
+        /* Then we send to the gateway */
+        real_ip[0] = 10;
+        real_ip[1] = 0;
+        real_ip[2] = 2;
+        real_ip[3] = 2;
+    }
+
+    /* In the same subnet */
     /* Then fetch MAC addr for target */
     mac_wrapper_t arp_res;
     int32_t arp_cnt = 0, total_trying = 0;
@@ -158,7 +173,7 @@ void ip_send(uint8_t* target_ip, uint16_t protocol, uint8_t* data, uint32_t leng
             return;
         }
         kprintf("Fetching arp: %d\n", arp_cnt);
-        arp_res = arp_find(target_ip);
+        arp_res = arp_find(real_ip);
         if(arp_res.valid == 1) {
             break;
         }
@@ -167,10 +182,13 @@ void ip_send(uint8_t* target_ip, uint16_t protocol, uint8_t* data, uint32_t leng
             continue;
         }
         arp_cnt++;
-        arp_request(target_ip);
+        arp_request(real_ip);
     }
 
     ethernet_send(arp_res.mac_addr, ETHERTYPE_IPv4, ip_packet, total_size);
+
+
+
     kfree(ip_packet);
 }
 

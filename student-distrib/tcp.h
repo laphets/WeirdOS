@@ -47,7 +47,7 @@ typedef struct tcp_checksum_pre_header {
 } __attribute__((packed)) tcp_checksum_pre_header_t;
 
 void tcp_send(uint16_t src_port, uint16_t target_port, uint8_t* target_ip, uint32_t seq_num, uint32_t ack_num, uint8_t flags, uint8_t* data, uint32_t length);
-void tcp_recv(tcp_t* tcp_packet);
+void tcp_recv(tcp_t* tcp_packet, uint32_t length);
 
 void tcp_test();
 

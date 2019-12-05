@@ -62,26 +62,40 @@ void tcp_fresh_checksum(tcp_t* tcp_packet, uint32_t size, uint8_t* target_ip) {
 volatile uint32_t tcp_status = 0;
 uint32_t my_seq_num;
 uint32_t others_seq_num;
+uint32_t tcp_recv_buf;
+uint32_t tcp_recv_buf_start_ptr, tcp_recv_buf_end_ptr;
+uint32_t tcp_recv_buf_size;
+uint8_t host_ip[4] = {18, 220, 149, 166};
+uint16_t target_port = 80;
+
 /* 0->init, 1->have send syn, 2 -> have received syn+ack */
 
 void tcp_test() {
     tcp_status = 0;
     my_seq_num = 23333;
     others_seq_num = 0;
-    uint8_t host_ip[4] = {10, 0, 2, 2};
+    tcp_recv_buf_size = 300000;
+    tcp_recv_buf = kmalloc(tcp_recv_buf_size);
+    tcp_recv_buf_start_ptr = 0;
+    tcp_recv_buf_end_ptr = 0;
+    memset(tcp_recv_buf, 0, tcp_recv_buf_size);
+//    uint8_t host_ip[4] = {216, 58, 192, 164};
+
+//    uint8_t host_ip[4] = {10, 0, 2, 2};
 
     /* First make syn handshake */
     tcp_status = 1;
-    tcp_send(50032, 8080, host_ip, my_seq_num, 0, TCP_FLAG_SYN, NULL, 0);
+    tcp_send(50032, target_port, host_ip, my_seq_num, 0, TCP_FLAG_SYN, NULL, 0);
     my_seq_num++;
     while(tcp_status != 2) {};
     /* Then ack for that */
     others_seq_num++;
-    tcp_send(50032, 8080, host_ip, 0, others_seq_num, TCP_FLAG_ACK, NULL, 0);
+    tcp_send(50032, target_port, host_ip, 0, others_seq_num, TCP_FLAG_ACK, NULL, 0);
     /* Then send http data */
     tcp_status = 3;
-    char http_request[] = "GET / HTTP/1.1\r\n\r\n";
-    tcp_send(50032, 8080, host_ip, my_seq_num, others_seq_num, TCP_FLAG_ACK | TCP_FLAG_PSH, http_request, strlen(http_request));
+    char http_request[] = "GET / HTTP/1.1\r\nHost: lumetta.web.engr.illinois.edu\r\n\r\n";
+    tcp_send(50032, target_port, host_ip, my_seq_num, others_seq_num, TCP_FLAG_ACK | TCP_FLAG_PSH, http_request, strlen(http_request));
+    my_seq_num += strlen(http_request);
 
 }
 
@@ -116,9 +130,7 @@ void tcp_send(uint16_t src_port, uint16_t target_port, uint8_t* target_ip, uint3
     kfree(tcp_packet);
 }
 
-void tcp_recv(tcp_t* tcp_packet) {
-    kprintf("TCP Packet Comes!!!!\n");
-
+void tcp_recv(tcp_t* tcp_packet, uint32_t length) {
     /* Fix some endian issue */
     *((uint8_t*)(&tcp_packet->data_reserved_ptr)) = ntohb(*((uint8_t*)(&tcp_packet->data_reserved_ptr)), 4);
     tcp_packet->src_port = ntohs(tcp_packet->src_port);
@@ -126,18 +138,40 @@ void tcp_recv(tcp_t* tcp_packet) {
     tcp_packet->seq_num = ntohl(tcp_packet->seq_num);
     tcp_packet->ack_num = ntohl(tcp_packet->ack_num);
 
+    uint32_t data_length = length - tcp_packet->data_offset * 4;
+    uint32_t data_ptr = (uint32_t)tcp_packet + tcp_packet->data_offset * 4;
+
+    kprintf("TCP Packet Comes!!!!, data_length: %d, flags: 0x%x\n", data_length, tcp_packet->flags);
+
     if(tcp_check_flag(tcp_packet, TCP_FLAG_SYN | TCP_FLAG_ACK) == 1) {
         others_seq_num = tcp_packet->seq_num;
         tcp_status = 2;
     }
 
-    if(tcp_status==3 && tcp_check_flag(tcp_packet, TCP_FLAG_PSH) == 1) {
-        kprintf("WE GET THE HTTP DATA!!!\n");
-        uint32_t data_ptr = (uint32_t)tcp_packet + tcp_packet->data_offset * 4;
-        kprintf("%s", data_ptr);
+    if(tcp_status==3 && ( data_length != 0)) {
+        if(tcp_packet->seq_num + data_length > others_seq_num) {
+//            memcpy(tcp_recv_buf + tcp_recv_buf_end_ptr, data_ptr, data_length);
+//            tcp_recv_buf_end_ptr += data_length;
 
-        tcp_status = 4;
+            kprintf("WE GET THE HTTP DATA!!!\n");
 
+            kprintf("%s", data_ptr);
+
+            /* We should ack for that */
+            others_seq_num = tcp_packet->seq_num + data_length;
+        }
+
+        tcp_send(50032, target_port, host_ip, 0, others_seq_num, TCP_FLAG_ACK, NULL, 0);
+//        tcp_status = 4;
+
+    }
+
+    if(tcp_check_flag(tcp_packet, TCP_FLAG_FIN) == 1) {
+        /* Send fin */
+        kprintf("WE ARE GOING TO SEND FIN!!\n");
+        others_seq_num++;
+        tcp_send(50032, target_port, host_ip, 0, others_seq_num, TCP_FLAG_ACK, NULL, 0);
+        tcp_send(50032, target_port, host_ip, my_seq_num, others_seq_num, TCP_FLAG_FIN, NULL, 0);
     }
 
 }
