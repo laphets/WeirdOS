@@ -54,6 +54,8 @@ uint16_t htons(uint16_t hostshort);
 uint32_t htonl(uint32_t hostlong);
 uint16_t ntohs(uint16_t netshort);
 uint32_t ntohl(uint32_t netlong);
+uint8_t htonb(uint8_t hostbyte, uint8_t num_bits);
+uint8_t ntohb(uint8_t netbyte, uint8_t num_bits);
 
 
 /* Userspace address-check functions */

@@ -985,12 +985,25 @@ uint16_t flip_word(uint16_t data) {
     return ((byte0 << 8) | byte1);
 }
 
-uint16_t flip_long(uint32_t data) {
+uint32_t flip_long(uint32_t data) {
     uint32_t byte0 = *((uint8_t*)(&data));
     uint32_t byte1 = *((uint8_t*)(&data) + 1);
     uint32_t byte2 = *((uint8_t*)(&data) + 2);
     uint32_t byte3 = *((uint8_t*)(&data) + 3);
     return ((byte0 << 24) | (byte1 << 16) | (byte2 << 8) | byte3);
+}
+
+uint8_t flip_byte(uint8_t byte, uint8_t num_bits) {
+    uint8_t high_num_bits = byte << (8 - num_bits);
+    return high_num_bits | (byte >> num_bits);
+}
+
+uint8_t htonb(uint8_t hostbyte, uint8_t num_bits) {
+    return flip_byte(hostbyte, num_bits);
+}
+
+uint8_t ntohb(uint8_t netbyte, uint8_t num_bits) {
+    return flip_byte(netbyte, 8 - num_bits);
 }
 
 uint16_t htons(uint16_t hostshort) {

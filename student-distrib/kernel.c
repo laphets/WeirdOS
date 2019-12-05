@@ -20,6 +20,9 @@
 #include "rtl8139.h"
 #include "ethernet.h"
 #include "arp.h"
+#include "ip.h"
+#include "udp.h"
+#include "tcp.h"
 
 #define RUN_TESTS 0
 
@@ -197,6 +200,8 @@ void entry(unsigned long magic, unsigned long addr) {
 
     /* Init rtl8139 */
     init_rtl8139();
+    init_arp();
+    init_ip();  /* Init ip layer */
 
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your
@@ -214,8 +219,20 @@ void entry(unsigned long magic, unsigned long addr) {
     rtl8139_send(packet, 200);
     rtl8139_send(packet, 200);
 
-    uint8_t dhcp_ip[4] = {10, 0, 2, 3};
-    arp_send(broadcast_mac_addr, dhcp_ip);
+//    uint8_t dhcp_ip[4] = {10, 0, 2, 2};
+//    ip_send(dhcp_ip, IP_PROTOCOL_UDP, packet, 200);
+
+//    uint8_t dns_ip[4] = {10, 0, 2, 3};
+//    uint8_t dns_body[12] = {'H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd', '!'};
+//    udp_send(50032, 53, dns_ip, dns_body, 12);
+//    arp_request(dhcp_ip);
+
+//    uint8_t host_ip[4] = {10, 0, 2, 2};
+//    tcp_send(50032, 22, host_ip, 23333, 0, TCP_FLAG_SYN, NULL, 0);
+
+    tcp_test();
+
+    print_arp_table();
 
 
 #if (RUN_TESTS == 1)

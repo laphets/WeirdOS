@@ -8,9 +8,11 @@
 
 #include "lib.h"
 #include "rtl8139.h"
+#include "arp.h"
+#include "network.h"
 
-#define MAC_ADDR_LENGTH 6
-#define IPv4_ADDR_LENGTH 4
+#define ETHERTYPE_ARP 0x0806
+#define ETHERTYPE_IPv4 0x0800
 
 typedef struct ethernet {
     uint8_t mac_dest[6];
