@@ -72,9 +72,13 @@ int32_t find_hole(uint32_t size, uint8_t should_align) {
         if(should_align) {
             /* Then we should calculate the new required hole size for the aligned mapping */
             uint32_t start_addr = (uint32_t)header;
-            uint32_t offset = _4KB - (start_addr + sizeof(header_t) % _4KB);
-            uint32_t remain_hole_size = header->size - offset;
-            if(remain_hole_size >= size)
+
+            int32_t offset = 0;
+            if((start_addr + sizeof(header_t)) % _4KB != 0) {
+                offset = _4KB - (start_addr + sizeof(header_t)) % _4KB;
+            }
+            int32_t remain_hole_size = (int32_t)header->size - offset;
+            if(remain_hole_size >= (int32_t)size)
                 break;
         } else if (header->size >= size) {
             break;
@@ -87,20 +91,32 @@ int32_t find_hole(uint32_t size, uint8_t should_align) {
 }
 
 int32_t heap_expand(uint32_t new_size) {
+    kprintf("heap expand\n");
+
     if(new_size & 0xFFF) {
         new_size &= 0xFFFFF000;
         new_size += _4KB;
     }
     /* Check whether heap is full */
-    if(new_size + heap.start_addr > heap.end_addr)
-        return -1;
+//    if(new_size + heap.start_addr > heap.max_addr)
+//        return -1;
     uint32_t i = heap.end_addr - heap.start_addr;
     while(i < new_size) {
         alloc_frame(get_page(heap.start_addr+i, 1), 1, 1, 0);
+//        flush_paging();
+//        kprintf("BGEIN TEST FOR ALLOCATE:\n");
+//        kprintf("%d\n", *(uint8_t*)(heap.start_addr+i-4));
+//        kprintf("i: %d, new_size: %d\n", i, new_size);
         i += _4KB;
+
+//        if(heap.start_addr + i - 4 == 0xBBFFFFC) {
+//            kprintf("HERE!!!\n");
+//        }
+
     }
+    flush_paging();
     heap.end_addr = heap.start_addr + new_size;
-    return 0;
+    return new_size;
 }
 
 int32_t heap_contract(uint32_t new_size) {
@@ -124,6 +140,7 @@ footer_t* getfooter(header_t* header) {
 }
 
 uint32_t heap_malloc(uint32_t size, uint8_t should_align) {
+    kprintf("heap_malloc: size: %d\n", size);
     /**
      * For heap malloc, we should do the following things,
      * First we need to find whether there is some hole which can fit ourself
@@ -143,9 +160,9 @@ uint32_t heap_malloc(uint32_t size, uint8_t should_align) {
 
         /* So now our heap can't afford the new request size */
         uint32_t old_heap_size = heap.end_addr - heap.start_addr;
-        heap_expand(old_heap_size + size);
+        int32_t new_size = heap_expand(old_heap_size + size);
 
-        /* Thne we try to find the right most block */
+        /* Then we try to find the right most block */
         int32_t right_most_idx = -1;
         header_t* right_most_header = NULL;
         int32_t i;
@@ -161,7 +178,7 @@ uint32_t heap_malloc(uint32_t size, uint8_t should_align) {
             /* IF there is such block */
             /* Then we should pop it and update it's size and re-insert */
             ordered_array_delete(right_most_idx);
-            right_most_header->size += size;
+            right_most_header->size += ((uint32_t)new_size - old_heap_size);
             footer_t* right_most_footer = getfooter(right_most_header);
             right_most_footer->magic = KHEAP_MAGIC;
             right_most_footer->header = right_most_header;
@@ -171,7 +188,7 @@ uint32_t heap_malloc(uint32_t size, uint8_t should_align) {
             /* IF there is no such block, we create a new hole then, and insert into the array */
             right_most_header = (header_t*)(heap.start_addr + old_heap_size);
             right_most_header->magic = KHEAP_MAGIC;
-            right_most_header->size = size;
+            right_most_header->size = (uint32_t)new_size;
             right_most_header->is_hole = 1;
             footer_t* right_most_footer = getfooter(right_most_header);
             right_most_footer->magic = KHEAP_MAGIC;
@@ -193,13 +210,15 @@ uint32_t heap_malloc(uint32_t size, uint8_t should_align) {
     }
 
     if(should_align && ((uint32_t)header & 0xFFF) != 0) {
-        uint32_t offset = _4KB - (((uint32_t)header + sizeof(header_t)) % _4KB);
+//        uint32_t offset = _4KB - (((uint32_t)header + sizeof(header_t)) % _4KB);
         /* TODO: Check offset size here */
+
+        uint32_t new_location = (uint32_t)header + _4KB - ((uint32_t)header & 0xFFF) - sizeof(header_t);
 
         /* Then from head to offset is the remaining offseted block */
         ordered_array_delete(hole_idx);
         header_t* offseted_header = header;
-        offseted_header->size = offset;
+        offseted_header->size = _4KB - ((uint32_t)header & 0xFFF) - sizeof(header_t);
         offseted_header->magic = KHEAP_MAGIC;
         offseted_header->is_hole = 1;
         footer_t* offseted_footer = getfooter(offseted_header);
@@ -207,9 +226,10 @@ uint32_t heap_malloc(uint32_t size, uint8_t should_align) {
         offseted_footer->header = offseted_header;
         ordered_array_insert(offseted_header);
 
-        header = (header_t*)((uint32_t)offseted_footer + sizeof(footer_t));
+        header = new_location;
+//        header = (header_t*)((uint32_t)offseted_footer + sizeof(footer_t));
         header->magic = KHEAP_MAGIC;
-        header->is_hole = 1;
+        header->is_hole = 0;
         header->size = (uint32_t)footer - (uint32_t)header;
         footer->header = header;
     } else {
@@ -219,7 +239,7 @@ uint32_t heap_malloc(uint32_t size, uint8_t should_align) {
     header->is_hole = 0;
 
     if((header->size - size) > (sizeof(header_t) + sizeof(footer_t))) {
-        /* Then we return the first block, and give back the second one */
+        /* Then we return the first block, and put back the second one */
         header_t* first_header = header;
         first_header->size = size;
         footer_t* first_footer = getfooter(first_header);
@@ -306,7 +326,7 @@ uint32_t vitrual2phys(uint32_t vitual_addr) {
         return (pte->address << 12) + (vitual_addr&0xFFF);
     }
 
-    return 0;
+    return vitual_addr;
 }
 
 void init_heap() {

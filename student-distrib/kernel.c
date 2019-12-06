@@ -233,6 +233,16 @@ void entry(unsigned long magic, unsigned long addr) {
     tcp_test();
 
     print_arp_table();
+//    uint32_t big_block = kmalloc(0x800000);
+//    memset(big_block, 0, 0x800000);
+//    uint32_t big_block1 = kmalloc(0x800000);
+//    memset(big_block1, 0, 0x800000);
+//    kprintf("malloc done, big_block: 0x%x, big_block1: 0x%x\n", big_block, big_block1);
+//    uint32_t b1 = kmalloc_a(PAGE_TABLE_SIZE * sizeof(page_table_entry_t), 1);
+//    uint32_t b2 = kmalloc_a(PAGE_TABLE_SIZE * sizeof(page_table_entry_t), 1);
+
+//    kprintf("b1: 0x%x  b2: 0x%x\n", b1, b2);
+
 
 
 #if (RUN_TESTS == 1)

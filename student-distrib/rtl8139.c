@@ -60,7 +60,6 @@ void rtl8139_handler() {
     }
 
     outw(0x5, io_addr + 0x3E);
-
     send_eoi(0xB);
 }
 
@@ -85,22 +84,29 @@ void rtl8139_recv() {
                 (rx_read_ptr_offset + packet_length - RTL8139_RXBUFFER_SIZE) );
     }
 
-    void* real_packet = kmalloc(packet_length - 4);
-    memcpy(real_packet, income_packet, packet_length - 4);
+    if(packet_length > 0) {
+        void* real_packet = kmalloc(packet_length - 4);
+        memcpy(real_packet, income_packet, packet_length - 4);
 
-    /**
-     * Then we pass to link layer
-     */
-
-    ethernet_recv(real_packet, packet_length - 4);
+        /**
+         * Then we pass to link layer
+         */
+        ethernet_recv(real_packet, packet_length - 4);
+        kfree(real_packet);
+    }
 
     rx_read_ptr_offset = (rx_read_ptr_offset + packet_length + 4 + 3) & RX_READ_POINTER_MASK;
+
+    if(rx_read_ptr_offset > RTL8139_RXBUFFER_SIZE) {
+        rx_read_ptr_offset %= RTL8139_RXBUFFER_SIZE;
+    }
+
     //4:for header length(PktLength include 4 bytes CRC)
     //3:for dword alignment
 
     outw( rx_read_ptr_offset - 0x10, io_addr + CAPR); //-4:avoid overflow
 
-    kfree(real_packet);
+
 }
 
 void init_rtl8139() {

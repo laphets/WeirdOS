@@ -12,7 +12,7 @@
 
 #define KHEAP_MAGIC 0xDEADBEAF  /* Really a magic number */
 #define KHEAP_MIN_SIZE 0x1000000
-#define KHEAP_INIT_SIZE 0x1000000 /* Set to 8 MB */
+#define KHEAP_INIT_SIZE 0x800000 /* Set to 8 MB */
 #define KHEAP_ORDERED_ARRAY_SIZE 0x40000
 #define KHEAP_START_ADDR 0xB000000
 

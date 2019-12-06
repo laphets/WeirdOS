@@ -141,7 +141,7 @@ void tcp_recv(tcp_t* tcp_packet, uint32_t length) {
     uint32_t data_length = length - tcp_packet->data_offset * 4;
     uint32_t data_ptr = (uint32_t)tcp_packet + tcp_packet->data_offset * 4;
 
-    kprintf("TCP Packet Comes!!!!, data_length: %d, flags: 0x%x\n", data_length, tcp_packet->flags);
+    kprintf("TCP Packet Comes!!!!, data_length: %d, flags: 0x%x, seq_num: %d, ack_num: %d\n", data_length, tcp_packet->flags, tcp_packet->seq_num, tcp_packet->ack_num);
 
     if(tcp_check_flag(tcp_packet, TCP_FLAG_SYN | TCP_FLAG_ACK) == 1) {
         others_seq_num = tcp_packet->seq_num;
@@ -155,7 +155,7 @@ void tcp_recv(tcp_t* tcp_packet, uint32_t length) {
 
             kprintf("WE GET THE HTTP DATA!!!\n");
 
-            kprintf("%s", data_ptr);
+//            kprintf("%s", data_ptr);
 
             /* We should ack for that */
             others_seq_num = tcp_packet->seq_num + data_length;
