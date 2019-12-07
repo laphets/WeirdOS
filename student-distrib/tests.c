@@ -1011,9 +1011,8 @@ int kmalloc_test() {
 
 	/* Test suite entry point */
 void launch_tests() {
-    TEST_OUTPUT("kmalloc_test", kmalloc_test());
-    return;
 	/* Run Tests */
+    TEST_OUTPUT("kmalloc_test", kmalloc_test());
     TEST_OUTPUT("syscall_rw_c_test", syscall_rw_c_test());
     TEST_OUTPUT("syscall_open_test", syscall_open_test());
     TEST_OUTPUT("syscall_fd_test", syscall_fd_test());

@@ -50,6 +50,17 @@ uint32_t strcspn(const int8_t *s1, const int8_t *s2);
 uint32_t strspn(const int8_t *s1, const int8_t *s2);
 int8_t* strtok(int8_t* str, const int8_t* delim);
 
+uint16_t htons(uint16_t hostshort);
+uint32_t htonl(uint32_t hostlong);
+uint16_t ntohs(uint16_t netshort);
+uint32_t ntohl(uint32_t netlong);
+uint8_t htonb(uint8_t hostbyte, uint8_t num_bits);
+uint8_t ntohb(uint8_t netbyte, uint8_t num_bits);
+
+uint32_t rand(uint32_t seed,uint32_t max);
+int32_t sprintf(uint8_t* target, int8_t *format, ...);
+
+
 /* Userspace address-check functions */
 int32_t bad_userspace_addr(const void* addr, int32_t len);
 int32_t safe_strncpy(int8_t* dest, const int8_t* src, int32_t n);
@@ -121,7 +132,7 @@ do {                                    \
 /* Writes four bytes to four consecutive ports */
 #define outl(data, port)                \
 do {                                    \
-    asm volatile ("outl %l1, (%w0)"     \
+    asm volatile ("outl %1, (%w0)"     \
             :                           \
             : "d"(port), "a"(data)      \
             : "memory", "cc"            \

@@ -978,3 +978,178 @@ void test_interrupts(uint32_t count) {
 void throw(const char *file, uint32_t line, const char *desc) {
     kprintf("ERROR: file: %s, line: %s, desc: %s\n", desc);
 }
+
+uint16_t flip_word(uint16_t data) {
+    uint32_t byte0 = *((uint8_t*)(&data));
+    uint32_t byte1 = *((uint8_t*)(&data) + 1);
+    return ((byte0 << 8) | byte1);
+}
+
+uint32_t flip_long(uint32_t data) {
+    uint32_t byte0 = *((uint8_t*)(&data));
+    uint32_t byte1 = *((uint8_t*)(&data) + 1);
+    uint32_t byte2 = *((uint8_t*)(&data) + 2);
+    uint32_t byte3 = *((uint8_t*)(&data) + 3);
+    return ((byte0 << 24) | (byte1 << 16) | (byte2 << 8) | byte3);
+}
+
+uint8_t flip_byte(uint8_t byte, uint8_t num_bits) {
+    uint8_t high_num_bits = byte << (8 - num_bits);
+    return high_num_bits | (byte >> num_bits);
+}
+
+uint8_t htonb(uint8_t hostbyte, uint8_t num_bits) {
+    return flip_byte(hostbyte, num_bits);
+}
+
+uint8_t ntohb(uint8_t netbyte, uint8_t num_bits) {
+    return flip_byte(netbyte, 8 - num_bits);
+}
+
+uint16_t htons(uint16_t hostshort) {
+    return flip_word(hostshort);
+}
+
+uint32_t htonl(uint32_t hostlong) {
+    return flip_long(hostlong);
+}
+
+uint16_t ntohs(uint16_t netshort) {
+    return flip_word(netshort);
+}
+
+uint32_t ntohl(uint32_t netlong) {
+    return flip_long(netlong);
+}
+
+uint32_t random_seed=0;
+uint32_t rand(uint32_t seed,uint32_t max) {
+    random_seed = random_seed+seed * 1103515245 +12345;
+    return (uint32_t)(random_seed / 65536) % (max+1);
+}
+
+void putc2str(uint8_t* target, uint32_t* target_size, uint8_t c) {
+    target[*target_size] = c;
+    (*target_size) = (*target_size) + 1;
+}
+
+int32_t puts2str(uint8_t* target, uint32_t* target_size, int8_t* s) {
+    register int32_t index = 0;
+    while (s[index] != '\0') {
+        putc2str(target, target_size, s[index]);
+        index++;
+    }
+    return index;
+}
+
+int32_t sprintf(uint8_t* target, int8_t *format, ...) {
+
+    /* Pointer to the format string */
+    int8_t* buf = format;
+
+    uint32_t target_size = 0;
+
+    /* Stack pointer for the other parameters */
+    int32_t* esp = (void *)&format;
+    esp++;
+
+    while (*buf != '\0') {
+        switch (*buf) {
+            case '%':
+            {
+                int32_t alternate = 0;
+                buf++;
+
+                format_char_switch:
+                /* Conversion specifiers */
+                switch (*buf) {
+                    /* Print a literal '%' character */
+                    case '%':
+                        putc2str(target, &target_size, '%');
+                        break;
+
+                        /* Use alternate formatting */
+                    case '#':
+                        alternate = 1;
+                        buf++;
+                        /* Yes, I know gotos are bad.  This is the
+                         * most elegant and general way to do this,
+                         * IMHO. */
+                        goto format_char_switch;
+
+                        /* Print a number in hexadecimal form */
+                    case 'x':
+                    {
+                        int8_t conv_buf[64];
+                        if (alternate == 0) {
+                            itoa(*((uint32_t *)esp), conv_buf, 16);
+                            puts2str(target, &target_size, conv_buf);
+                        } else {
+                            int32_t starting_index;
+                            int32_t i;
+                            itoa(*((uint32_t *)esp), &conv_buf[8], 16);
+                            i = starting_index = strlen(&conv_buf[8]);
+                            while(i < 8) {
+                                conv_buf[i] = '0';
+                                i++;
+                            }
+                            puts2str(target, &target_size, &conv_buf[starting_index]);
+                        }
+                        esp++;
+                    }
+                        break;
+
+                        /* Print a number in unsigned int form */
+                    case 'u':
+                    {
+                        int8_t conv_buf[36];
+                        itoa(*((uint32_t *)esp), conv_buf, 10);
+                        puts2str(target, &target_size, conv_buf);
+                        esp++;
+                    }
+                        break;
+
+                        /* Print a number in signed int form */
+                    case 'd':
+                    {
+                        int8_t conv_buf[36];
+                        int32_t value = *((int32_t *)esp);
+                        if(value < 0) {
+                            conv_buf[0] = '-';
+                            itoa(-value, &conv_buf[1], 10);
+                        } else {
+                            itoa(value, conv_buf, 10);
+                        }
+                        puts2str(target, &target_size, conv_buf);
+                        esp++;
+                    }
+                        break;
+
+                        /* Print a single character */
+                    case 'c':
+                        putc2str(target, &target_size, (uint8_t) *((int32_t *)esp));
+                        esp++;
+                        break;
+
+                        /* Print a NULL-terminated string */
+                    case 's':
+                        puts2str(target, &target_size, *((int8_t **)esp));
+                        esp++;
+                        break;
+
+                    default:
+                        break;
+                }
+
+            }
+                break;
+
+            default:
+                putc2str(target, &target_size, *buf);
+                break;
+        }
+        buf++;
+    }
+    target[target_size] = '\0';
+    return (buf - format);
+}

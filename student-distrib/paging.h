@@ -90,6 +90,8 @@ uint32_t frames_num;
 /* Frames store the physical avaliablity */
 uint32_t* frames; /* Each element can store the status of 32 pdes */
 
+uint32_t default_page_table_virtual_addr[PAGE_DIRECTORY_SIZE];
+
 void* kmalloc_a(uint32_t size, uint8_t should_align);
 void* kmalloc(uint32_t size);
 void kfree(void* target);

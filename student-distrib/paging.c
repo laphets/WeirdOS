@@ -22,6 +22,7 @@ void init_paging(uint32_t mem_upper)
 {
     heap.present = 0;
     init_frame_status(mem_upper);
+    memset(default_page_table_virtual_addr, 0 ,4 * PAGE_DIRECTORY_SIZE);
     /**
      * Init page directory for kernel
      */
@@ -209,6 +210,7 @@ void* kmalloc_a(uint32_t size, uint8_t should_align) {
 }
 
 void* kmalloc(uint32_t size) {
+//    kprintf("---MALLOC NEW SPACE----\n");
     return kmalloc_a(size, 0);
 }
 
@@ -290,7 +292,11 @@ page_table_entry_t* get_pagetable(uint32_t pd_index) {
     page_directory_entry_t* pde = &default_page_directory[pd_index];
 //    if(pde->present == 0 || pde->ps != 0)
 //        return NULL;
-    return (page_table_entry_t*)(pde->address << 12);
+    if(heap.present != 1) {
+        return (page_table_entry_t*)(pde->address << 12);
+    }
+
+    return (page_table_entry_t*)default_page_table_virtual_addr[pd_index];
 }
 
 /**
@@ -305,14 +311,22 @@ page_table_entry_t* get_page(uint32_t addr, int8_t shoud_make) {
     uint32_t pt_idx = addr % 1024;
     page_directory_entry_t* pde = &default_page_directory[pd_idx];
 
-    if(pde->present == 1 && get_pagetable(pd_idx)[pt_idx].present == 1) {
+    if(pde->present == 1 && get_pagetable(pd_idx) != 0 && get_pagetable(pd_idx)[pt_idx].present == 1) {
         return &(get_pagetable(pd_idx)[pt_idx]);
     } else if (shoud_make == 1) {
         if(pde->present == 0) {
             page_table_entry_t* page_table = kmalloc_a(PAGE_TABLE_SIZE * sizeof(page_table_entry_t), 1);
-            pde->address = ((uint32_t)page_table >> 12);
-            pde->present = 1;
             memset(page_table, 0, PAGE_TABLE_SIZE * sizeof(page_table_entry_t));
+//            int32_t i = 0;
+//            for(i = 0; i < PAGE_TABLE_SIZE; i++) {
+//                page_table[i].present = 0;
+//                page_table[i].address = 0;
+//            }
+            default_page_table_virtual_addr[pd_idx] = (uint32_t)page_table;
+            /* We should set to the phys addr of allocated page_table */
+            uint32_t phys_page_table = vitrual2phys((uint32_t)page_table);
+            pde->address = ((uint32_t)phys_page_table >> 12);
+            pde->present = 1;
         }
         page_table_entry_t* page_table = get_pagetable(pd_idx);
         page_table_entry_t* pte = &page_table[pt_idx];

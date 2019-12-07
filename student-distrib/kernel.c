@@ -16,8 +16,18 @@
 #include "debug.h"
 #include "tests.h"
 #include "pit.h"
+#include "pci.h"
+#include "rtl8139.h"
+#include "ethernet.h"
+#include "arp.h"
+#include "ip.h"
+#include "udp.h"
+#include "tcp.h"
+#include "dns.h"
+#include "socket.h"
+#include "http.h"
 
-#define RUN_TESTS 1
+#define RUN_TESTS 0
 
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
@@ -188,6 +198,16 @@ void entry(unsigned long magic, unsigned long addr) {
     /* Init terminals */
     init_terminal();
 
+    /* Init pci */
+    init_pci();
+
+    /* Init rtl8139 */
+    init_rtl8139();
+    init_arp();
+    init_ip();  /* Init ip layer */
+    init_socket();
+    init_dns();
+
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your
      * IDT correctly otherwise QEMU will triple fault and simple close
@@ -195,6 +215,70 @@ void entry(unsigned long magic, unsigned long addr) {
     printf("Enabling Interrupts\n");
     init_ed = 1;
     sti();
+
+    uint8_t* packet = kmalloc(200);
+    int d = 0;
+    for(d = 0; d < 200; d++) {
+        packet[d] = d;
+    }
+    rtl8139_send(packet, 200);
+    rtl8139_send(packet, 200);
+
+//    http_res_t response = http_request((uint8_t*)"lumetta.web.engr.illinois.edu");
+////    http_res_t response = http_request("mdbailey.ece.illinois.edu");
+//    kprintf("%s\n, length: %d\n", response.data, response.length);
+
+//    ip_wrapper_t res = dns_query("blog.laphets.com");
+//    print_ip(res.ip_addr);
+//
+//    res = dns_query("lumetta.web.engr.illinois.edu");
+//    print_ip(res.ip_addr);
+
+//    dns_send("lumetta.web.engr.illinois.edu");
+//    dns_send("google.com");
+//    dns_send("blog.laphets.com");
+//    dns_send("www.baidu.com");
+
+//    int32_t socket = socket_open();
+//    uint8_t target_ip[4] = {18, 220, 149, 166};
+//    char http_request[] = "GET / HTTP/1.1\r\nHost: lumetta.web.engr.illinois.edu\r\n\r\n";
+//    uint32_t res_length = 0;
+//    uint8_t* res_data = socket_http_send(socket, target_ip, 80, (uint8_t*)http_request, strlen(http_request), &res_length);
+//    kprintf("RES DATA, size: %d!!!\n", res_length);
+//    kprintf("%s\n", res_data);
+//    kprintf("%s\n", res_data + res_length - 50);
+//    socket_close(socket);
+
+//    uint8_t dhcp_ip[4] = {10, 0, 2, 2};
+//    ip_send(dhcp_ip, IP_PROTOCOL_UDP, packet, 200);
+
+//    uint8_t dns_ip[4] = {10, 0, 2, 3};
+//    uint8_t dns_body[12] = {'H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd', '!'};
+//    udp_send(50032, 53, dns_ip, dns_body, 12);
+//    arp_request(dhcp_ip);
+
+//    uint8_t host_ip[4] = {10, 0, 2, 2};
+//    tcp_send(50032, 22, host_ip, 23333, 0, TCP_FLAG_SYN, NULL, 0);
+
+//    int i = 0;
+//    for(i = 0 ; i < 10; i++) {
+//        kprintf("rand: %d\n", rand_port());
+//    }
+//
+
+//    tcp_test();
+
+//    print_arp_table();
+//    uint32_t big_block = kmalloc(0x800000);
+//    memset(big_block, 0, 0x800000);
+//    uint32_t big_block1 = kmalloc(0x800000);
+//    memset(big_block1, 0, 0x800000);
+//    kprintf("malloc done, big_block: 0x%x, big_block1: 0x%x\n", big_block, big_block1);
+//    uint32_t b1 = kmalloc_a(PAGE_TABLE_SIZE * sizeof(page_table_entry_t), 1);
+//    uint32_t b2 = kmalloc_a(PAGE_TABLE_SIZE * sizeof(page_table_entry_t), 1);
+
+//    kprintf("b1: 0x%x  b2: 0x%x\n", b1, b2);
+
 
 
 #if (RUN_TESTS == 1)
@@ -204,7 +288,7 @@ void entry(unsigned long magic, unsigned long addr) {
     /* Execute the first program ("shell") ... */
 //    int32_t ret = execute((const uint8_t*)"shell");
 //    printf("execute_ret: %d\n", ret);
-//    launch_terminal();
+    launch_terminal();
 
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile (".1: hlt; jmp .1;");
