@@ -93,3 +93,6 @@ udp.o: udp.c udp.h lib.h types.h terminal.h keyboard.h i8259.h \
   x86_desc.h idt.h idthandler.h network.h ip.h ethernet.h rtl8139.h pci.h \
   arp.h tcp.h socket.h dns.h
 vfs.o: vfs.c vfs.h types.h
+vga.o: vga.c vga.h lib.h types.h terminal.h keyboard.h i8259.h \
+  scheduler.h paging.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h idt.h \
+  idthandler.h gui.h vbe.h font.h

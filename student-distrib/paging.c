@@ -55,7 +55,30 @@ void init_paging(uint32_t mem_upper)
     first_page_directory->avail = 0;
     first_page_directory->address = ((uint32_t)first_page_table >> 12);
 
-    set_kernel_vm((uint8_t*)VIDEO_MEMORY_START_ADDRESS);
+
+    uint32_t vm_entry = 0xA0;
+    for(vm_entry = 0xA0; vm_entry <= 0xBF; vm_entry++) {
+        set_kernel_vm((uint8_t*)(vm_entry << 12));
+    }
+
+    /**
+     * Set for SVGA mapping
+     */
+    uint32_t vbe_idx = (VBE_ADDR >> 22);
+    default_page_directory[vbe_idx].present = 1;
+    default_page_directory[vbe_idx].us = 0;
+    default_page_directory[vbe_idx].rw = 1;
+    default_page_directory[vbe_idx].global = 1;
+    default_page_directory[vbe_idx].ps = 1;
+    default_page_directory[vbe_idx].address = (vbe_idx << 10);
+
+//    default_page_directory[vbe_idx].address =
+    default_page_directory[vbe_idx+1].present = 1;
+    default_page_directory[vbe_idx+1].us = 0;
+    default_page_directory[vbe_idx+1].rw = 1;
+    default_page_directory[vbe_idx+1].global = 1;
+    default_page_directory[vbe_idx+1].ps = 1;
+    default_page_directory[vbe_idx+1].address = ((vbe_idx+1) << 10);
 
     /* Then we should pre map some paging for our heap */
     int32_t i;

@@ -133,6 +133,7 @@ scancode2char(uint8_t scancode)
 void keyboard_handler(registers_t registers) {
     cli();
 
+    /* printf("keyboard interrupt comes...\n"); */
     uint8_t scancode;
     unsigned char ascii;
     scancode = inb(KEYBOARD_PORT);

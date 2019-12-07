@@ -7,6 +7,7 @@
 #include "i8259.h"
 #include "vfs.h"
 #include "idt.h"
+#include "vga.h"
 
 
 #define RTC_IRQ 0x8

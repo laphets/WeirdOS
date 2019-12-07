@@ -26,8 +26,11 @@
 #include "dns.h"
 #include "socket.h"
 #include "http.h"
+#include "vga.h"
+#include "mouse.h"
 
 #define RUN_TESTS 0
+#define ENABLE_GUI 1
 
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
@@ -37,6 +40,7 @@
    pointed by ADDR. */
 void entry(unsigned long magic, unsigned long addr) {
     init_ed = 0;
+    gui_enabled = 0;
     printf("Hello world");
     multiboot_info_t *mbi;
     uint32_t fs_start_addr, fs_end_addr;
@@ -176,6 +180,10 @@ void entry(unsigned long magic, unsigned long addr) {
     /* Init paging */
     init_paging(((unsigned)mbi->mem_upper) << 10);
 
+#if (ENABLE_GUI == 1)
+    init_vga();
+#endif
+
     /* Init filesystem */
     init_fs(fs_start_addr, fs_end_addr);
 
@@ -183,6 +191,7 @@ void entry(unsigned long magic, unsigned long addr) {
     init_rtc();
     init_keyboard();
     init_pit();
+    init_mouse();
 
     /* init vfs operators */
     init_file_operator();

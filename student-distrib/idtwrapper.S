@@ -9,11 +9,12 @@
 .global INTERRUPT_21
 .global INTERRUPT_28
 .global INTERRUPT_2B
+.global INTERRUPT_2C
 .global SYSCALL_80
 
 /*
- * Interface between keyboard interrupt and keyboard handler
- * Side_Effet: calls the keyboard handler
+ * Interface between pit interrupt and pit handler
+ * Side_Effet: calls the pit handler
  */
 INTERRUPT_20:
 	pushal
@@ -42,6 +43,7 @@ INTERRUPT_28:
 	iret
 
 /*
+<<<<<<< HEAD
  * Interface between rtl8139 interrupt and rtl8139 handler
  * Side_Effet: calls the rtl8139 handler
  */
@@ -52,6 +54,17 @@ INTERRUPT_2B:
 	iret
 
 
+=======
+ * Interface between mouse interrupt and mouse handler
+ * Side_Effet: calls the mouse handler
+ */
+INTERRUPT_2C:
+	pushal
+	call mouse_handler
+	popal
+	iret
+
+>>>>>>> feature-gui
 /*
  * Interface between system call and system call handler.
  * places the parameters in the appropriate registers for
