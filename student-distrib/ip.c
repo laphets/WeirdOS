@@ -45,12 +45,12 @@ void ip_recv(ip_t* ip_packet) {
     switch(ip_packet->protocol) {
         case IP_PROTOCOL_UDP: {
             /* UDP Packet */
-            udp_recv(data_ptr);
+            udp_recv((udp_t*)data_ptr);
             break;
         }
         case IP_PROTOCOL_TCP: {
             /* TCP Packet */
-            tcp_recv(data_ptr, ip_packet->total_length - ip_packet->IHL * 4);
+            tcp_recv((tcp_t*)data_ptr, ip_packet->total_length - ip_packet->IHL * 4);
             break;
         }
         case IP_PROTOCOL_ICMP: {
@@ -136,7 +136,7 @@ void ip_send(uint8_t* target_ip, uint16_t protocol, uint8_t* data, uint32_t leng
 
     /* Then copy the data */
     uint32_t target_data_ptr = (uint32_t)ip_packet + (uint32_t)ip_packet->IHL * 4;
-    memcpy(target_data_ptr, data, length);
+    memcpy((void*)target_data_ptr, (const void*)data, length);
 
     /* Fix some bad endian */
     *((uint8_t*)(&ip_packet->version_IHT_ptr)) = htonb(*((uint8_t*)(&ip_packet->version_IHT_ptr)), 4);
@@ -172,7 +172,7 @@ void ip_send(uint8_t* target_ip, uint16_t protocol, uint8_t* data, uint32_t leng
             kprintf("ARP no response, fail ip sending\n");
             return;
         }
-        kprintf("Fetching arp: %d\n", arp_cnt);
+        /* kprintf("Fetching arp: %d\n", arp_cnt); */
         arp_res = arp_find(real_ip);
         if(arp_res.valid == 1) {
             break;
@@ -185,7 +185,7 @@ void ip_send(uint8_t* target_ip, uint16_t protocol, uint8_t* data, uint32_t leng
         arp_request(real_ip);
     }
 
-    ethernet_send(arp_res.mac_addr, ETHERTYPE_IPv4, ip_packet, total_size);
+    ethernet_send(arp_res.mac_addr, ETHERTYPE_IPv4, (uint8_t*)ip_packet, total_size);
 
 
 

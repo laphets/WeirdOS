@@ -42,37 +42,88 @@ void read_mac_addr() {
     kprintf("mac_addr: %x:%x:%x:%x:%x:%x\n", self_mac_addr[0], self_mac_addr[1], self_mac_addr[2], self_mac_addr[3], self_mac_addr[4], self_mac_addr[5]);
 }
 
+void* rtl8139_rx_copy() {
+    uint32_t rx_read_ptr = rx_buffer + rx_read_ptr_offset;
+    uint16_t packet_length = *((uint16_t*)(rx_read_ptr + 2));
+
+    uint32_t income_packet = (rx_read_ptr + 4);
+    if(rx_read_ptr_offset + packet_length > RTL8139_RXBUFFER_SIZE) {
+        /* wrap around to end of rx_buffer */
+        memcpy( (void*)(rx_buffer + RTL8139_RXBUFFER_SIZE) ,(const void*)rx_buffer,
+                (uint32_t)(rx_read_ptr_offset + (uint32_t)packet_length - RTL8139_RXBUFFER_SIZE) );
+    }
+
+    void* real_packet = NULL;
+
+    if(packet_length > 0) {
+        real_packet = kmalloc(packet_length - 4);
+        memcpy((void*)real_packet, (const void*)income_packet, (uint32_t)packet_length - 4);
+    }
+
+    rx_read_ptr_offset = (rx_read_ptr_offset + packet_length + 4 + 3) & RX_READ_POINTER_MASK;
+
+    if(rx_read_ptr_offset > RTL8139_RXBUFFER_SIZE) {
+        rx_read_ptr_offset %= RTL8139_RXBUFFER_SIZE;
+    }
+
+    //4:for header length(PktLength include 4 bytes CRC)
+    //3:for dword alignment
+
+    outw( rx_read_ptr_offset - 0x10, io_addr + CAPR); //-4:avoid overflow
+
+    return real_packet;
+}
 
 void rtl8139_handler() {
-    kprintf("rtl8139 Interrupt comes!!!!\n");
+    /* kprintf("rtl8139 Interrupt comes!!!!\n"); */
+    cli();
 
     uint16_t status = inw(io_addr + 0x3E);
+    void* recv_packet = NULL;
 
     if(status & TOK) {
         /* Packet Send Succ */
-        kprintf("packet send!!!\n");
+        /* kprintf("packet send!!!\n"); */
     }
 
     if(status & ROK) {
         /* Packet Recv Succ */
-        kprintf("packet recv!!!\n");
-        rtl8139_recv();
+        /* kprintf("packet recv!!!\n"); */
+        recv_packet = rtl8139_rx_copy();
     }
 
     outw(0x5, io_addr + 0x3E);
     send_eoi(0xB);
+
+    sti();
+
+    /* We first copy out the packet from NIC, then handle that packet */
+    if(recv_packet != NULL) {
+        /**
+         * Then we pass to link layer
+         */
+        ethernet_recv(recv_packet,  0); /* TODO: We temporarily use 0 */
+        kfree(recv_packet);
+    }
 }
 
 void rtl8139_send(void* packet, uint32_t length) {
-    uint32_t phys_addr = vitrual2phys(packet);
+    cli();
+
+    uint32_t phys_addr = vitrual2phys((uint32_t)packet);
     outl(phys_addr, io_addr + transmit_start_regitsers[cur_reg_pos]);
     outl(length, io_addr + transmit_cmd_registers[cur_reg_pos]);
 
     cur_reg_pos++;
     if(cur_reg_pos > 3)
         cur_reg_pos = 0;
+
+    sti();
 }
 
+/**
+ * The following recv func is deprecated
+ */
 void rtl8139_recv() {
     uint32_t rx_read_ptr = rx_buffer + rx_read_ptr_offset;
     uint16_t packet_length = *((uint16_t*)(rx_read_ptr + 2));
@@ -80,13 +131,13 @@ void rtl8139_recv() {
     uint32_t income_packet = (rx_read_ptr + 4);
     if(rx_read_ptr_offset + packet_length > RTL8139_RXBUFFER_SIZE) {
         /* wrap around to end of rx_buffer */
-        memcpy( rx_buffer + RTL8139_RXBUFFER_SIZE ,rx_buffer,
-                (rx_read_ptr_offset + packet_length - RTL8139_RXBUFFER_SIZE) );
+        memcpy( (void*)(rx_buffer + RTL8139_RXBUFFER_SIZE) ,(const void*)rx_buffer,
+                (uint32_t)(rx_read_ptr_offset + (uint32_t)packet_length - RTL8139_RXBUFFER_SIZE) );
     }
 
     if(packet_length > 0) {
         void* real_packet = kmalloc(packet_length - 4);
-        memcpy(real_packet, income_packet, packet_length - 4);
+        memcpy((void*)real_packet, (const void*)income_packet, (uint32_t)packet_length - 4);
 
         /**
          * Then we pass to link layer
@@ -169,8 +220,8 @@ void init_rtl8139() {
     kprintf("Software Reset Done\n");
 
     /* Set for receive buffer location */
-    rx_buffer = kmalloc(RTL8139_RXBUFFER_SIZE_MALLOC);
-    memset(rx_buffer, 0, RTL8139_RXBUFFER_SIZE_MALLOC);
+    rx_buffer = (uint32_t)kmalloc(RTL8139_RXBUFFER_SIZE_MALLOC);
+    memset((void*)rx_buffer, 0, RTL8139_RXBUFFER_SIZE_MALLOC);
     kprintf("rx_buffer: 0x%x, phys: 0x%x\n", rx_buffer, vitrual2phys(rx_buffer));
     outl(vitrual2phys(rx_buffer), io_addr + 0x30);
 

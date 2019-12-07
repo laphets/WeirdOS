@@ -16,12 +16,12 @@ void ethernet_recv(ethernet_t* frame, uint32_t length) {
     uint16_t type = ntohs(frame->type);
     switch (type) {
         case ETHERTYPE_ARP: {
-            arp_recv(frame->data);
+            arp_recv((arp_t*)frame->data);
             break;
         }
         case ETHERTYPE_IPv4: {
             /* IPv4 Packet */
-            ip_recv(frame->data);
+            ip_recv((ip_t*)frame->data);
             break;
         }
         default: {

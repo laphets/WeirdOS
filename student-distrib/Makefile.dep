@@ -4,14 +4,22 @@ x86_desc.o: x86_desc.S x86_desc.h types.h
 arp.o: arp.c arp.h lib.h types.h terminal.h keyboard.h i8259.h \
   scheduler.h paging.h kheap.h debug.h vfs.h task.h syscall.h fs.h rtc.h \
   x86_desc.h idt.h idthandler.h ethernet.h rtl8139.h pci.h network.h ip.h \
-  udp.h tcp.h
+  udp.h dns.h socket.h tcp.h
+dns.o: dns.c dns.h lib.h types.h terminal.h keyboard.h i8259.h \
+  scheduler.h paging.h kheap.h debug.h vfs.h task.h syscall.h fs.h rtc.h \
+  x86_desc.h idt.h idthandler.h udp.h network.h ip.h ethernet.h rtl8139.h \
+  pci.h arp.h tcp.h socket.h
 ethernet.o: ethernet.c ethernet.h lib.h types.h terminal.h keyboard.h \
   i8259.h scheduler.h paging.h kheap.h debug.h vfs.h task.h syscall.h \
   fs.h rtc.h x86_desc.h idt.h idthandler.h rtl8139.h pci.h arp.h ip.h \
-  network.h udp.h tcp.h
+  network.h udp.h dns.h socket.h tcp.h
 fs.o: fs.c fs.h types.h lib.h terminal.h keyboard.h i8259.h scheduler.h \
   paging.h kheap.h debug.h vfs.h task.h syscall.h rtc.h x86_desc.h idt.h \
   idthandler.h
+http.o: http.c http.h lib.h types.h terminal.h keyboard.h i8259.h \
+  scheduler.h paging.h kheap.h debug.h vfs.h task.h syscall.h fs.h rtc.h \
+  x86_desc.h idt.h idthandler.h dns.h udp.h network.h ip.h ethernet.h \
+  rtl8139.h pci.h arp.h tcp.h socket.h
 i8259.o: i8259.c i8259.h types.h lib.h terminal.h keyboard.h scheduler.h \
   paging.h kheap.h debug.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h \
   idt.h idthandler.h
@@ -24,11 +32,11 @@ idthandler.o: idthandler.c idt.h lib.h types.h terminal.h keyboard.h \
 ip.o: ip.c ip.h lib.h types.h terminal.h keyboard.h i8259.h scheduler.h \
   paging.h kheap.h debug.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h \
   idt.h idthandler.h ethernet.h rtl8139.h pci.h arp.h network.h udp.h \
-  tcp.h
+  dns.h socket.h tcp.h
 kernel.o: kernel.c multiboot.h types.h x86_desc.h lib.h terminal.h \
   keyboard.h i8259.h scheduler.h paging.h kheap.h debug.h vfs.h task.h \
   syscall.h fs.h rtc.h idt.h idthandler.h tests.h pit.h pci.h rtl8139.h \
-  ethernet.h arp.h ip.h network.h udp.h tcp.h
+  ethernet.h arp.h ip.h network.h udp.h dns.h socket.h tcp.h http.h
 keyboard.o: keyboard.c keyboard.h lib.h types.h terminal.h vfs.h task.h \
   syscall.h fs.h paging.h kheap.h debug.h rtc.h x86_desc.h i8259.h idt.h \
   idthandler.h scheduler.h
@@ -56,10 +64,14 @@ rtc.o: rtc.c rtc.h lib.h types.h terminal.h keyboard.h i8259.h \
 rtl8139.o: rtl8139.c rtl8139.h lib.h types.h terminal.h keyboard.h \
   i8259.h scheduler.h paging.h kheap.h debug.h vfs.h task.h syscall.h \
   fs.h rtc.h x86_desc.h idt.h idthandler.h pci.h ethernet.h arp.h ip.h \
-  network.h udp.h tcp.h
+  network.h udp.h dns.h socket.h tcp.h
 scheduler.o: scheduler.c scheduler.h terminal.h keyboard.h lib.h types.h \
   i8259.h vfs.h task.h syscall.h fs.h paging.h kheap.h debug.h rtc.h \
   x86_desc.h idt.h idthandler.h
+socket.o: socket.c socket.h lib.h types.h terminal.h keyboard.h i8259.h \
+  scheduler.h paging.h kheap.h debug.h vfs.h task.h syscall.h fs.h rtc.h \
+  x86_desc.h idt.h idthandler.h tcp.h network.h ip.h ethernet.h rtl8139.h \
+  pci.h arp.h udp.h dns.h
 syscall.o: syscall.c syscall.h types.h lib.h terminal.h keyboard.h \
   i8259.h scheduler.h paging.h kheap.h debug.h vfs.h task.h fs.h rtc.h \
   x86_desc.h idt.h idthandler.h
@@ -69,7 +81,7 @@ task.o: task.c task.h lib.h types.h terminal.h keyboard.h i8259.h \
 tcp.o: tcp.c tcp.h lib.h types.h terminal.h keyboard.h i8259.h \
   scheduler.h paging.h kheap.h debug.h vfs.h task.h syscall.h fs.h rtc.h \
   x86_desc.h idt.h idthandler.h network.h ip.h ethernet.h rtl8139.h pci.h \
-  arp.h udp.h
+  arp.h udp.h dns.h socket.h
 terminal.o: terminal.c terminal.h keyboard.h lib.h types.h scheduler.h \
   paging.h kheap.h debug.h i8259.h vfs.h task.h syscall.h fs.h rtc.h \
   x86_desc.h idt.h idthandler.h
@@ -79,5 +91,5 @@ tests.o: tests.c tests.h x86_desc.h types.h lib.h terminal.h keyboard.h \
 udp.o: udp.c udp.h lib.h types.h terminal.h keyboard.h i8259.h \
   scheduler.h paging.h kheap.h debug.h vfs.h task.h syscall.h fs.h rtc.h \
   x86_desc.h idt.h idthandler.h network.h ip.h ethernet.h rtl8139.h pci.h \
-  arp.h tcp.h
+  arp.h tcp.h socket.h dns.h
 vfs.o: vfs.c vfs.h types.h

@@ -67,7 +67,7 @@ void arp_send(uint8_t* mac_dest, uint8_t* ip_dest, uint16_t operation) {
     memcpy(arp_packet->sender_protocol_addr, self_ip_addr, IPv4_ADDR_SIZE);
     memcpy(arp_packet->target_hardware_addr, mac_dest, MAC_ADDR_SIZE);
     memcpy(arp_packet->target_protocol_addr, ip_dest, IPv4_ADDR_SIZE);
-    ethernet_send(mac_dest, 0x0806, arp_packet, sizeof(arp_t));
+    ethernet_send(mac_dest, 0x0806, (uint8_t*)arp_packet, sizeof(arp_t));
 
     kfree(arp_packet);
 }

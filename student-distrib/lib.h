@@ -57,6 +57,9 @@ uint32_t ntohl(uint32_t netlong);
 uint8_t htonb(uint8_t hostbyte, uint8_t num_bits);
 uint8_t ntohb(uint8_t netbyte, uint8_t num_bits);
 
+uint32_t rand(uint32_t seed,uint32_t max);
+int32_t sprintf(uint8_t* target, int8_t *format, ...);
+
 
 /* Userspace address-check functions */
 int32_t bad_userspace_addr(const void* addr, int32_t len);

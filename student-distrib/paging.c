@@ -296,7 +296,7 @@ page_table_entry_t* get_pagetable(uint32_t pd_index) {
         return (page_table_entry_t*)(pde->address << 12);
     }
 
-    return default_page_table_virtual_addr[pd_index];
+    return (page_table_entry_t*)default_page_table_virtual_addr[pd_index];
 }
 
 /**
@@ -322,9 +322,9 @@ page_table_entry_t* get_page(uint32_t addr, int8_t shoud_make) {
 //                page_table[i].present = 0;
 //                page_table[i].address = 0;
 //            }
-            default_page_table_virtual_addr[pd_idx] = page_table;
+            default_page_table_virtual_addr[pd_idx] = (uint32_t)page_table;
             /* We should set to the phys addr of allocated page_table */
-            uint32_t phys_page_table = vitrual2phys(page_table);
+            uint32_t phys_page_table = vitrual2phys((uint32_t)page_table);
             pde->address = ((uint32_t)phys_page_table >> 12);
             pde->present = 1;
         }

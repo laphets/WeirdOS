@@ -140,7 +140,10 @@ footer_t* getfooter(header_t* header) {
 }
 
 uint32_t heap_malloc(uint32_t size, uint8_t should_align) {
-    kprintf("heap_malloc: size: %d\n", size);
+    /* kprintf("heap_malloc: size: %d\n", size); */
+//    if(size == 28) {
+//        kprintf("FUCK!!!\n");
+//    }
     /**
      * For heap malloc, we should do the following things,
      * First we need to find whether there is some hole which can fit ourself
@@ -226,7 +229,7 @@ uint32_t heap_malloc(uint32_t size, uint8_t should_align) {
         offseted_footer->header = offseted_header;
         ordered_array_insert(offseted_header);
 
-        header = new_location;
+        header = (header_t*)new_location;
 //        header = (header_t*)((uint32_t)offseted_footer + sizeof(footer_t));
         header->magic = KHEAP_MAGIC;
         header->is_hole = 0;
@@ -258,6 +261,8 @@ uint32_t heap_malloc(uint32_t size, uint8_t should_align) {
         ordered_array_insert(second_header);
     }
 
+    /* kprintf("heap_malloc_done: size: %d\n", size); */
+
     return (uint32_t)header + sizeof(header_t);
 }
 
@@ -275,7 +280,7 @@ void heap_free(void* target) {
     if(target == NULL)
         return;
 
-    header_t* target_header = target - sizeof(header_t);
+    header_t* target_header = (header_t*)((uint32_t)target - sizeof(header_t));
     ASSERT(target_header->magic == KHEAP_MAGIC);
     if(target_header->magic != KHEAP_MAGIC)
         return;
@@ -286,11 +291,13 @@ void heap_free(void* target) {
 
     ordered_array_delete_header(target_header);
 
+    target_header->is_hole = 1;
+
     /* Then check for the left blcok */
     footer_t* left_footer = (target - sizeof(footer_t));
     if((uint32_t)left_footer > heap.start_addr && left_footer->magic == KHEAP_MAGIC) {
         header_t* left_header = left_footer->header;
-        if(left_header->magic == KHEAP_MAGIC && left_header->is_hole) {
+        if(left_header->magic == KHEAP_MAGIC && left_header->is_hole == 1) {
             /* Then we merge those holes */
             ordered_array_delete_header(left_header);
             target_header = left_header;
@@ -302,13 +309,14 @@ void heap_free(void* target) {
 
     /* Then check for the right block */
     header_t* right_header = (header_t*)((uint32_t)target_footer + sizeof(footer_t));
-    if((uint32_t)right_header < heap.end_addr && right_header->magic == KHEAP_MAGIC) {
+    if((uint32_t)right_header + sizeof(footer_t) < heap.end_addr && right_header->magic == KHEAP_MAGIC && right_header->is_hole == 1) {
         footer_t* right_footer = getfooter(right_header);
         ASSERT(right_footer->magic == KHEAP_MAGIC);
         if(right_footer->magic == KHEAP_MAGIC) {
             /* Then we merge holes */
             ordered_array_delete_header(right_header);
             target_footer = right_footer;
+            target_footer->header = target_header;
             target_header->size = (uint32_t)target_footer - (uint32_t)target_header + sizeof(footer_t);
         }
     }

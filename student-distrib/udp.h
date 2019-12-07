@@ -9,6 +9,7 @@
 #include "lib.h"
 #include "network.h"
 #include "ip.h"
+#include "dns.h"
 
 typedef struct udp {
     uint16_t src_port;

@@ -9,6 +9,7 @@
 #include "lib.h"
 #include "network.h"
 #include "ip.h"
+#include "socket.h"
 
 #define TCP_FLAG_FIN (1 << 0)
 #define TCP_FLAG_SYN (1 << 1)
@@ -18,6 +19,8 @@
 #define TCP_FLAG_URG (1 << 5)
 #define TCP_FLAG_ECE (1 << 6)
 #define TCP_FLAG_CWR (1 << 7)
+
+#define TCP_MAC_UINT32 0xFFFFFFFF
 
 typedef struct tcp {
     uint16_t src_port;
