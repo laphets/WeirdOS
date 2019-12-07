@@ -30,7 +30,7 @@
 #include "mouse.h"
 
 #define RUN_TESTS 0
-#define ENABLE_GUI 1
+#define ENABLE_GUI 0
 
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */

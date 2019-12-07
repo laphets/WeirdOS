@@ -22,6 +22,10 @@ int32_t rtc_open(const uint8_t *filename) {
     outb((prev & 0xF0) | rate, RTC_PORT_DATA);
 
     count = 0;
+
+    task_t* current_task = get_current_task();
+    current_task->rtc_hertz = OPEN_RTC_HERTZ;
+
     return 0;
 }
 

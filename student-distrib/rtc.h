@@ -16,12 +16,14 @@
 
 #define NUM_RTC_VALUES 16
 #define RTC_DEFAULT_RATE 0x06
+#define RTC_DEFAULT_HERTZ 1024
 
 #define RTC_REGISTER_A 0x8A
 #define RTC_REGISTER_B 0x8B
 #define RTC_REGISTER_C 0x0C
 
 #define OPEN_RTC_RATE 0xF
+#define OPEN_RTC_HERTZ 2
 #define MAX_RTC_HZ 1024
 #define LOW_4_BITS 0xF
 

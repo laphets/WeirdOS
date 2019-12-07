@@ -57,6 +57,11 @@ char handle_keybaord_flags(uint8_t scancode) {
     } else if (scancode == KEYBOARD_CTRL_RELEASE) {
         keyboard_flag &= ~CTRL_BIT_MASK;
         return 1;
+    } else if (scancode == KEYBOARD_ALT_PRESS) {
+        keyboard_flag |= ALT_BIT_MASK;
+        return 1;
+    } else if (scancode == KEYBOARD_ALT_RELEASE) {
+        keyboard_flag &= ~ALT_BIT_MASK;
     }
     return 0;
 }
@@ -84,6 +89,43 @@ char handle_special_keys(uint8_t ascii) {
     return 0;
 }
 
+char handle_terminal_switch(uint8_t scancode) {
+    if(keyboard_flag & ALT_BIT_MASK){
+        switch (scancode) {
+            case KEYBOARD_KEY_F1: {
+                send_eoi(KEYBOARD_IRQ);
+                switch_terminal(0, TYPE_SWITCH_ACTIVE_TERMINAL /* 0 for active terminal switch */);
+                return 1;
+            }
+            case KEYBOARD_KEY_F2: {
+                send_eoi(KEYBOARD_IRQ);
+                switch_terminal(1, TYPE_SWITCH_ACTIVE_TERMINAL /* 0 for active terminal switch */);
+                return 1;
+            }
+            case KEYBOARD_KEY_F3: {
+                send_eoi(KEYBOARD_IRQ);
+                switch_terminal(2, TYPE_SWITCH_ACTIVE_TERMINAL /* 0 for active terminal switch */);
+                return 1;
+            }
+            case KEYBOARD_KEY_F4: {
+                send_eoi(KEYBOARD_IRQ);
+                switch_terminal(3, TYPE_SWITCH_ACTIVE_TERMINAL /* 0 for active terminal switch */);
+                return 1;
+            }
+            case KEYBOARD_KEY_F5: {
+                send_eoi(KEYBOARD_IRQ);
+                switch_terminal(4, TYPE_SWITCH_ACTIVE_TERMINAL /* 0 for active terminal switch */);
+                return 1;
+            }
+            default: {
+                return 0;
+            }
+        }
+    }
+
+    return 0;
+}
+
 /**
  * @brief Translate scancode into the appropriate char
  *        accounting for CAPS and shift. Also keeps
@@ -101,6 +143,12 @@ scancode2char(uint8_t scancode)
     if(handle_keybaord_flags(scancode)) {
         return 0;
     }
+
+    /* We pre check for the terminal switch hotkey */
+    if(handle_terminal_switch(scancode)) {
+        return 0;
+    }
+
 
     /* Convert the scancode to the ascii equivalent */
     ascii = kbdus[scancode];

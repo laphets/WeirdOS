@@ -19,6 +19,14 @@
 #define KEYBOARD_RIGHT_SHIFT_RELEASE 0xB6
 #define KEYBOARD_CTRL_PRESS 0x1D
 #define KEYBOARD_CTRL_RELEASE 0x9D
+#define KEYBOARD_ALT_PRESS 0x38
+#define KEYBOARD_ALT_RELEASE 0xB8
+
+#define KEYBOARD_KEY_F1 0x3B
+#define KEYBOARD_KEY_F2 0x3C
+#define KEYBOARD_KEY_F3 0x3D
+#define KEYBOARD_KEY_F4 0x3E
+#define KEYBOARD_KEY_F5 0x3F
 
 /* For MacOS keyboard mapping */
 #define KEYBOARD_OPTION_PRESS 56
@@ -28,6 +36,7 @@
 #define CAPS_LOCK_BIT_MASK 0x1
 #define SHIFT_BIT_MASK 0x2
 #define CTRL_BIT_MASK 0x4
+#define ALT_BIT_MASK 0x8
 
 /* Macros for the keyboard buffer */
 #define KEYBOARD_BUF_MAX_SIZE 128

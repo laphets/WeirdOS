@@ -100,6 +100,9 @@ void switch_terminal(uint32_t tid, uint8_t type) {
 
             flush_paging();
 
+//            /* We should switch the RTC rate */
+//            rtc_write(0, &next_task->rtc_hertz, 4); /* 4 Byte for int */
+
             /* We should modify the TSS */
             tss.ss0 = KERNEL_DS;
             tss.esp0 = KERNEL_BOTTOM - next_task->pid * PCB_BLOCK_SIZE ;

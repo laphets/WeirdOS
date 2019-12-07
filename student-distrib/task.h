@@ -49,6 +49,8 @@ typedef struct task {
     uint8_t* video_addr; /* For videomap */
 
     uint32_t terminal_id;
+
+    uint32_t rtc_hertz;
 } task_t;
 
 /**
