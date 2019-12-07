@@ -5,7 +5,7 @@
  */
 #include "vga.h"
 
-RGBA_t* vbe_mem = VBE_ADDR;
+RGBA_t* vbe_mem = (RGBA_t*)VBE_ADDR;
 static RGBA_t framebuffer[SVGA_Y_DIM][SVGA_X_DIM] __attribute__((aligned(32)));
 
 /* For 4 bytes */

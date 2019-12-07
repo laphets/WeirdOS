@@ -142,7 +142,7 @@ char font8x8_basic[128][8] = {
 
 
 void render_font(int x_start, int y_start, char ch, uint32_t color) {
-    char* font = font8x8_basic[ch];
+    char* font = (char*)font8x8_basic[(uint8_t)(ch)];
     int x,y;
     int set;
     for (y=0; y < 8; y++) {

@@ -21,9 +21,9 @@ void mouse_handler() {
 
     if(gui_enabled) {
         uint8_t buf[20];
-        itoa(mouse_cycle, buf, 10);
+        itoa((uint32_t)mouse_cycle, (int8_t*)buf, 10);
         draw_rect(0, 0, 50, 10, 0xFFFFFF);
-        render_string(0, 0, buf, 0);
+        render_string(0, 0, (char*)buf, 0);
         render_string(200, 300, "mouse comes outer... ", 0);
     }
 
