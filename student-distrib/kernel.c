@@ -288,6 +288,8 @@ void entry(unsigned long magic, unsigned long addr) {
 
 //    kprintf("b1: 0x%x  b2: 0x%x\n", b1, b2);
 
+    /* *(uint32_t*)(0xDEADBEEF) = 33; */
+
 
 
 #if (RUN_TESTS == 1)

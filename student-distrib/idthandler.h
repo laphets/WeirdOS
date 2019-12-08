@@ -63,6 +63,8 @@ extern void INTERRUPT_28();    /* For RTC */
 extern void INTERRUPT_2B();    /* For RTL8139 */
 extern void INTERRUPT_2C();    /* For Mouse */
 
+extern void TRAP_E_LINKAGE();    /* For TRAP E */
+
 /**
  * The defination for syscall
  */

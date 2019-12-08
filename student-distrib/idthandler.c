@@ -64,32 +64,24 @@ void TRAP_D() {
         printf("esp: 0x%x, [esp]: 0x%x, [esp+4]: 0x%x, [esp+8]: 0x%x, [esp-4]: 0x%x\n", esp, *esp, *(esp+1), *(esp+2), *(esp-1));
     }
 }
-void TRAP_E(uint32_t code, uint32_t eip) {
-    int32_t location;
-    asm("\t movl %%cr2,%0" : "=r"(location));
+void TRAP_E(registers_trap_error_t registers) {
+    kprintf("TRAPE: code: 0x%x eip: 0x%x, esp: 0x%x\n", registers.code, registers.eip, registers.esp);
+    if(registers.eip >= USER_VM_START) {
+        kprintf("user space error: 0x%x\n", registers.code);
+        /* We should do halt here then */
+        halt(1);
+        return;
+    }
 
-    uint32_t* esp;
-    asm volatile("                  \n\
-            movl %%esp, %0           \n\
-            "
-    :  "=r"(esp)
-    :
-    : "esp");
     if(gui_enabled) {
         render_string(20, 20, "0x0E PAGE_FAULT | UNIT_TESTING_FAIL\n", 0);
     } else {
         kprintf("0x0E PAGE_FAULT | UNIT_TESTING_FAIL\n");
-        kprintf("esp: 0x%x, [esp]: 0x%x, [esp+4]: 0x%x, [esp+8]: 0x%x, [esp-4]: 0x%x\n", esp, *esp, *(esp+1), *(esp+2), *(esp-1));
-        kprintf("Technical Information:\n\n*** CODE: 0x%x  STOP: 0x%x  MEMORY ACCESS LOCATION: 0x%x ***\n", code, eip, location);
-
+        kprintf("Technical Information:\n\n*** CODE: 0x%x  LOCATION: 0x%x  MEMORY ACCESS LOCATION: 0x%x ***\n", registers.code, registers.eip, registers.eax);
     }
 
 
     cli();
-//    blue_screen();
-//    printf_error("0x0E PAGE_FAULT | UNIT_TESTING_FAIL\n\n");
-//    show_msg();
-//    printf_error("Technical Information:\n\n*** CODE: 0x%x  STOP: 0x%x  MEMORY ACCESS LOCATION: 0x%x ***\n", code, eip, location);
     while(1) {};
 }
 void TRAP_F() {

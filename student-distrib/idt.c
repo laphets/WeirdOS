@@ -104,7 +104,7 @@ void init_trap() {
     SET_IDT_TRAP_GATE(0xB, "", TRAP_B);
     SET_IDT_TRAP_GATE(0xC, "", TRAP_C);
     SET_IDT_TRAP_GATE(0xD, "", TRAP_D);
-    SET_IDT_TRAP_GATE(0xE, "", TRAP_E);
+    SET_IDT_TRAP_GATE(0xE, "", TRAP_E_LINKAGE);
     SET_IDT_TRAP_GATE(0xF, "", TRAP_F);
     SET_IDT_TRAP_GATE(0x10, "", TRAP_10);
     SET_IDT_TRAP_GATE(0x11, "", TRAP_11);
