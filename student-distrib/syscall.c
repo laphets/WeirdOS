@@ -239,7 +239,6 @@ int32_t execute(const uint8_t* command) {
 
     /* Reset the RTC Rate */
     task.rtc_hertz = RTC_DEFAULT_HERTZ;
-    rtc_write(0, &task.rtc_hertz, 4);
 
     /* Update the current task num */
     current_task_num++;
@@ -346,9 +345,6 @@ int32_t halt(uint8_t status) {
 //        }
 
         flush_paging();
-
-        /* Reset back the RTC Rate */
-        rtc_write(0, &parent_task->rtc_hertz, 4);
     }
     /* Clean up data for current process */
 
@@ -468,9 +464,9 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes) {
     int32_t ret = fd_entry->operator->write(fd, buf, nbytes);
 
     /* Update the RTC hertz */
-    if(ret == 0 && fd_entry->operator == &rtc_operator) {
-        current_task->rtc_hertz = *((uint32_t*)buf);
-    }
+//    if(ret == 0 && fd_entry->operator == &rtc_operator) {
+//        current_task->rtc_hertz = *((uint32_t*)buf);
+//    }
 
     /* printf("sys_write: code: %d\n", ret); */
     return ret;

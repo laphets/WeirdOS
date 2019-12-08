@@ -50,6 +50,7 @@ typedef struct task {
 
     uint32_t terminal_id;
 
+    volatile char rtc_wait;
     uint32_t rtc_hertz;
 } task_t;
 
