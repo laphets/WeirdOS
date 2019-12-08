@@ -15,13 +15,17 @@
 #define RTC_PORT_DATA 0x71
 
 #define NUM_RTC_VALUES 16
-#define RTC_DEFAULT_RATE 0x06
+//#define RTC_DEFAULT_RATE 0x06
+//#define RTC_DEFAULT_HERTZ 1024
+#define RTC_DEFAULT_RATE 0x05
+#define RTC_DEFAULT_HERTZ 2048
 
 #define RTC_REGISTER_A 0x8A
 #define RTC_REGISTER_B 0x8B
 #define RTC_REGISTER_C 0x0C
 
 #define OPEN_RTC_RATE 0xF
+#define OPEN_RTC_HERTZ 2
 #define MAX_RTC_HZ 1024
 #define LOW_4_BITS 0xF
 
@@ -61,5 +65,15 @@ void init_rtc_operator();
  * Since 0x0 is no output, it is represented as NULL
  */
 extern uint32_t hertzmap[NUM_RTC_VALUES];
+
+typedef struct rtc_wq {
+    volatile uint8_t present;
+    volatile uint8_t wait;
+    uint32_t hertz;
+    uint32_t offset;
+} rtc_wq_t;
+
+#define RTC_WAIT_QUEUE_SIZE 5
+rtc_wq_t rtc_wait_queue[RTC_WAIT_QUEUE_SIZE];
 
 #endif

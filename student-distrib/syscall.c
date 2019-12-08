@@ -227,10 +227,18 @@ int32_t execute(const uint8_t* command) {
     }
 
     /* Reset parent video mapping */
-    if(task.parent != -1 && task.parent_task->video_addr != NULL) {
-        reset_user_vm(task.parent_task->video_addr);
-        flush_paging();
-    }
+//    if(task.parent != -1 && task.parent_task->video_addr != NULL) {
+//        reset_user_vm(task.parent_task->video_addr);
+//        flush_paging();
+//    }
+
+    /* We just set up the user video mapping here */
+    task.video_addr = (uint8_t *)USER_VIDEO_ADDRESS + task.pid * _4KB;
+    set_user_vm((char*)VIDEO_MEMORY_START_ADDRESS, task.video_addr);
+    flush_paging();
+
+    /* Reset the RTC Rate */
+    task.rtc_hertz = RTC_DEFAULT_HERTZ;
 
     /* Update the current task num */
     current_task_num++;
@@ -303,11 +311,11 @@ int32_t halt(uint8_t status) {
     /**
      * First clear for video memory mapping if needed
      */
-    if(current_task->video_addr != NULL) {
-        reset_user_vm(current_task->video_addr);
-        current_task->video_addr = NULL;
-        flush_paging();
-    }
+//    if(current_task->video_addr != NULL) {
+//        reset_user_vm(current_task->video_addr);
+//        current_task->video_addr = NULL;
+//        flush_paging();
+//    }
 
     /**
      * If it's not the first task, we can just get the parent and restore to parent state
@@ -332,9 +340,9 @@ int32_t halt(uint8_t status) {
         user_page_directory->avail = 0;
         user_page_directory->address = ((2+parent_task->pid) << 10);
 
-        if(parent_task->video_addr != NULL) {
-            set_user_vm((char*)VIDEO_MEMORY_START_ADDRESS, parent_task->video_addr);
-        }
+//        if(parent_task->video_addr != NULL) {
+//            set_user_vm((char*)VIDEO_MEMORY_START_ADDRESS, parent_task->video_addr);
+//        }
 
         flush_paging();
     }
@@ -454,6 +462,12 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes) {
     }
 
     int32_t ret = fd_entry->operator->write(fd, buf, nbytes);
+
+    /* Update the RTC hertz */
+//    if(ret == 0 && fd_entry->operator == &rtc_operator) {
+//        current_task->rtc_hertz = *((uint32_t*)buf);
+//    }
+
     /* printf("sys_write: code: %d\n", ret); */
     return ret;
 }
@@ -616,11 +630,12 @@ int32_t vidmap(uint8_t** screen_start) {
         return 0;
     }
 
+    /* We set up the vidmap when start new process instead */
     /* Then we should set up page entry for the 4-kb video memory mapping */
-    current_task->video_addr = (uint8_t *)USER_VIDEO_ADDRESS;
-    set_user_vm((char*)VIDEO_MEMORY_START_ADDRESS, current_task->video_addr);
-    flush_paging();
-    *screen_start = current_task->video_addr;
+//    current_task->video_addr = (uint8_t *)USER_VIDEO_ADDRESS;
+//    set_user_vm((char*)VIDEO_MEMORY_START_ADDRESS, current_task->video_addr);
+//    flush_paging();
+//    *screen_start = current_task->video_addr;
 
     return 0;
 }

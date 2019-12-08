@@ -30,7 +30,7 @@
 #include "mouse.h"
 
 #define RUN_TESTS 0
-#define ENABLE_GUI 1
+#define ENABLE_GUI 0
 
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
@@ -287,6 +287,8 @@ void entry(unsigned long magic, unsigned long addr) {
 //    uint32_t b2 = kmalloc_a(PAGE_TABLE_SIZE * sizeof(page_table_entry_t), 1);
 
 //    kprintf("b1: 0x%x  b2: 0x%x\n", b1, b2);
+
+    /* *(uint32_t*)(0xDEADBEEF) = 33; */
 
 
 

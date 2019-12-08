@@ -11,6 +11,26 @@
 .global INTERRUPT_2B
 .global INTERRUPT_2C
 .global SYSCALL_80
+.global TRAP_E_LINKAGE
+
+TRAP_E_LINKAGE:
+	cli
+
+	pusha
+
+	movw $0x0018, %ax
+	movw %ax, %ds
+	movw %ax, %es
+	movw %ax, %fs
+	movw %ax, %gs
+
+	call TRAP_E
+
+	popa
+	addl $0x4, %esp
+	sti
+	iret
+
 
 /*
  * Interface between pit interrupt and pit handler

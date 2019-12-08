@@ -575,7 +575,7 @@ void putc(uint8_t c) {
     char* video_mem_local = video_mem;
     if(init_ed == 1 && current_active_terminal != -1) {
         /* Then we should put to current running's unshown buffer */
-        if(current_running_terminal != 1 && terminal_list[current_running_terminal].present && current_running_terminal != current_active_terminal) {
+        if(/* current_running_terminal != 1 && */ terminal_list[current_running_terminal].present && current_running_terminal != current_active_terminal) {
             video_mem_local = (char*)terminal_list[current_running_terminal].unshown_vm_addr;
             /* kprintf("current_active: %d, current_running: %d\n", current_active_terminal, current_running_terminal); */
         }

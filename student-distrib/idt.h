@@ -22,4 +22,10 @@ typedef struct registers {
     uint32_t eip, cs, eflags, useresp, ss; // Pushed by the processor automatically.
 } registers_t;
 
+typedef struct registers_trap_error {
+    uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax; // Pushed by pusha.
+    uint32_t code;
+    uint32_t eip, cs, eflags, useresp, ss; // Pushed by the processor automatically.
+} registers_trap_error_t;
+
 #endif

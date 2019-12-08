@@ -26,6 +26,7 @@ void reset_task(task_t* task) {
     task->fd_size = 0;
     task->argument_num = 0;
     task->video_addr = NULL;
+    task->rtc_hertz = RTC_DEFAULT_HERTZ;
     int32_t fd = 0;
     for(fd = 0; fd < MAX_FD_NUM; fd++) {
         task->fd_table[fd].present = 0;
