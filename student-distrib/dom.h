@@ -37,7 +37,7 @@ typedef struct UIElement {
     uint32_t background;
     uint8_t is_transparent;
     char* text;
-    uint32_t text_length;
+    uint32_t text_buffer_length;
     uint8_t text_align;
     uint32_t color;
     uint8_t is_responsive;
@@ -47,6 +47,7 @@ typedef struct UIElement {
 } UIElement_t;
 
 void UIElement_set_padding(UIElement_t* element, uint32_t top, uint32_t right, uint32_t bottom, uint32_t left);
+inline void UIElement_set_margin(UIElement_t* element, uint32_t top, uint32_t right, uint32_t bottom, uint32_t left);
 inline void UIElement_set_text(UIElement_t* element, char* text, uint32_t color, uint8_t text_align);
 void UIElement_append_child(UIElement_t* element, UIElement_t* child);
 void UIElement_set_background(UIElement_t* element, uint8_t is_transparent, uint32_t color);

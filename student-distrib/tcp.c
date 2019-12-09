@@ -170,13 +170,17 @@ void tcp_recv(tcp_t* tcp_packet, uint32_t length) {
         kprintf("WE ARE GOING TO SEND FIN!!\n");
         socket->others_seq_num++;
         tcp_send(socket->port, socket->target_port, socket->target_ip, 0, socket->others_seq_num, TCP_FLAG_ACK, NULL, 0);
-        tcp_send(socket->port, socket->target_port, socket->target_ip, socket->my_seq_num, socket->others_seq_num, TCP_FLAG_FIN, NULL, 0);
+        if(socket->has_sent_fin != 1) {
+            tcp_send(socket->port, socket->target_port, socket->target_ip, socket->my_seq_num, socket->others_seq_num, TCP_FLAG_FIN, NULL, 0);
+        }
         socket->tcp_status = SOCKET_TCP_STATUS_SENT_FIN;
         return;
     }
 
     /* Then check for the data */
     if(socket->tcp_status == SOCKET_TCP_STATUS_SENT_REQUEST && data_length > 0) {
+        if(socket->tcp_common_length == 0)
+            socket->tcp_common_length = data_length;
         if(tcp_packet->seq_num + data_length > socket->others_seq_num) {
             /* That data is useful, we then copy */
             uint32_t begin_buffer_delta = 0;
@@ -191,6 +195,14 @@ void tcp_recv(tcp_t* tcp_packet, uint32_t length) {
             socket->recv_buf_end_ptr = begin_buffer_delta + data_length;
             socket->others_seq_num = tcp_packet->seq_num + data_length;
             socket->data_packet_num++;
+
+            if(data_length < socket->tcp_common_length) {
+                /* Then we send FIN */
+                tcp_send(socket->port, socket->target_port, socket->target_ip, socket->my_seq_num, socket->others_seq_num, TCP_FLAG_ACK | TCP_FLAG_FIN, NULL, 0);
+                socket->my_seq_num++;
+                socket->has_sent_fin = 1;
+                return;
+            }
         }
         /* Anyway, we will send an ACK for that packet */
         tcp_send(socket->port, socket->target_port, socket->target_ip, 0, socket->others_seq_num, TCP_FLAG_ACK, NULL, 0);
@@ -201,7 +213,9 @@ void tcp_recv(tcp_t* tcp_packet, uint32_t length) {
         kprintf("WE ARE GOING TO SEND FIN!!\n");
         socket->others_seq_num++;
         tcp_send(socket->port, socket->target_port, socket->target_ip, 0, socket->others_seq_num, TCP_FLAG_ACK, NULL, 0);
-        tcp_send(socket->port, socket->target_port, socket->target_ip, socket->my_seq_num, socket->others_seq_num, TCP_FLAG_FIN, NULL, 0);
+        if(socket->has_sent_fin != 1) {
+            tcp_send(socket->port, socket->target_port, socket->target_ip, socket->my_seq_num, socket->others_seq_num, TCP_FLAG_FIN, NULL, 0);
+        }
         socket->tcp_status = SOCKET_TCP_STATUS_SENT_FIN;
     }
 

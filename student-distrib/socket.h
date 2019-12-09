@@ -36,6 +36,8 @@ typedef struct socket {
     uint32_t first_data_packet_seq_num;
     uint8_t target_ip[IPv4_ADDR_SIZE];
     uint16_t target_port;
+    uint32_t tcp_common_length;
+    volatile uint8_t has_sent_fin;
 
     /* The following for DNS status ctrl */
     volatile uint32_t dns_status;

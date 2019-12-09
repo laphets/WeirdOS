@@ -27,6 +27,14 @@ inline void UIElement_set_pixel(UIElement_t* element, uint32_t x, uint32_t y, RG
         pixel->b = target_color->b;
     }
 }
+inline void UIElement_set_margin(UIElement_t* element, uint32_t top, uint32_t right, uint32_t bottom, uint32_t left) {
+    if(element == NULL)
+        return;
+    element->margin[0] = top;
+    element->margin[1] = right;
+    element->margin[2] = bottom;
+    element->margin[3] = left;
+}
 inline void UIElement_set_padding(UIElement_t* element, uint32_t top, uint32_t right, uint32_t bottom, uint32_t left) {
     if(element == NULL)
         return;
@@ -37,9 +45,14 @@ inline void UIElement_set_padding(UIElement_t* element, uint32_t top, uint32_t r
 }
 inline void UIElement_set_text(UIElement_t* element, char* text, uint32_t color, uint8_t text_align) {
     uint32_t length = strlen(text);
-    if(element->text != NULL) {
-        kfree(element->text);
+    if(length + 1 > element->text_buffer_length) {
+        if(element->text != NULL) {
+            kfree(element->text);
+        }
+        element->text_buffer_length = length * 2;
+        element->text = kmalloc(element->text_buffer_length);
     }
+
     element->text_align = text_align; /* 0 for default, 1 for vertical center, 2 for horz center */
     element->color = color;
     element->text = kmalloc(length + 1);
@@ -109,6 +122,12 @@ void UIElement_render_text(UIElement_t* element) {
         for(i = 0; i < length; i++) {
             UIElement_render_font(element, cur_x, cur_y, element->text[i]);
             cur_x += 8;
+            if(cur_x > element->real_width - element->padding[1]) {
+                cur_x = element->padding[3];
+                cur_y += 10; /* Not handle y overflow now */
+                if(cur_y >= element->real_height)
+                    return;
+            }
         }
     }
 }
@@ -217,6 +236,7 @@ UIElement_t* UIElement_allocate(int32_t width, int32_t height, uint8_t is_respon
     element->parent = NULL;
     element->direction = UIE_DIRECTION_VERT;
     element->text = NULL;
+    element->text_buffer_length = 0;
 
     if(is_responsive) {
         element->framebuffer = NULL;

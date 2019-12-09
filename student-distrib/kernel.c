@@ -32,7 +32,7 @@
 #include "browser.h"
 
 #define RUN_TESTS 0
-#define ENABLE_GUI 1
+#define ENABLE_GUI 0
 
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
@@ -301,12 +301,16 @@ void entry(unsigned long magic, unsigned long addr) {
     /* Execute the first program ("shell") ... */
 //    int32_t ret = execute((const uint8_t*)"shell");
 //    printf("execute_ret: %d\n", ret);
-//    launch_terminal();
 
-    launch_browser();
 
-    while(1) {
-        render_screen();
+    if(gui_enabled) {
+        launch_browser();
+
+        while(1) {
+            render_screen();
+        }
+    } else {
+        launch_terminal();
     }
 
     /* Spin (nicely, so we don't chew up cycles) */

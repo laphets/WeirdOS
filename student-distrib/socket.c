@@ -119,6 +119,8 @@ void* socket_http_send(int32_t sid, uint8_t* target_ip, uint16_t target_port, ui
         return NULL;
 
     memcpy(socket->target_ip, target_ip, IPv4_ADDR_SIZE);
+    socket->has_sent_fin = 0;
+    socket->tcp_common_length = 0;
     socket->data_packet_num = 0;
     socket->target_port = target_port;
     socket->tcp_status = SOCKET_TCP_STATUS_INIT;

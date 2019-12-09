@@ -8,11 +8,14 @@
 
 #include "lib.h"
 #include "app.h"
+#include "http.h"
 
 typedef struct browser {
     app_t* app;
 
-    UIElement_t* addr_bar;
+    UIElement_t* addr_input_bar;
+    UIElement_t* addr_hint_bar;
+    UIElement_t* content;
 
 } browser_t;
 
