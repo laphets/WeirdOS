@@ -11,6 +11,42 @@ static void left_click_event_handler() {
 static void left_release_event_handler() {
 
 }
+
+static void dfs(UIElement_t* element, HtmlElement* node) {
+    if(node == NULL)
+        return;
+    for(; node != NULL; node = node->sibling) {
+        if(node->text != NULL) {
+            if(node->tag == HTML_TAG_NONE) {
+                kprintf("text: %s", (node->text));
+            } else {
+                kprintf("element %s: %s", html_tag[node->tag], (node->text));
+            }
+
+        } else {
+            kprintf("element: %s ", html_tag[node->tag]);
+        }
+        UIElement_append_child(element, )
+        dfs(browser, node->child);
+    }
+}
+
+static char* parse_http_result(browser_t* browser, http_res_t* response) {
+    ((uint8_t*)response->data)[response->length] = '\0';
+    uint32_t http_start_ptr = 0;
+    int i = 0;
+    for(i = 0; i + 1 < response->length; i++) {
+        uint8_t byte0 = ((uint8_t*)response->data)[i];
+        uint8_t byte1 = ((uint8_t*)response->data)[i+1];
+        if(byte0 == '\r' && byte1 == '\n') {
+            http_start_ptr = i + 2;
+        }
+    }
+
+    HtmlDocument* doc = html_parse((uint32_t)response->data + http_start_ptr, response->length - http_start_ptr);
+    dfs(browser->content, doc->root_element);
+}
+
 static void keyboard_event_handler(browser_t* browser, char ch) {
     if(ch == '\n') {
         char content_text[100];
@@ -37,16 +73,9 @@ static void keyboard_event_handler(browser_t* browser, char ch) {
         char domain[100];
         sprintf(domain, "%s", browser->addr_input_bar->text);
         http_res_t http_response =  http_request(domain);
-        ((uint8_t*)http_response.data)[http_response.length] = '\0';
-        uint32_t http_start_ptr = 0;
-        int i = 0;
-        for(i = 0; i + 1 < http_response.length; i++) {
-            uint8_t byte0 = ((uint8_t*)http_response.data)[i];
-            uint8_t byte1 = ((uint8_t*)http_response.data)[i+1];
-            if(byte0 == '\r' && byte1 == '\n') {
-                http_start_ptr = i + 2;
-            }
-        }
+        parse_http_result(browser, &http_response);
+
+
         UIElement_set_text(browser->content, (uint32_t)http_response.data + http_start_ptr, 0x000000, UIE_TEXT_ALIGN_DEFAULT);
         kfree(http_response.data);
 

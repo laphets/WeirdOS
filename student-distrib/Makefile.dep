@@ -56,7 +56,9 @@ kernel.o: kernel.c multiboot.h types.h x86_desc.h lib.h terminal.h \
   keyboard.h i8259.h scheduler.h paging.h kheap.h debug.h gui.h vga.h \
   vbe.h font.h dom.h mouse.h vfs.h task.h syscall.h fs.h rtc.h idt.h \
   idthandler.h tests.h pit.h pci.h rtl8139.h ethernet.h arp.h ip.h \
-  network.h udp.h dns.h socket.h tcp.h http.h browser.h app.h
+  network.h udp.h dns.h socket.h tcp.h http.h browser.h app.h \
+  html/export.h html/html.h html/stack.h html/../lib.h html/attrib.h \
+  html/tag.h html/util.h
 keyboard.o: keyboard.c keyboard.h lib.h types.h terminal.h vfs.h task.h \
   syscall.h fs.h paging.h kheap.h debug.h rtc.h x86_desc.h i8259.h idt.h \
   idthandler.h vga.h vbe.h font.h gui.h dom.h mouse.h scheduler.h
@@ -124,3 +126,40 @@ vfs.o: vfs.c vfs.h types.h
 vga.o: vga.c vga.h lib.h types.h terminal.h keyboard.h i8259.h \
   scheduler.h paging.h kheap.h debug.h gui.h dom.h mouse.h vfs.h task.h \
   syscall.h fs.h rtc.h x86_desc.h idt.h idthandler.h vbe.h font.h
+attrib.o: html/attrib.c html/attrib.h html/../lib.h html/../types.h \
+  html/../terminal.h html/../keyboard.h html/../lib.h html/../i8259.h \
+  html/../scheduler.h html/../paging.h html/../kheap.h html/../debug.h \
+  html/../gui.h html/../vga.h html/../vbe.h html/../font.h html/../dom.h \
+  html/../mouse.h html/../vfs.h html/../task.h html/../syscall.h \
+  html/../fs.h html/../rtc.h html/../x86_desc.h html/../idt.h \
+  html/../idthandler.h
+export.o: html/export.c html/export.h html/html.h html/stack.h \
+  html/../lib.h html/../types.h html/../terminal.h html/../keyboard.h \
+  html/../lib.h html/../i8259.h html/../scheduler.h html/../paging.h \
+  html/../kheap.h html/../debug.h html/../gui.h html/../vga.h \
+  html/../vbe.h html/../font.h html/../dom.h html/../mouse.h \
+  html/../vfs.h html/../task.h html/../syscall.h html/../fs.h \
+  html/../rtc.h html/../x86_desc.h html/../idt.h html/../idthandler.h \
+  html/attrib.h html/tag.h html/util.h
+html.o: html/html.c html/stack.h html/../lib.h html/../types.h \
+  html/../terminal.h html/../keyboard.h html/../lib.h html/../i8259.h \
+  html/../scheduler.h html/../paging.h html/../kheap.h html/../debug.h \
+  html/../gui.h html/../vga.h html/../vbe.h html/../font.h html/../dom.h \
+  html/../mouse.h html/../vfs.h html/../task.h html/../syscall.h \
+  html/../fs.h html/../rtc.h html/../x86_desc.h html/../idt.h \
+  html/../idthandler.h html/attrib.h html/html.h html/tag.h html/util.h
+stack.o: html/stack.c html/stack.h html/../lib.h html/../types.h \
+  html/../terminal.h html/../keyboard.h html/../lib.h html/../i8259.h \
+  html/../scheduler.h html/../paging.h html/../kheap.h html/../debug.h \
+  html/../gui.h html/../vga.h html/../vbe.h html/../font.h html/../dom.h \
+  html/../mouse.h html/../vfs.h html/../task.h html/../syscall.h \
+  html/../fs.h html/../rtc.h html/../x86_desc.h html/../idt.h \
+  html/../idthandler.h
+tag.o: html/tag.c html/tag.h
+util.o: html/util.c html/util.h html/../lib.h html/../types.h \
+  html/../terminal.h html/../keyboard.h html/../lib.h html/../i8259.h \
+  html/../scheduler.h html/../paging.h html/../kheap.h html/../debug.h \
+  html/../gui.h html/../vga.h html/../vbe.h html/../font.h html/../dom.h \
+  html/../mouse.h html/../vfs.h html/../task.h html/../syscall.h \
+  html/../fs.h html/../rtc.h html/../x86_desc.h html/../idt.h \
+  html/../idthandler.h

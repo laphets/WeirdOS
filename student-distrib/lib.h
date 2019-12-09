@@ -61,6 +61,11 @@ uint8_t ntohb(uint8_t netbyte, uint8_t num_bits);
 uint32_t rand(uint32_t seed,uint32_t max);
 int32_t sprintf(uint8_t* target, int8_t *format, ...);
 
+uint8_t isalpha(int c);
+uint8_t isspace(int c);
+uint8_t ispunct(int c);
+int tolower(int c);
+
 
 /* Userspace address-check functions */
 int32_t bad_userspace_addr(const void* addr, int32_t len);

@@ -1153,3 +1153,21 @@ int32_t sprintf(uint8_t* target, int8_t *format, ...) {
     target[target_size] = '\0';
     return (buf - format);
 }
+
+uint8_t isalpha(int c) {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+}
+
+uint8_t isspace(int c) {
+    return c == ' ' || c == '\t'; // || whatever other char you consider space
+}
+
+uint8_t ispunct(int c) {
+    static const char *punct = ".;!?...";
+    return strchr(punct, c) == NULL ? 0 : 1; // you can make this shorter
+}
+
+int tolower(int c) {
+    if ( !isalpha(c) ) return c;
+    return (c >= 'A' && c <= 'Z') ? c - 'A' : c;
+}

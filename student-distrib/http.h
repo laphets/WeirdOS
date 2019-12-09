@@ -13,6 +13,7 @@
 typedef struct http_res {
     uint32_t length;
     void* data;
+    void* header;
 } http_res_t;
 
 http_res_t http_request(uint8_t* domain);

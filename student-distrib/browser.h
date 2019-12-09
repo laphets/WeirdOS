@@ -9,6 +9,7 @@
 #include "lib.h"
 #include "app.h"
 #include "http.h"
+#include "html/export.h"
 
 typedef struct browser {
     app_t* app;
