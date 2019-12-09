@@ -1023,6 +1023,12 @@ uint32_t ntohl(uint32_t netlong) {
 }
 
 uint32_t random_seed=0;
+/**
+ * Generate some random number by init seed
+ * @param seed
+ * @param max
+ * @return
+ */
 uint32_t rand(uint32_t seed,uint32_t max) {
     random_seed = random_seed+seed * 1103515245 +12345;
     return (uint32_t)(random_seed / 65536) % (max+1);

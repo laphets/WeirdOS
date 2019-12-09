@@ -11,6 +11,10 @@
  */
 ordered_array_t ordered_array;
 
+/**
+ * Init the order array with some capacity
+ * @param capacity
+ */
 void init_ordered_array(uint32_t capacity) {
     ordered_array.size = 0;
     ordered_array.capacity = capacity;
@@ -18,6 +22,10 @@ void init_ordered_array(uint32_t capacity) {
     memset(ordered_array.array, 0, capacity * sizeof(void*));
 }
 
+/**
+ * Insert element to some ordered array
+ * @param elem
+ */
 void ordered_array_insert(header_t* elem) {
     int i = 0;
     while(i < ordered_array.size && ordered_array.array[i]->size < elem->size)
@@ -38,13 +46,21 @@ void ordered_array_insert(header_t* elem) {
     ordered_array.size++;
 }
 
+/**
+ * Find an element by index
+ * @param idx
+ * @return
+ */
 header_t* ordered_array_find(uint32_t idx) {
     if(idx >= ordered_array.size)
         return NULL;
     return ordered_array.array[idx];
 }
 
-
+/**
+ * Delete some element by index
+ * @param idx
+ */
 void ordered_array_delete(uint32_t idx) {
     if(idx >= ordered_array.size)
         return;
@@ -55,6 +71,10 @@ void ordered_array_delete(uint32_t idx) {
     ordered_array.size--;
 }
 
+/**
+ * Delete some element by header
+ * @param header
+ */
 void ordered_array_delete_header(header_t* header) {
     int32_t i = 0;
     for(i = 0;i < ordered_array.size; i++) {
@@ -65,6 +85,12 @@ void ordered_array_delete_header(header_t* header) {
     }
 }
 
+/**
+ * Find an available hole to use
+ * @param size
+ * @param should_align
+ * @return
+ */
 int32_t find_hole(uint32_t size, uint8_t should_align) {
     uint32_t i = 0;
     while(i < ordered_array.size) {
@@ -90,9 +116,14 @@ int32_t find_hole(uint32_t size, uint8_t should_align) {
     return i;
 }
 
+/**
+ * Expand our heap
+ * @param new_size
+ * @return
+ */
 int32_t heap_expand(uint32_t new_size) {
     kprintf("heap expand\n");
-
+    /* Align */
     if(new_size & 0xFFF) {
         new_size &= 0xFFFFF000;
         new_size += _4KB;
@@ -119,6 +150,11 @@ int32_t heap_expand(uint32_t new_size) {
     return new_size;
 }
 
+/**
+ * Contract out heap
+ * @param new_size
+ * @return
+ */
 int32_t heap_contract(uint32_t new_size) {
     if(new_size & 0xFFF) {
         new_size &= 0xFFFFF000;
@@ -135,10 +171,21 @@ int32_t heap_contract(uint32_t new_size) {
     return new_size;
 }
 
+/**
+ * Get the corresponding footer of a given header
+ * @param header
+ * @return
+ */
 footer_t* getfooter(header_t* header) {
     return (footer_t*)((uint32_t)header + header->size - sizeof(footer_t));
 }
 
+/**
+ * The main func to kmalloc
+ * @param size
+ * @param should_align
+ * @return
+ */
 uint32_t heap_malloc(uint32_t size, uint8_t should_align) {
     /* kprintf("heap_malloc: size: %d\n", size); */
 //    if(size == 28) {
@@ -266,6 +313,10 @@ uint32_t heap_malloc(uint32_t size, uint8_t should_align) {
     return (uint32_t)header + sizeof(header_t);
 }
 
+/**
+ * The main func to kfree
+ * @param target
+ */
 void heap_free(void* target) {
     /**
      * For heap free, we should do the following things,
@@ -328,6 +379,11 @@ void heap_free(void* target) {
     ordered_array_insert(target_header);
 }
 
+/**
+ * Transform a virtual address to phys one
+ * @param vitual_addr
+ * @return
+ */
 uint32_t vitrual2phys(uint32_t vitual_addr) {
     if(heap.present == 1) {
         page_table_entry_t* pte = get_page(vitual_addr, 0);
@@ -337,6 +393,9 @@ uint32_t vitrual2phys(uint32_t vitual_addr) {
     return vitual_addr;
 }
 
+/**
+ * Init out kernel heap
+ */
 void init_heap() {
     kprintf("Begin init heap...\n");
     init_ordered_array(KHEAP_ORDERED_ARRAY_SIZE);

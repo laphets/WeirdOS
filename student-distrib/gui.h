@@ -8,6 +8,7 @@
 
 #include "vga.h"
 
+/* To indicate whether the gui is enabled */
 int gui_enabled;
 
 void render_window(int x, int y, int width, int height, char* title, uint8_t is_focus);

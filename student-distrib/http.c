@@ -5,6 +5,11 @@
  */
 #include "http.h"
 
+/**
+ * Send HTTP1.1 request to some vertain place
+ * @param domain
+ * @return
+ */
 http_res_t http_request(uint8_t* domain) {
     ip_wrapper_t dns_record = dns_query(domain);
     uint8_t* target_ip = dns_record.ip_addr;

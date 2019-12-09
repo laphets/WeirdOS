@@ -10,15 +10,11 @@
 uint8_t mouse_cycle = 0;
 int8_t mouse_data[3];
 
-
+/**
+ * Handler for mouse interrupt
+ */
 void mouse_handler() {
 //    cli();
-
-//    int8_t d = mouse_read();
-//    kprintf("mouse: 0x%x\n", d);
-//    send_eoi(MOUSE_IRQ);
-//    return;
-
     if(gui_enabled) {
         uint8_t buf[20];
         itoa((uint32_t)mouse_cycle, (int8_t*)buf, 10);
@@ -34,16 +30,16 @@ void mouse_handler() {
             mouse_data[0] = mouse_read();
 
             if((mouse_data[0] & 0x8) != 0x8) {
-                kprintf("bad mouse0!!!\n");
+                /* kprintf("bad mouse0!!!\n"); */
                 break;
             }
 
             if((mouse_data[0] & 0x1) == 0x1) {
-                kprintf("left click\n");
+                /* kprintf("left click\n"); */
                 draw_rect(mouse_x, mouse_y, 4,4,0xFF0000);
             }
             if((mouse_data[0] & 0x2) == 0x2) {
-                kprintf("right click\n");
+                /* kprintf("right click\n"); */
             }
             mouse_cycle++;
             break;
@@ -71,13 +67,6 @@ void mouse_handler() {
 
 //            kprintf("mouse_x: %d, mouse_y: %d\n", mouse_x, mouse_y);
 
-//            int32_t real_x, real_y;
-//            int32_t state = mouse_data[0];
-//            int32_t d = mouse_data[1];
-//            real_x = d - ((state << 4) & 0x100);
-//            d = mouse_data[2];
-//            real_y = d - ((state << 3) & 0x100);
-
             if(gui_enabled) {
                 render_cursor(mouse_x, mouse_y);
             }
@@ -98,6 +87,9 @@ void mouse_handler() {
     send_eoi(MOUSE_IRQ);
 }
 
+/**
+ * Init mouse
+ */
 void init_mouse() {
     mouse_x = 50;
     mouse_y = 50;
@@ -127,6 +119,10 @@ void init_mouse() {
     kprintf("success init mouse\n");
 }
 
+/**
+ * Write some data to mouse
+ * @param data
+ */
 void mouse_write(uint8_t data) {
     mouse_wait(MOUSE_WAIT_TYPE_SIGNAL);
     outb(0xD4, MOUSE_CTRL_PORT); /* We are sending a command */
@@ -134,11 +130,19 @@ void mouse_write(uint8_t data) {
     outb(data, MOUSE_DATA_PORT);
 }
 
+/**
+ * Read data from mouse
+ * @return
+ */
 uint8_t mouse_read() {
     mouse_wait(MOUSE_WAIT_TYPE_DATA);
     return inb(MOUSE_DATA_PORT);
 }
 
+/**
+ * Wait for some circle
+ * @param type
+ */
 void mouse_wait(uint8_t type) {
     uint32_t timeout = MOUSE_TIMEOUT;
     switch (type) {

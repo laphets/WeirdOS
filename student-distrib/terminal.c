@@ -85,7 +85,7 @@ void switch_terminal(uint32_t tid, uint8_t type) {
             current_running_terminal = next_running_terminal;
             /* We should re-map the user paging */
             /* Reset parent's page */
-            page_directory_entry_t *user_page_directory = &default_page_directory[32];
+            page_directory_entry_t *user_page_directory = &default_page_directory[32];  /* The user page directory index is 32 */
             user_page_directory->present = 1;
             user_page_directory->rw = 1;
             user_page_directory->us = 1;
@@ -96,7 +96,7 @@ void switch_terminal(uint32_t tid, uint8_t type) {
             user_page_directory->ps = 1;
             user_page_directory->global = 0;
             user_page_directory->avail = 0;
-            user_page_directory->address = ((2+next_task->pid) << 10);
+            user_page_directory->address = ((2+next_task->pid) << 10);  /* Find the coreesponding physical pid address, see memory layout doc */
 
             flush_paging();
 

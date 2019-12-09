@@ -5,6 +5,9 @@
  */
 #include "dns.h"
 
+/**
+ * Init DNS server address
+ */
 void init_dns() {
     default_dns_server[0] = 10;
     default_dns_server[1] = 0;
@@ -12,6 +15,11 @@ void init_dns() {
     default_dns_server[3] = 3;
 }
 
+/**
+ * Parse domain str into dns style str
+ * @param domain
+ * @return
+ */
 uint8_t* gen_parsed_domain(uint8_t* domain) {
     uint32_t origin_domain_length = strlen((const int8_t*)domain);
     uint32_t domain_length = origin_domain_length + 1; /* 1 for the front mark */
@@ -32,6 +40,11 @@ uint8_t* gen_parsed_domain(uint8_t* domain) {
     return parsed_domain;
 }
 
+/**
+ * Query DNS for some certain domain
+ * @param domain
+ * @return
+ */
 ip_wrapper_t dns_query(uint8_t* domain) {
     ip_wrapper_t result;
     uint32_t sid = socket_open();
@@ -75,6 +88,12 @@ void dns_send(uint16_t src_port, uint8_t* domain) {
     kfree(dns_packet);
 }
 
+/**
+ * Receiver handler for DNS feedback
+ * @param dns_packet
+ * @param length
+ * @param res_ip
+ */
 void dns_recv(dns_t* dns_packet, uint32_t length, uint8_t* res_ip) {
     /* To simpify the parse, we just try to find two consecutive 0x0001 0x0001 as the A record */
     uint32_t data_ptr = 0, cnt = 0;
@@ -83,7 +102,7 @@ void dns_recv(dns_t* dns_packet, uint32_t length, uint8_t* res_ip) {
         uint8_t* byte_array = (uint8_t*)data_ptr;
         if(byte_array[0] == 0 && byte_array[1] == 1 && byte_array[2] == 0 && byte_array[3] == 1) {
             cnt++;
-            if(cnt == 2) {
+            if(cnt == 2 /* count to 2 */) {
                 /* The first one is in Query, so the second one is the answer */
                 dns_ans_t* ans = (dns_ans_t*)byte_array;
                 ans->type = ntohs(ans->type);

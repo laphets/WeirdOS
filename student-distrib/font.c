@@ -139,8 +139,13 @@ char font8x8_basic[128][8] = {
         { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}    // U+007F
 };
 
-
-
+/**
+ * Render a font to some certain position
+ * @param x_start
+ * @param y_start
+ * @param ch
+ * @param color
+ */
 void render_font(int x_start, int y_start, char ch, uint32_t color) {
     char* font = (char*)font8x8_basic[(uint8_t)(ch)];
     int x,y;
@@ -155,6 +160,13 @@ void render_font(int x_start, int y_start, char ch, uint32_t color) {
     }
 }
 
+/**
+ * Render a string to some certain place
+ * @param x_start
+ * @param y_start
+ * @param string
+ * @param color
+ */
 void render_string(int x_start, int y_start, char* string, uint32_t color) {
     int i;
     for(i = 0; i < strlen(string); i++) {

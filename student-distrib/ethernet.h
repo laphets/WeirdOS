@@ -15,8 +15,8 @@
 #define ETHERTYPE_IPv4 0x0800
 
 typedef struct ethernet {
-    uint8_t mac_dest[6];
-    uint8_t mac_src[6];
+    uint8_t mac_dest[MAC_ADDR_SIZE];
+    uint8_t mac_src[MAC_ADDR_SIZE];
     uint16_t type;
     uint8_t data[];
 } __attribute__((packed)) ethernet_t;

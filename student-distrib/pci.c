@@ -5,6 +5,14 @@
  */
 #include "pci.h"
 
+/**
+ * Read data from PCI
+ * @param bus
+ * @param device
+ * @param func
+ * @param offset
+ * @return
+ */
 uint32_t pci_read(uint8_t bus, uint8_t device, uint8_t func, uint8_t offset) {
     /**
      *
@@ -19,12 +27,23 @@ uint32_t pci_read(uint8_t bus, uint8_t device, uint8_t func, uint8_t offset) {
     return inl(0xCFC);
 }
 
+/**
+ * Write some data to PCI
+ * @param bus
+ * @param device
+ * @param func
+ * @param offset
+ * @param data
+ */
 void pci_write(uint8_t bus, uint8_t device, uint8_t func, uint8_t offset, uint32_t data) {
     uint32_t addr = 0x80000000 | ((uint32_t)bus << 16) | ((uint32_t)(device & 0x0F) << 11) | ((uint32_t)(func & 0x07) << 8) | (offset & 0xFC);
     outl(addr, 0xCF8);
     outl(data, 0xCFC);
 }
 
+/**
+ * Init PCI
+ */
 void init_pci() {
     kprintf("Begin scan pci devices...\n");
     uint32_t bus = 0, device = 0;
