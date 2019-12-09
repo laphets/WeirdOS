@@ -186,10 +186,12 @@ void rtc_handler(registers_t registers) {
         }
     }
 
+//    if(gui_enabled && current_fps > 0) {
+//        if(virtual_count % (current_hertz / current_fps) == 0) {
+//            render_screen();
+//        }
+//    }
 
-    if(gui_enabled) {
-        show_screen();
-    }
 //    sti();
 }
 

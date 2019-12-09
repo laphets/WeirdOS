@@ -45,25 +45,18 @@ clear_screens ()
  *                 shifts the VGA display source to point to the new image
  */
 void show_screen() {
-    if (gui_enabled == 1 && screen_changed == 1) {
-        screen_changed = 0;
+    if (gui_enabled == 1) {
         copy_framebuffer(framebuffer, vbe_mem, SVGA_Y_DIM * SVGA_X_DIM);
     }
 }
 
 
 void init_vga() {
-    gui_enabled = 1;
+    /* Init the vbe mode display */
     vbe_set(SVGA_X_DIM, SVGA_Y_DIM, 32);
-
-    draw_rect(0, 0, SVGA_X_DIM, SVGA_Y_DIM, 0x3E9092);
-
-    render_window(100, 100, 600, 400, "Welcome to ECE391", 1);
-    int i = 0;
-    for(i = 0; i < 10; i++)
-        render_window(350 + 20*i, 540 + 10*i, 200, 100, "Hello World", 0);
-
-    render_cursor(200, 200);
+    /* Init some gui related stuff */
+    init_UIWindow();
+    init_gui();
 }
 
 /**
@@ -84,8 +77,18 @@ void draw_rect(int x, int y, int width, int height, uint32_t color) {
 void draw_pixel(int x, int y, uint32_t color) {
     if(x < 0 || y < 0 || x >= SVGA_X_DIM || y >= SVGA_Y_DIM || gui_enabled == 0)
         return;
-    screen_changed = 1;
+//    screen_changed = 1;
     framebuffer[y][x].r = ((color >> 16) & 0xFF);
     framebuffer[y][x].g = ((color >> 8) & 0xFF);
     framebuffer[y][x].b = (color & 0xFF);
 }
+
+void draw_pixel_fb(int x, int y, RGBA_t* color) {
+    if(x < 0 || y < 0 || x >= SVGA_X_DIM || y >= SVGA_Y_DIM || gui_enabled == 0)
+        return;
+//    screen_changed = 1;
+    framebuffer[y][x].r = color->r;
+    framebuffer[y][x].g = color->g;
+    framebuffer[y][x].b = color->b;
+}
+

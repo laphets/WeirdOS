@@ -7,6 +7,7 @@
 #include "i8259.h"
 #include "terminal.h"
 #include "scheduler.h"
+#include "gui.h"
 
 
 /* Macros for mapping keyboard scan codes */

@@ -28,9 +28,11 @@
 #include "http.h"
 #include "vga.h"
 #include "mouse.h"
+#include "dom.h"
+#include "browser.h"
 
 #define RUN_TESTS 0
-#define ENABLE_GUI 0
+#define ENABLE_GUI 1
 
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
@@ -180,10 +182,6 @@ void entry(unsigned long magic, unsigned long addr) {
     /* Init paging */
     init_paging(((unsigned)mbi->mem_upper) << 10);
 
-#if (ENABLE_GUI == 1)
-    init_vga();
-#endif
-
     /* Init filesystem */
     init_fs(fs_start_addr, fs_end_addr);
 
@@ -216,6 +214,10 @@ void entry(unsigned long magic, unsigned long addr) {
     init_ip();  /* Init ip layer */
     init_socket();
     init_dns();
+
+#if (ENABLE_GUI == 1)
+    init_vga();
+#endif
 
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your
@@ -299,7 +301,13 @@ void entry(unsigned long magic, unsigned long addr) {
     /* Execute the first program ("shell") ... */
 //    int32_t ret = execute((const uint8_t*)"shell");
 //    printf("execute_ret: %d\n", ret);
-    launch_terminal();
+//    launch_terminal();
+
+    launch_browser();
+
+    while(1) {
+        render_screen();
+    }
 
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile (".1: hlt; jmp .1;");

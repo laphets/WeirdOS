@@ -139,7 +139,9 @@ char font8x8_basic[128][8] = {
         { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}    // U+007F
 };
 
-
+inline char* get_font(char ch) {
+    return (char*)font8x8_basic[(uint8_t)(ch)];
+}
 
 void render_font(int x_start, int y_start, char ch, uint32_t color) {
     char* font = (char*)font8x8_basic[(uint8_t)(ch)];
