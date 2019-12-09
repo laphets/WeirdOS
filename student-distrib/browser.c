@@ -17,21 +17,27 @@ static void dfs(UIElement_t* element, HtmlElement* node) {
         return;
     for(; node != NULL; node = node->sibling) {
         if(node->text != NULL) {
+            /* Then we create a new UI Element */
+            UIElement_t* dom_obj = UIElement_allocate(-1, 20, 1);
+            UIElement_set_background(dom_obj, 1, 0xFFFFFF);
+            UIElement_set_padding(dom_obj, 2, 2, 2, 6);
+            UIElement_set_text(dom_obj, node->text, 0x000000, UIE_TEXT_ALIGN_DEFAULT);
+            UIElement_append_child(element, dom_obj);
+
             if(node->tag == HTML_TAG_NONE) {
                 kprintf("text: %s", (node->text));
             } else {
                 kprintf("element %s: %s", html_tag[node->tag], (node->text));
             }
-
+            dfs(dom_obj, node->child);
         } else {
             kprintf("element: %s ", html_tag[node->tag]);
+            dfs(element, node->child);
         }
-        UIElement_append_child(element, )
-        dfs(browser, node->child);
     }
 }
 
-static char* parse_http_result(browser_t* browser, http_res_t* response) {
+static void parse_http_result(browser_t* browser, http_res_t* response) {
     ((uint8_t*)response->data)[response->length] = '\0';
     uint32_t http_start_ptr = 0;
     int i = 0;
@@ -42,15 +48,20 @@ static char* parse_http_result(browser_t* browser, http_res_t* response) {
             http_start_ptr = i + 2;
         }
     }
+    UIElement_clear_text(browser->content);
 
-    HtmlDocument* doc = html_parse((uint32_t)response->data + http_start_ptr, response->length - http_start_ptr);
-    dfs(browser->content, doc->root_element);
+    HtmlDocument* doc = html_parse((uint8_t*)((uint32_t)response->data + http_start_ptr), response->length - http_start_ptr);
+    if(doc != NULL) {
+        dfs(browser->content, doc->root_element);
+    } else {
+        UIElement_set_text(browser->content, "HTML Parse Error", 0x000000, UIE_TEXT_ALIGN_VERT_CENTER | UIE_TEXT_ALIGN_HORZ_CENTER);
+    }
 }
 
 static void keyboard_event_handler(browser_t* browser, char ch) {
     if(ch == '\n') {
         char content_text[100];
-        sprintf(content_text, "Processing to %s", browser->addr_input_bar->text);
+        sprintf((uint8_t*)content_text, "Processing to %s", browser->addr_input_bar->text);
         UIElement_set_text(browser->content, content_text, 0x000000, UIE_TEXT_ALIGN_VERT_CENTER | UIE_TEXT_ALIGN_HORZ_CENTER);
     } else if (ch == '\b') {
         uint32_t cur_text_len = strlen(browser->addr_input_bar->text);
@@ -59,7 +70,7 @@ static void keyboard_event_handler(browser_t* browser, char ch) {
         }
     } else {
         char* updated_text = kmalloc(strlen(browser->addr_input_bar->text) + 5);
-        sprintf(updated_text, "%s%c", browser->addr_input_bar->text, ch);
+        sprintf((uint8_t*)updated_text, "%s%c", browser->addr_input_bar->text, ch);
         UIElement_set_text(browser->addr_input_bar, updated_text, 0x000000, UIE_TEXT_ALIGN_VERT_CENTER);
         kfree(updated_text);
     }
@@ -71,12 +82,9 @@ static void keyboard_event_handler(browser_t* browser, char ch) {
     /* Then begin http */
     if(ch == '\n') {
         char domain[100];
-        sprintf(domain, "%s", browser->addr_input_bar->text);
-        http_res_t http_response =  http_request(domain);
+        sprintf((uint8_t*)domain, "%s", browser->addr_input_bar->text);
+        http_res_t http_response = http_request((uint8_t*)domain);
         parse_http_result(browser, &http_response);
-
-
-        UIElement_set_text(browser->content, (uint32_t)http_response.data + http_start_ptr, 0x000000, UIE_TEXT_ALIGN_DEFAULT);
         kfree(http_response.data);
 
         browser->app->window->should_render = 1;
@@ -93,7 +101,7 @@ void launch_browser() {
     UIWindow_attach_app(browser->app->window, browser);
 
     /* Init all the handlers */
-    browser->app->window->keyboard_event_handler = keyboard_event_handler;
+    browser->app->window->keyboard_event_handler = (keyboard_event_handler_t)keyboard_event_handler;
     browser->app->window->left_click_event_handler = left_click_event_handler;
     browser->app->window->left_release_event_handler = left_release_event_handler;
 

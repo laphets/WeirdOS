@@ -33,7 +33,7 @@
 #include "html/export.h"
 
 #define RUN_TESTS 0
-#define ENABLE_GUI 0
+#define ENABLE_GUI 1
 
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
@@ -236,10 +236,10 @@ void entry(unsigned long magic, unsigned long addr) {
     rtl8139_send(packet, 200);
     rtl8139_send(packet, 200);
 
-    http_res_t response = http_request((uint8_t*)"lumetta.web.engr.illinois.edu");
-////    http_res_t response = http_request("mdbailey.ece.illinois.edu");
-    kprintf("%s\n, length: %d\n", response.data, response.length);
-    HtmlDocument* document = html_parse(response.data, response.length);
+//    http_res_t response = http_request((uint8_t*)"lumetta.web.engr.illinois.edu");
+//////    http_res_t response = http_request("mdbailey.ece.illinois.edu");
+//    kprintf("%s\n, length: %d\n", response.data, response.length);
+//    HtmlDocument* document = html_parse(response.data, response.length);
 
 //    ip_wrapper_t res = dns_query("blog.laphets.com");
 //    print_ip(res.ip_addr);
@@ -312,7 +312,7 @@ void entry(unsigned long magic, unsigned long addr) {
             render_screen();
         }
     } else {
-//        launch_terminal();
+        launch_terminal();
     }
 
     /* Spin (nicely, so we don't chew up cycles) */

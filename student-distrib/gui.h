@@ -25,6 +25,7 @@ void render_screen();
 void handle_left_click_event();
 void handle_left_release_event();
 void handle_right_click_event();
+void handle_right_release_event();
 void hanlde_keyboard_event(char ascii);
 
 void* gui_render_application_window(void* window, char* title);

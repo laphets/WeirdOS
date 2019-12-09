@@ -12,7 +12,8 @@ browser.o: browser.c browser.h lib.h types.h terminal.h keyboard.h \
   i8259.h scheduler.h paging.h kheap.h debug.h gui.h vga.h vbe.h font.h \
   dom.h mouse.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h idt.h \
   idthandler.h app.h http.h dns.h udp.h network.h ip.h ethernet.h \
-  rtl8139.h pci.h arp.h tcp.h socket.h
+  rtl8139.h pci.h arp.h tcp.h socket.h html/export.h html/html.h \
+  html/stack.h html/../lib.h html/attrib.h html/tag.h html/util.h
 dns.o: dns.c dns.h lib.h types.h terminal.h keyboard.h i8259.h \
   scheduler.h paging.h kheap.h debug.h gui.h vga.h vbe.h font.h dom.h \
   mouse.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h idt.h idthandler.h \

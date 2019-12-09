@@ -43,6 +43,13 @@ inline void UIElement_set_padding(UIElement_t* element, uint32_t top, uint32_t r
     element->padding[2] = bottom;
     element->padding[3] = left;
 }
+inline void UIElement_clear_text(UIElement_t* element) {
+    if(element->text_buffer_length > 0) {
+        element->text_buffer_length = 0;
+        kfree(element->text);
+        element->text = NULL;
+    }
+}
 inline void UIElement_set_text(UIElement_t* element, char* text, uint32_t color, uint8_t text_align) {
     uint32_t length = strlen(text);
     if(length + 1 > element->text_buffer_length) {

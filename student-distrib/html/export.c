@@ -30,7 +30,7 @@ HtmlDocument* html_parse(uint8_t* buffer, uint32_t length) {
     HtmlParseState *parse_state;
 
     parse_state = html_parse_begin();
-    html_parse_stream(parse_state, buffer, buffer, length);
+    html_parse_stream(parse_state, (const char*)buffer, (const char*)buffer, length);
 
     doc = html_parse_end(parse_state);
     recursive_op(doc->root_element);
