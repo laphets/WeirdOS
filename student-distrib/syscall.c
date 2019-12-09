@@ -327,7 +327,7 @@ int32_t halt(uint8_t status) {
         tss.esp0 = KERNEL_BOTTOM - parent_task->pid * PCB_BLOCK_SIZE ;
 
         /* Reset parent's page */
-        page_directory_entry_t *user_page_directory = &default_page_directory[32];
+        page_directory_entry_t *user_page_directory = &default_page_directory[32];  /* 32 is the index for user page directory */
         user_page_directory->present = 1;
         user_page_directory->rw = 1;
         user_page_directory->us = 1;
@@ -338,7 +338,7 @@ int32_t halt(uint8_t status) {
         user_page_directory->ps = 1;
         user_page_directory->global = 0;
         user_page_directory->avail = 0;
-        user_page_directory->address = ((2+parent_task->pid) << 10);
+        user_page_directory->address = ((2+parent_task->pid) << 10);    /* Get the phys by pid, see doc */
 
 //        if(parent_task->video_addr != NULL) {
 //            set_user_vm((char*)VIDEO_MEMORY_START_ADDRESS, parent_task->video_addr);
@@ -352,7 +352,7 @@ int32_t halt(uint8_t status) {
     int32_t fd = 0;
     for(fd = 0; fd < MAX_FD_NUM; fd++) {
         if(current_task->fd_table[fd].present == 1) {
-            current_task->fd_table[fd].operator->close(fd); /* TODO: DO we need some error handling here */
+            current_task->fd_table[fd].operator->close(fd); /* Close the fd */
             current_task->fd_table[fd].present = 0;
         }
     }

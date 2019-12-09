@@ -4,6 +4,10 @@
 /* Then the following code will provide some memory management */
 /* Ref: http://www.jamesmolloy.co.uk/tutorial_html/6.-Paging.html */
 
+/**
+ * Init for the frame status
+ * @param mem_upper
+ */
 void init_frame_status(uint32_t mem_upper) {
     placement_addr = START_PLACEMENT_ADDR;
     frames_num = (mem_upper - placement_addr) / _4KB;
@@ -211,7 +215,12 @@ void flush_paging() {
             );
 }
 
-
+/**
+ * Allocate some memory
+ * @param size
+ * @param should_align
+ * @return
+ */
 void* kmalloc_a(uint32_t size, uint8_t should_align) {
     if(heap.present == 1) {
         /**
@@ -301,6 +310,10 @@ void alloc_frame(page_table_entry_t* pte, int is_kernel, int rw, int for_video) 
     pte->avail = 0;
     pte->address = (START_PLACEMENT_ADDR >> 12) + frame_idx;
 }
+/**
+ * Free frame of some page table
+ * @param pte
+ */
 void free_frame(page_table_entry_t* pte) {
     if(pte->address == 0)
         return;
@@ -309,6 +322,11 @@ void free_frame(page_table_entry_t* pte) {
     pte->present = 0;
 }
 
+/**
+ * Get page table by some index
+ * @param pd_index
+ * @return
+ */
 page_table_entry_t* get_pagetable(uint32_t pd_index) {
     if(pd_index < 0 || pd_index >= PAGE_DIRECTORY_SIZE)
         return NULL;
@@ -359,10 +377,4 @@ page_table_entry_t* get_page(uint32_t addr, int8_t shoud_make) {
     } else {
         return NULL;
     }
-
-
 }
-
-
-
-

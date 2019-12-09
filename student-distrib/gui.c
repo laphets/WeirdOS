@@ -5,7 +5,15 @@
  */
 #include "gui.h"
 
-
+/**
+ * Render window to some certain place
+ * @param x
+ * @param y
+ * @param width
+ * @param height
+ * @param title
+ * @param is_focus
+ */
 void render_window(int x, int y, int width, int height, char* title, uint8_t is_focus) {
     draw_rect(x, y, width, height, 0xCDCECF);
     if(is_focus) {
@@ -18,6 +26,11 @@ void render_window(int x, int y, int width, int height, char* title, uint8_t is_
 
 }
 
+/**
+ * Render cursor to some certain place
+ * @param x
+ * @param y
+ */
 void render_cursor(int x, int y) {
     static char cursor[16][16] = {
             "**************..",

@@ -988,7 +988,7 @@ void launch_fake_terminal() {
 
 	/* Checkpoint 5 tests */
 
-/* Memory tests */
+/* Memory tests for dynamic allocator */
 int kmalloc_test() {
     TEST_HEADER;
 

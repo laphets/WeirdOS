@@ -225,14 +225,13 @@ void entry(unsigned long magic, unsigned long addr) {
     init_ed = 1;
     sti();
 
-    uint8_t* packet = kmalloc(200);
-    int d = 0;
-    for(d = 0; d < 200; d++) {
-        packet[d] = d;
-    }
-    rtl8139_send(packet, 200);
-    rtl8139_send(packet, 200);
-
+//    uint8_t* packet = kmalloc(200);
+//    int d = 0;
+//    for(d = 0; d < 200; d++) {
+//        packet[d] = d;
+//    }
+//    rtl8139_send(packet, 200);
+//    rtl8139_send(packet, 200);
 //    http_res_t response = http_request((uint8_t*)"lumetta.web.engr.illinois.edu");
 ////    http_res_t response = http_request("mdbailey.ece.illinois.edu");
 //    kprintf("%s\n, length: %d\n", response.data, response.length);
@@ -291,14 +290,14 @@ void entry(unsigned long magic, unsigned long addr) {
     /* *(uint32_t*)(0xDEADBEEF) = 33; */
 
 
-
 #if (RUN_TESTS == 1)
     /* Run tests */
     launch_tests();
 #endif
     /* Execute the first program ("shell") ... */
-//    int32_t ret = execute((const uint8_t*)"shell");
-//    printf("execute_ret: %d\n", ret);
+    /* int32_t ret = execute((const uint8_t*)"shell"); */
+    /* printf("execute_ret: %d\n", ret); */
+    /* Launch the terminal */
     launch_terminal();
 
     /* Spin (nicely, so we don't chew up cycles) */

@@ -5,6 +5,9 @@
  */
 #include "ip.h"
 
+/**
+ * Init self ip addr
+ */
 void init_ip() {
     self_ip_addr[0] = 10;
     self_ip_addr[1] = 0;
@@ -12,6 +15,10 @@ void init_ip() {
     self_ip_addr[3] = 15;
 }
 
+/**
+ * Print a given ip
+ * @param ip
+ */
 void print_ip(uint8_t* ip) {
     kprintf("ip_addr: %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
 }
@@ -32,6 +39,10 @@ uint8_t ip_cmp(uint8_t* ip1, uint8_t* ip2) {
     return 0;
 }
 
+/**
+ * IP layer recv handler
+ * @param ip_packet
+ */
 void ip_recv(ip_t* ip_packet) {
 
     /* Fix some endian issue */
@@ -115,6 +126,13 @@ void ip_fresh_checksum(ip_t* ip_packet) {
     ip_packet->header_checksum = htons(~acc);
 }
 
+/**
+ * IP layer send method
+ * @param target_ip
+ * @param protocol upper layer protocol
+ * @param data
+ * @param length
+ */
 void ip_send(uint8_t* target_ip, uint16_t protocol, uint8_t* data, uint32_t length) {
     uint32_t total_size = sizeof(ip_t) + length;
     ip_t* ip_packet = kmalloc(total_size);

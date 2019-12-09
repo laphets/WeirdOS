@@ -5,10 +5,19 @@
  */
 #include "ethernet.h"
 
+/**
+ * Print MAC address of default NIC
+ * @param mac_addr
+ */
 void print_mac(uint8_t* mac_addr) {
     kprintf("mac_addr: %x:%x:%x:%x:%x:%x\n", mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3], mac_addr[4], mac_addr[5]);
 }
 
+/**
+ * Receive handler for ethernet
+ * @param frame
+ * @param length
+ */
 void ethernet_recv(ethernet_t* frame, uint32_t length) {
     kprintf("ethernet frame: ");
     print_mac(frame->mac_dest);
@@ -30,6 +39,13 @@ void ethernet_recv(ethernet_t* frame, uint32_t length) {
     }
 }
 
+/**
+ * Send a ethernet frame
+ * @param mac_dest dest mac addr
+ * @param type type of the upper protocol
+ * @param data
+ * @param length
+ */
 void ethernet_send(uint8_t* mac_dest, uint16_t type, uint8_t* data, uint32_t length) {
     ethernet_t* frame = kmalloc(sizeof(ethernet_t) + length);
     memcpy(frame->mac_src, self_mac_addr, MAC_ADDR_SIZE);

@@ -28,9 +28,10 @@ int32_t rtc_open(const uint8_t *filename) {
 //    outb((prev & 0xF0) | rate, RTC_PORT_DATA);
 //
 //    count = 0;
+    /* First try to get current task */
     task_t* current_task = get_current_task();
     current_task->rtc_hertz = OPEN_RTC_HERTZ;
-    concurrency++;
+    concurrency++; /* We record the RTC concurrency usage */
 
     return 0;
 }
@@ -65,9 +66,9 @@ int32_t rtc_read(int32_t fd, void *buf, int32_t nbytes) {
         if(rtc_wait_queue[i].present == 0) {
             task_t* current_task = get_current_task();
             rtc_wait_queue[i].hertz = current_task->rtc_hertz;
-            rtc_wait_queue[i].wait= 1;
+            rtc_wait_queue[i].wait= 1;  /* Set to waiting status */
             rtc_wait_queue[i].present = 1;
-            rtc_wait_queue[i].offset = rand(233, current_task->rtc_hertz-1);
+            rtc_wait_queue[i].offset = rand(233, current_task->rtc_hertz-1);    /* Just generate some random offset */
             target = i;
             break;
         }
@@ -83,6 +84,11 @@ int32_t rtc_read(int32_t fd, void *buf, int32_t nbytes) {
     return 0;
 }
 
+/**
+ * Set rate for RTC device
+ * @param hertz rate to set
+ * @return
+ */
 int32_t rtc_set_rate(uint32_t hertz) {
     unsigned int i;
     unsigned char rate, prev;
