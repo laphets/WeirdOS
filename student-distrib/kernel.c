@@ -30,6 +30,7 @@
 #include "mouse.h"
 
 #define RUN_TESTS 0
+#define ENABLE_NETWORK 0
 #define ENABLE_GUI 0
 
 /* Macros. */
@@ -210,12 +211,14 @@ void entry(unsigned long magic, unsigned long addr) {
     /* Init pci */
     init_pci();
 
+#if (ENABLE_NETWORK == 1)
     /* Init rtl8139 */
     init_rtl8139();
     init_arp();
     init_ip();  /* Init ip layer */
     init_socket();
     init_dns();
+#endif
 
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your
