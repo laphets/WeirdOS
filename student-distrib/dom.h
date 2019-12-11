@@ -18,6 +18,9 @@
 #define UIE_TEXT_ALIGN_VERT_CENTER (1 << 0)
 #define UIE_TEXT_ALIGN_HORZ_CENTER (1 << 1)
 
+#define UIE_POSITION_RELATIVE 0
+#define UIE_POSITION_ABSOLUTE 1
+
 #define UIE_ALIGN_START 0
 #define UIE_ALIGN_END 1
 #define UIE_ALIGN_CENTER 2
@@ -30,6 +33,10 @@ typedef struct UIElement {
     struct UIElement* parent;
 
     /* The style implementation */
+    uint8_t position;
+    uint8_t is_manual_render;
+    int32_t top, right, bottom, left;
+
     uint8_t direction;
     uint8_t align;
     int32_t margin[4];
@@ -46,6 +53,7 @@ typedef struct UIElement {
     struct RGBA* framebuffer;
 } UIElement_t;
 
+inline void UIElementSetPixel(UIElement_t* element, uint32_t x, uint32_t y, uint32_t color, uint8_t force_set);
 void UIElement_set_padding(UIElement_t* element, uint32_t top, uint32_t right, uint32_t bottom, uint32_t left);
 inline void UIElement_set_margin(UIElement_t* element, uint32_t top, uint32_t right, uint32_t bottom, uint32_t left);
 inline void UIElement_clear_text(UIElement_t* element);
@@ -72,6 +80,9 @@ typedef struct UIWindow {
     void* left_click_event_handler;
     void* left_release_event_handler;
     keyboard_event_handler_t keyboard_event_handler;
+
+    UIElement_t* title_bar;
+    UIElement_t* content;
 } UIWindow_t;
 
 UIWindow_t* window_head;
@@ -79,7 +90,7 @@ UIWindow_t* window_tail;
 
 uint32_t global_wid;
 
-UIElement_t* UIElement_allocate(int32_t width, int32_t height, uint8_t is_responsive);
+UIElement_t* UIElement_allocate(int32_t width, int32_t height, uint8_t is_responsive, uint8_t is_manual_render);
 UIWindow_t* UIWindow_allocate(uint32_t x, uint32_t y, int32_t width, int32_t height, uint8_t is_root);
 
 void UIWindow_append(UIWindow_t* window);

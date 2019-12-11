@@ -293,6 +293,33 @@ void entry(unsigned long magic, unsigned long addr) {
 //    kprintf("b1: 0x%x  b2: 0x%x\n", b1, b2);
 
     /* *(uint32_t*)(0xDEADBEEF) = 33; */
+//
+//    char a[20] = "dsf";
+//    strcat(a, "dfd");
+//    kprintf("a: %s\n", a);
+//    strcat(a, "\n\n");
+//    kprintf("a: %s\n", a);
+
+    http_res_t http_response = http_request((uint8_t*)"lumetta.web.engr.illinois.edu");
+    http_res_t* response = &http_response;
+    ((uint8_t*)response->data)[response->length] = '\0';
+    uint32_t http_start_ptr = 0;
+    int i = 0;
+    for(i = 0; i + 1 < response->length; i++) {
+        uint8_t byte0 = ((uint8_t*)response->data)[i];
+        uint8_t byte1 = ((uint8_t*)response->data)[i+1];
+        if(byte0 == '\r' && byte1 == '\n') {
+            http_start_ptr = i + 2;
+        }
+    }
+    HtmlDocument* doc = html_parse((uint8_t*)((uint32_t)response->data + http_start_ptr), response->length - http_start_ptr);
+    char* result = kmalloc(response->length);
+    memset(result, 0, response->length);
+    dfs(doc->root_element, 0, result);
+
+//    kprintf("is_tag: %d\n", is_tag("LI", "li"));
+    kprintf("%s", result);
+
 
 
 
@@ -312,7 +339,7 @@ void entry(unsigned long magic, unsigned long addr) {
             render_screen();
         }
     } else {
-        launch_terminal();
+//        launch_terminal();
     }
 
     /* Spin (nicely, so we don't chew up cycles) */

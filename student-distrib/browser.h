@@ -21,5 +21,6 @@ typedef struct browser {
 } browser_t;
 
 void launch_browser();
+void dfs(HtmlElement* element, int level, char* result);
 
 #endif //MP3_BROWSER_H

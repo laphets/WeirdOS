@@ -6,25 +6,35 @@
 #include "dom.h"
 
 inline RGBA_t* UIElementGetPixel(UIElement_t* element, uint32_t x, uint32_t y) {
+    if(element == NULL || element->framebuffer == NULL)
+        return NULL;
     return &element->framebuffer[y * element->real_width + x];
 }
 inline void UIElementSetPixel(UIElement_t* element, uint32_t x, uint32_t y, uint32_t color, uint8_t force_set) {
-    RGBA_t* pixel = UIElementGetPixel(element, x, y);
-    if(element->is_transparent && !force_set) {
-        pixel->a = 0;
-    } else {
-        pixel->r = ((color >> 16) & 0xFF);
-        pixel->g = ((color >> 8) & 0xFF);
-        pixel->b = (color & 0xFF);
-        pixel->a = 0xFF;
+    if(element == 0xBD34488) {
+        kprintf("FUCK!\n");
     }
+
+    RGBA_t* pixel = UIElementGetPixel(element, x, y);
+//    if(pixel != NULL) {
+        if(element->is_transparent && !force_set) {
+            pixel->a = 0;
+        } else {
+            pixel->r = ((color >> 16) & 0xFF);
+            pixel->g = ((color >> 8) & 0xFF);
+            pixel->b = (color & 0xFF);
+            pixel->a = 0xFF;
+        }
+//    }
 }
 inline void UIElement_set_pixel(UIElement_t* element, uint32_t x, uint32_t y, RGBA_t* target_color) {
     RGBA_t* pixel = UIElementGetPixel(element, x, y);
-    if(target_color->a == 0xFF) {
-        pixel->r = target_color->r;
-        pixel->g = target_color->g;
-        pixel->b = target_color->b;
+    if(pixel != NULL) {
+        if(target_color->a == 0xFF) {
+            pixel->r = target_color->r;
+            pixel->g = target_color->g;
+            pixel->b = target_color->b;
+        }
     }
 }
 inline void UIElement_set_margin(UIElement_t* element, uint32_t top, uint32_t right, uint32_t bottom, uint32_t left) {
@@ -88,7 +98,7 @@ void UIElement_append_child(UIElement_t* element, UIElement_t* child) {
 }
 
 void UIElement_copy_fb(UIElement_t* element, int32_t x_begin, int32_t y_begin, UIElement_t* child) {
-    if(element == NULL || child == NULL)
+    if(element == NULL || child == NULL || element->framebuffer == NULL || child->framebuffer == NULL)
         return;
     if(x_begin < 0 || y_begin < 0 || x_begin >= element->real_width || y_begin >= element->real_height)
         return;
@@ -127,6 +137,11 @@ void UIElement_render_text(UIElement_t* element) {
             cur_x = element->padding[3] + ((element->real_width - element->padding[1] - element->padding[3])/2) - (length/2)*8;
         }
         for(i = 0; i < length; i++) {
+            if(element->text[i] == '\n' || element->text[i] == '\t' || element->text[i] == '|') {
+                cur_x = element->padding[3];
+                cur_y += 12;
+                continue;
+            }
             UIElement_render_font(element, cur_x, cur_y, element->text[i]);
             cur_x += 8;
             if(cur_x > element->real_width - element->padding[1]) {
@@ -148,6 +163,10 @@ void UIElement_render(UIElement_t* element) {
 void UIElement_render_responsive(UIElement_t* element, int32_t real_width, int32_t real_height) {
     if(element == NULL)
         return;
+    /* First check for manual render */
+    if(element->is_manual_render)
+        return;
+
     /* First we render the Element itself */
 
 
@@ -194,6 +213,10 @@ void UIElement_render_responsive(UIElement_t* element, int32_t real_width, int32
     /* int32_t cur_y = element->padding[0], cur_x = element->padding[3]; */
     int32_t child_real_width = 0, child_real_height = 0;
     for(child_node = element->children_head; child_node != NULL; child_node = child_node->next) {
+        if(child_node->position == UIE_POSITION_ABSOLUTE) {
+            UIElement_render_responsive(child_node, child_node->width, child_node->height);
+            continue;
+        }
         if(child_node->is_responsive) {
             if(child_node->width <= 0 && child_node->height <= 0) {
                 special_responsive_child = child_node;
@@ -227,15 +250,30 @@ void UIElement_render_responsive(UIElement_t* element, int32_t real_width, int32
     /* Then we genrate the frame buffer */
     int32_t cur_y = element->padding[0], cur_x = element->padding[3];
     for(child_node = element->children_head; child_node != NULL; child_node = child_node->next) {
-        cur_y += child_node->margin[0];
-        UIElement_copy_fb(element, cur_x, cur_y, child_node);
-        cur_y += child_node->real_height;
-        cur_y += child_node->margin[2];
+        if(child_node->position == UIE_POSITION_ABSOLUTE) {
+            int32_t to_top = 0, to_left = 0;
+            if(child_node->top != 0) {
+                to_top = child_node->top;
+            } else {
+                to_top = element->real_height - child_node->bottom;
+            }
+            if(child_node->left != 0) {
+                to_left = child_node->left;
+            } else {
+                to_left = element->real_width - child_node->right;
+            }
+            UIElement_copy_fb(element, to_left, to_top, child_node);
+        } else {
+            cur_y += child_node->margin[0];
+            UIElement_copy_fb(element, cur_x, cur_y, child_node);
+            cur_y += child_node->real_height;
+            cur_y += child_node->margin[2];
+        }
     }
 }
 
 
-UIElement_t* UIElement_allocate(int32_t width, int32_t height, uint8_t is_responsive) {
+UIElement_t* UIElement_allocate(int32_t width, int32_t height, uint8_t is_responsive, uint8_t is_manual_render) {
     UIElement_t* element = kmalloc(sizeof(UIElement_t));
     element->width = width;
     element->height = height;
@@ -244,15 +282,27 @@ UIElement_t* UIElement_allocate(int32_t width, int32_t height, uint8_t is_respon
     element->direction = UIE_DIRECTION_VERT;
     element->text = NULL;
     element->text_buffer_length = 0;
+    element->position = UIE_POSITION_RELATIVE;
+    element->top = 0;
+    element->bottom = 0;
+    element->left = 0;
+    element->right = 0;
+    element->is_manual_render = is_manual_render;
 
-    if(is_responsive) {
+    if(is_manual_render) {
         element->framebuffer = NULL;
-        element->real_width = 0;
-        element->real_height = 0;
-    } else {
-        element->framebuffer = kmalloc(sizeof(RGBA_t) * width * height);
         element->real_width = width;
         element->real_height = height;
+    } else {
+        if(is_responsive) {
+            element->framebuffer = NULL;
+            element->real_width = 0;
+            element->real_height = 0;
+        } else {
+            element->framebuffer = kmalloc(sizeof(RGBA_t) * width * height);
+            element->real_width = width;
+            element->real_height = height;
+        }
     }
     element->children_head = NULL;
     element->next = NULL;
@@ -269,12 +319,15 @@ UIWindow_t* UIWindow_allocate(uint32_t x, uint32_t y, int32_t width, int32_t hei
     window->y = y;
     window->prev = NULL;
     window->next = NULL;
-    window->element = UIElement_allocate(width, height, 0);
+    window->element = UIElement_allocate(width, height, 0, 0);
     window->should_render = 1;
 
     window->keyboard_event_handler = NULL;
     window->left_click_event_handler = NULL;
     window->left_release_event_handler = NULL;
+
+    window->title_bar = NULL;
+    window->content = NULL;
 
     return window;
 }

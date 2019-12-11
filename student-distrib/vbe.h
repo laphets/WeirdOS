@@ -12,5 +12,6 @@
 #define VBE_ADDR 0xFD000000
 
 void vbe_set(uint16_t xres, uint16_t yres, uint16_t bpp);
+void vbe_clear();
 
 #endif //MP3_VBE_H

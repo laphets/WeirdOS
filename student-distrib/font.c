@@ -159,7 +159,19 @@ void render_font(int x_start, int y_start, char ch, uint32_t color) {
 
 void render_string(int x_start, int y_start, char* string, uint32_t color) {
     int i;
+    int cur_x = x_start;
+    int cur_y = y_start;
     for(i = 0; i < strlen(string); i++) {
-        render_font(x_start + i*8, y_start, string[i], color);
+        if(string[i] == '\n') {
+            cur_y += 12;
+            cur_x = x_start;
+            continue;
+        }
+        render_font(cur_x, cur_y, string[i], color);
+        cur_x += 8;
+        if(cur_x >= SVGA_X_DIM - 20) {
+            cur_x = x_start;
+            cur_y += 12;
+        }
     }
 }

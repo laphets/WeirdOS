@@ -9,6 +9,8 @@
 #include "html.h"
 #include "util.h"
 
+
+inline uint8_t is_tag(char* given, char* target);
 HtmlDocument* html_parse(uint8_t* buffer, uint32_t length);
 
 #endif //MP3_EXPORT_H

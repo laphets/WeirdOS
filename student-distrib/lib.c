@@ -1169,5 +1169,15 @@ uint8_t ispunct(int c) {
 
 int tolower(int c) {
     if ( !isalpha(c) ) return c;
-    return (c >= 'A' && c <= 'Z') ? c - 'A' : c;
+    return (c >= 'A' && c <= 'Z') ? c - 'A' + 'a' : c;
+}
+
+char* strcat(char *dest, const char *src) {
+    char *rdest = dest;
+
+    while (*dest)
+        dest++;
+    while (*dest++ = *src++)
+        ;
+    return rdest;
 }

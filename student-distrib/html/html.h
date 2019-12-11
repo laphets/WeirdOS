@@ -33,6 +33,8 @@ struct HtmlDocument {
 	HtmlElement *root_element;
 };
 
+HtmlTag html_lookup_length_tag(const char *string, size_t length);
+
 typedef HTML_PARSE_STATE_TYPE HtmlParseState;
 
 extern const char const *html_tag[HTML_TAGS];

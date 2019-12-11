@@ -65,6 +65,7 @@ uint8_t isalpha(int c);
 uint8_t isspace(int c);
 uint8_t ispunct(int c);
 int tolower(int c);
+char* strcat(char *dest, const char *src);
 
 
 /* Userspace address-check functions */

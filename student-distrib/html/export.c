@@ -6,6 +6,18 @@
 
 #include "export.h"
 
+inline uint8_t is_tag(char* given, char* target) {
+    uint32_t length = strlen(given), i;
+    if(length != strlen(target))
+        return 0;
+    for(i = 0; i < length; i++) {
+        if(tolower(given[i]) != target[i]) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
 void recursive_op(HtmlElement* node) {
     if(node == NULL)
         return;
@@ -33,7 +45,7 @@ HtmlDocument* html_parse(uint8_t* buffer, uint32_t length) {
     html_parse_stream(parse_state, (const char*)buffer, (const char*)buffer, length);
 
     doc = html_parse_end(parse_state);
-    recursive_op(doc->root_element);
+//    recursive_op(doc->root_element);
 
     return doc;
 

@@ -46,6 +46,6 @@ void vbe_set(uint16_t xres, uint16_t yres, uint16_t bpp)
     vbe_write(VBE_DISPI_INDEX_ENABLE, VBE_DISPI_ENABLED);
 }
 
-void veb_clear() {
+void vbe_clear() {
     vbe_write(VBE_DISPI_INDEX_ENABLE, VBE_DISPI_DISABLED);
 }

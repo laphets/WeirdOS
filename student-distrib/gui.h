@@ -17,6 +17,9 @@ uint32_t current_fps;
 
 void init_gui();
 
+void gui_error(char* string);
+void gui_debug(char* string);
+
 void render_window(int x, int y, int width, int height, char* title, uint8_t is_focus);
 
 void render_cursor(int x, int y);
