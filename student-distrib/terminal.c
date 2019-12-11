@@ -164,6 +164,12 @@ void switch_terminal(uint32_t tid, uint8_t type) {
          memcpy((void*)current_terminal->unshown_vm_addr, (const void*)VIDEO_MEMORY_START_ADDRESS, _4KB);
          current_terminal->screen_x = get_screen_x();
          current_terminal->screen_y = get_screen_y();
+
+        /*
+         * Save keyboard state
+         */
+        memcpy(current_terminal->saved_keyboard_buf, keyboard_buf, keyboard_buf_size);
+        current_terminal->saved_keyboard_buf_size = keyboard_buf_size;
     }
 
     if(next_terminal->present == 1) {
@@ -175,6 +181,8 @@ void switch_terminal(uint32_t tid, uint8_t type) {
          */
 
         terminal_buf = (char*)next_terminal->terminal_buf;
+        memcpy(keyboard_buf, next_terminal->saved_keyboard_buf, next_terminal->saved_keyboard_buf_size);
+        keyboard_buf_size = next_terminal->saved_keyboard_buf_size;
         memcpy((void*)VIDEO_MEMORY_START_ADDRESS, (const void*)next_terminal->unshown_vm_addr, _4KB);
         set_cursor_pos(next_terminal->screen_x, next_terminal->screen_y);
 
@@ -207,6 +215,7 @@ void switch_terminal(uint32_t tid, uint8_t type) {
 
         /* Then we should set for the global state */
         terminal_buf = (char*)next_terminal->terminal_buf;
+        keyboard_buf_size = 0;
 
         /* Store for last task we are swicth from */
         task_t* crt = get_task_by_pid(terminal_list[current_running_terminal].current_task_pid);

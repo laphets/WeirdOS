@@ -39,6 +39,8 @@ typedef struct terminal {
     uint32_t tid; /* terminal id */
     int8_t present;
     char terminal_buf[MAX_TERMINAL_BUF_SIZE]; /* For task switch */
+    char saved_keyboard_buf[MAX_TERMINAL_BUF_SIZE];
+    uint32_t saved_keyboard_buf_size;
     int screen_x, screen_y;
     uint8_t* inactive_video_mem;
     uint32_t current_task_pid;  /* current running task pid */
