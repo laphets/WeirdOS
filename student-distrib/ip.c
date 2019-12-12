@@ -134,6 +134,7 @@ void ip_fresh_checksum(ip_t* ip_packet) {
  * @param length
  */
 void ip_send(uint8_t* target_ip, uint16_t protocol, uint8_t* data, uint32_t length) {
+    gui_debug("Begin sending IP packet...");
     uint32_t total_size = sizeof(ip_t) + length;
     ip_t* ip_packet = kmalloc(total_size);
     memset(ip_packet, 0, total_size);

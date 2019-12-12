@@ -57,6 +57,8 @@ file_operator_t rtc_operator;
  */
 void init_rtc_operator();
 
+volatile uint32_t virtual_count;
+
 /* hertzmap[16]:
  * Holds all the possible Hertz values of the RTC
  * Values greater than 1024 should not be used as 

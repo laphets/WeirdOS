@@ -9,6 +9,7 @@
  * Init DNS server address
  */
 void init_dns() {
+    dns_record_head = NULL;
     default_dns_server[0] = 10;
     default_dns_server[1] = 0;
     default_dns_server[2] = 2;
@@ -40,16 +41,59 @@ uint8_t* gen_parsed_domain(uint8_t* domain) {
     return parsed_domain;
 }
 
+dns_record_t* dns_cache_allocate(uint8_t* domain, uint8_t* ip) {
+    dns_record_t* record = kmalloc(sizeof(dns_record_t));
+    strcpy((int8_t*)record->domain, (int8_t*)domain);
+    memcpy(record->ip, ip, sizeof(ip_wrapper_t));
+    record->next = NULL;
+    return record;
+}
+
+dns_record_t* dns_cache_find(uint8_t* domain) {
+    dns_record_t* cur_node = dns_record_head;
+    while(cur_node != NULL) {
+        if(strlen((const int8_t*)domain) != strlen((const int8_t*)cur_node->domain)) {
+            continue;
+        }
+        if(strncmp((const int8_t*)cur_node->domain, (const int8_t*)domain, strlen((const int8_t*)domain)) == 0) {
+            return cur_node;
+        }
+    }
+
+    return NULL;
+}
+
+void dns_cache_update(uint8_t* domain, uint8_t* ip) {
+    dns_record_t* record = dns_cache_find(domain);
+    if(record != NULL) {
+        memcpy(record->ip, ip, IPv4_ADDR_SIZE);
+        return;
+    }
+    record = dns_cache_allocate(domain, ip);
+    record->next = dns_record_head;
+    dns_record_head = record;
+}
+
 /**
  * Query DNS for some certain domain
  * @param domain
  * @return
  */
 ip_wrapper_t dns_query(uint8_t* domain) {
+    if(dns_cache_find(domain) == NULL) {
+        uint32_t sid = socket_open();
+        uint8_t ip[IPv4_ADDR_SIZE];
+        socket_dns_send(sid, domain, ip);
+        kprintf("dns_ip: \n");
+        print_ip(ip);
+        socket_close(sid);
+        dns_cache_update(domain, ip);
+    }
     ip_wrapper_t result;
-    uint32_t sid = socket_open();
-    socket_dns_send(sid, domain, result.ip_addr);
-    socket_close(sid);
+    dns_record_t* record = dns_cache_find(domain);
+    memcpy(result.ip_addr, record->ip, IPv4_ADDR_SIZE);
+    kprintf("result_dns_ip: \n");
+    print_ip(result.ip_addr);
     result.valid = 1;
     return result;
 }

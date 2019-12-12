@@ -9,10 +9,13 @@
 #include "lib.h"
 #include "dns.h"
 #include "socket.h"
+#include "yuarel/yuarel.h"
 
 typedef struct http_res {
     uint32_t length;
+    uint8_t present;
     void* data;
+    void* header;
 } http_res_t;
 
 http_res_t http_request(uint8_t* domain);

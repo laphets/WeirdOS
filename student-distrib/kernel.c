@@ -28,14 +28,32 @@
 #include "http.h"
 #include "vga.h"
 #include "mouse.h"
+#include "dom.h"
+#include "browser.h"
+#include "html/export.h"
+#include "yuarel/yuarel.h"
 
 #define RUN_TESTS 0
-#define ENABLE_NETWORK 0
-#define ENABLE_GUI 0
+#define ENABLE_NETWORK 1
+#define ENABLE_GUI 1
 
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
 #define CHECK_FLAG(flags, bit)   ((flags) & (1 << (bit)))
+
+//void test_kmalloc() {
+//    void* big_block = kmalloc(0x800000);
+//    void* big_block1 = kmalloc(0x800000);
+//    kprintf("malloc1 done, big_block: 0x%x, big_block1: 0x%x\n", big_block, big_block1);
+//    kfree(big_block);
+//    kfree(big_block1);
+//
+//    big_block = kmalloc(0x800000);
+//    big_block1 = kmalloc(0x800000);
+//    kprintf("malloc2 done, big_block: 0x%x, big_block1: 0x%x\n", big_block, big_block1);
+//    kfree(big_block);
+//    kfree(big_block1);
+//}
 
 /* Check if MAGIC is valid and print the Multiboot information structure
    pointed by ADDR. */
@@ -181,10 +199,6 @@ void entry(unsigned long magic, unsigned long addr) {
     /* Init paging */
     init_paging(((unsigned)mbi->mem_upper) << 10);
 
-#if (ENABLE_GUI == 1)
-    init_vga();
-#endif
-
     /* Init filesystem */
     init_fs(fs_start_addr, fs_end_addr);
 
@@ -220,6 +234,10 @@ void entry(unsigned long magic, unsigned long addr) {
     init_dns();
 #endif
 
+#if (ENABLE_GUI == 1)
+    init_vga();
+#endif
+
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your
      * IDT correctly otherwise QEMU will triple fault and simple close
@@ -236,8 +254,9 @@ void entry(unsigned long magic, unsigned long addr) {
 //    rtl8139_send(packet, 200);
 //    rtl8139_send(packet, 200);
 //    http_res_t response = http_request((uint8_t*)"lumetta.web.engr.illinois.edu");
-////    http_res_t response = http_request("mdbailey.ece.illinois.edu");
+//////    http_res_t response = http_request("mdbailey.ece.illinois.edu");
 //    kprintf("%s\n, length: %d\n", response.data, response.length);
+//    HtmlDocument* document = html_parse(response.data, response.length);
 
 //    ip_wrapper_t res = dns_query("blog.laphets.com");
 //    print_ip(res.ip_addr);
@@ -291,6 +310,62 @@ void entry(unsigned long magic, unsigned long addr) {
 //    kprintf("b1: 0x%x  b2: 0x%x\n", b1, b2);
 
     /* *(uint32_t*)(0xDEADBEEF) = 33; */
+//
+//    char a[20] = "dsf";
+//    strcat(a, "dfd");
+//    kprintf("a: %s\n", a);
+//    strcat(a, "\n\n");
+//    kprintf("a: %s\n", a);
+
+//    int i = 0;
+//    for(i = 0; i < 4; i++) {
+//        http_res_t http_response = http_request((uint8_t*)"http://lumetta.web.engr.illinois.edu");
+//        int j = 0;
+////        for(j = 0; j < 100000; j++) { kprintf("%d ", j);}
+//        http_res_t http_response_1 = http_request((uint8_t*)"http://lumetta.web.engr.illinois.edu/humor/index.html");
+////        for(j = 0; j < 100000; j++) { kprintf("%d ", j);}
+//
+//    }
+//    http_res_t* response = &http_response;
+//    ((uint8_t*)response->data)[response->length] = '\0';
+//    uint32_t http_start_ptr = 0;
+//    int i = 0;
+//    for(i = 0; i + 1 < response->length; i++) {
+//        uint8_t byte0 = ((uint8_t*)response->data)[i];
+//        uint8_t byte1 = ((uint8_t*)response->data)[i+1];
+//        if(byte0 == '\r' && byte1 == '\n') {
+//            http_start_ptr = i + 2;
+//        }
+//    }
+//    HtmlDocument* doc = html_parse((uint8_t*)((uint32_t)response->data + http_start_ptr), response->length - http_start_ptr);
+//    char* result = kmalloc(response->length);
+//    memset(result, 0, response->length);
+//    dfs(doc->root_element, 0, result);
+//
+////    kprintf("is_tag: %d\n", is_tag("LI", "li"));
+//    kprintf("%s", result);
+
+//    http_response = http_request((uint8_t*)"lumetta.web.engr.illinois.edu");
+
+//    char url_string[] = "http://10.0.2.2:8888/path/to/test?query=yes&param1=no#frag=1";
+//    struct yuarel url;
+//
+//    if (-1 == yuarel_parse(&url, url_string)) {
+//        kprintf("Could not parse url!\n");
+//    }
+//    if(url.port == 0)
+//        url.port = 80;
+//
+//    kprintf("Struct values: %s\n", url_string);
+//    kprintf("\tscheme:\t\t%s\n", url.scheme);
+//    kprintf("\thost:\t\t%s\n", url.host);
+//    kprintf("\tport:\t\t%d\n", url.port);
+//    kprintf("\tpath:\t\t%s\n", url.path);
+//    kprintf("\tquery:\t\t%s\n", url.query);
+//    kprintf("\tfragment:\t%s\n", url.fragment);
+
+//    test_kmalloc();
+
 
 
 #if (RUN_TESTS == 1)
@@ -298,10 +373,19 @@ void entry(unsigned long magic, unsigned long addr) {
     launch_tests();
 #endif
     /* Execute the first program ("shell") ... */
-    /* int32_t ret = execute((const uint8_t*)"shell"); */
-    /* printf("execute_ret: %d\n", ret); */
-    /* Launch the terminal */
-    launch_terminal();
+//    int32_t ret = execute((const uint8_t*)"shell");
+//    printf("execute_ret: %d\n", ret);
+
+
+    if(gui_enabled) {
+        launch_browser();
+
+        while(1) {
+            render_screen();
+        }
+    } else {
+        launch_terminal();
+    }
 
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile (".1: hlt; jmp .1;");

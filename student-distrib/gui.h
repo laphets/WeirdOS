@@ -7,12 +7,32 @@
 #define _GUI_H
 
 #include "vga.h"
+#include "dom.h"
+#include "mouse.h"
 
 /* To indicate whether the gui is enabled */
 int gui_enabled;
+uint32_t current_fps;
+
+#define DEFAULT_FPS 20
+
+void init_gui();
+
+void gui_error(char* string);
+void gui_debug(char* string);
 
 void render_window(int x, int y, int width, int height, char* title, uint8_t is_focus);
 
 void render_cursor(int x, int y);
+void render_screen();
+
+void handle_left_click_event();
+void handle_left_release_event();
+void handle_right_click_event();
+void handle_right_release_event();
+void hanlde_keyboard_event(char ascii);
+void handle_keyboard_scroll(uint8_t type);
+
+void* gui_render_application_window(void* window, char* title);
 
 #endif //MP3_GUI_H

@@ -14,8 +14,8 @@ uint16_t rand_port() {
     uint16_t port = 0;
     int32_t i = 0;
     for(i = 0; i < 20 /* MAX TRYING NUMBER */; i++) {
-        port = rand(SOCKET_MAGIC_RAND_SEED, SOCKET_MAX_PORT);
-        if(port < 1024) {
+        port = rand(virtual_count, SOCKET_MAX_PORT);
+        if(port < 10000) {
             continue;
         }
         int32_t j = 0;
@@ -44,6 +44,10 @@ void init_socket() {
         socket->present = 0;
         socket->sid = i;
     }
+}
+
+socket_t* get_socket(uint32_t sid) {
+    return &socket_list[sid];
 }
 
 int32_t socket_open() {
@@ -113,12 +117,18 @@ uint32_t socket_dns_send(int32_t sid, uint8_t* domain, uint8_t* res_ip) {
  * @param target_ip
  */
 void* socket_http_send(int32_t sid, uint8_t* target_ip, uint16_t target_port, uint8_t* data, uint32_t length, uint32_t* res_length) {
-    kprintf("Begin send HTTP request...\n");
+    kprintf("Begin sending HTTP request...\n");
+    gui_debug("Begin sending HTTP request...");
     socket_t* socket = &socket_list[sid];
     if(socket->present != 1)
         return NULL;
 
     memcpy(socket->target_ip, target_ip, IPv4_ADDR_SIZE);
+    socket->content_length = 0;
+    socket->header_length = 0;
+    socket->target_length = 0;
+    socket->has_sent_fin = 0;
+    socket->tcp_common_length = 0;
     socket->data_packet_num = 0;
     socket->target_port = target_port;
     socket->tcp_status = SOCKET_TCP_STATUS_INIT;

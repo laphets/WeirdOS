@@ -2,7 +2,7 @@
 
 volatile static uint32_t count = 0;
 static uint32_t current_hertz = 0;
-volatile static uint32_t virtual_count = 0;
+
 int32_t concurrency = 0;
 
 volatile char wait = 0;
@@ -192,10 +192,12 @@ void rtc_handler(registers_t registers) {
         }
     }
 
+//    if(gui_enabled && current_fps > 0) {
+//        if(virtual_count % (current_hertz / current_fps) == 0) {
+//            render_screen();
+//        }
+//    }
 
-    if(gui_enabled) {
-        show_screen();
-    }
 //    sti();
 }
 
@@ -212,6 +214,7 @@ void rtc_handler(registers_t registers) {
  * Side effect: Initializes the RTC to 1024 Hz
  */
 void init_rtc() {
+    virtual_count = 0;
     /* Init the RTC wait queue */
     int i = 0;
     for(i = 0; i < RTC_WAIT_QUEUE_SIZE; i++) {

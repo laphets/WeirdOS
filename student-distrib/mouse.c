@@ -10,22 +10,30 @@
 uint8_t mouse_cycle = 0;
 int8_t mouse_data[3];
 
-/**
- * Handler for mouse interrupt
- */
+
+uint8_t mouse_current_state[MOUSE_STATE_NUM];
+uint8_t mouse_prev_state[MOUSE_STATE_NUM];
+
+void mouse_event_dedect() {
+    if(mouse_current_state[0] == 1 && mouse_prev_state[0] == 0) {
+        handle_left_click_event();
+    }
+    if(mouse_current_state[1] == 1 && mouse_prev_state[1] == 0) {
+        handle_left_click_event();
+    }
+    if(mouse_current_state[0] == 0 && mouse_prev_state[0] == 1) {
+        handle_left_release_event();
+    }
+    if(mouse_current_state[1] == 0 && mouse_prev_state[1] == 1) {
+        handle_right_release_event();
+    }
+}
+
 void mouse_handler() {
 //    cli();
-    if(gui_enabled) {
-        uint8_t buf[20];
-        itoa((uint32_t)mouse_cycle, (int8_t*)buf, 10);
-        draw_rect(0, 0, 50, 10, 0xFFFFFF);
-        render_string(0, 0, (char*)buf, 0);
-        render_string(200, 300, "mouse comes outer... ", 0);
-    }
 
     switch (mouse_cycle) {
         case 0: {
-//            render_string(100, 200, "mouse comes innear0...", 0);
 
             mouse_data[0] = mouse_read();
 
@@ -36,10 +44,16 @@ void mouse_handler() {
 
             if((mouse_data[0] & 0x1) == 0x1) {
                 /* kprintf("left click\n"); */
-                draw_rect(mouse_x, mouse_y, 4,4,0xFF0000);
+                mouse_current_state[0] = 1;
+                /* draw_rect(mouse_x, mouse_y, 4,4,0xFF0000); */
+            } else {
+                mouse_current_state[0] = 0;
             }
             if((mouse_data[0] & 0x2) == 0x2) {
                 /* kprintf("right click\n"); */
+                mouse_current_state[1] = 1;
+            } else {
+                mouse_current_state[1] = 0;
             }
             mouse_cycle++;
             break;
@@ -68,7 +82,8 @@ void mouse_handler() {
 //            kprintf("mouse_x: %d, mouse_y: %d\n", mouse_x, mouse_y);
 
             if(gui_enabled) {
-                render_cursor(mouse_x, mouse_y);
+                screen_changed = 1;
+//                render_cursor(mouse_x, mouse_y);
             }
 //            kprintf("mouse_x: %d, mouse_y: %d\n", mouse_data[1], mouse_data[2]);
 //            kprintf("mouse_x_real: %d, mouse_y_real: %d\n", real_x, real_y);
@@ -83,6 +98,9 @@ void mouse_handler() {
 
     }
 
+    mouse_event_dedect();
+    memcpy(mouse_prev_state, mouse_current_state, MOUSE_STATE_NUM);
+
 //    sti();
     send_eoi(MOUSE_IRQ);
 }
@@ -91,6 +109,8 @@ void mouse_handler() {
  * Init mouse
  */
 void init_mouse() {
+    memset(mouse_current_state, 0, MOUSE_STATE_NUM);
+    memset(mouse_prev_state, 0, MOUSE_STATE_NUM);
     mouse_x = 50;
     mouse_y = 50;
     uint8_t status;

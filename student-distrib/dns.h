@@ -33,6 +33,14 @@ typedef struct dns_ans {
     uint8_t addr[0];
 } __attribute__((packed)) dns_ans_t;
 
+typedef struct dns_record {
+    char domain[60];
+    uint8_t ip[IPv4_ADDR_SIZE];
+    struct dns_record* next;
+} dns_record_t;
+
+dns_record_t* dns_record_head;
+
 void init_dns();
 void dns_send(uint16_t src_port, uint8_t* domain);
 void dns_recv(dns_t* dns_packet, uint32_t length, uint8_t* res_ip);

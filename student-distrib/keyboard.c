@@ -126,6 +126,17 @@ char handle_terminal_switch(uint8_t scancode) {
     return 0;
 }
 
+uint8_t handle_up_down_arrow(uint8_t scancode) {
+    if(scancode == KEYBOARD_UP_ARROW) {
+        handle_keyboard_scroll(0);
+        return 1;
+    } else if (scancode == KEYBOARD_DOWN_ARROW) {
+        handle_keyboard_scroll(1);
+        return 1;
+    }
+    return 0;
+}
+
 /**
  * @brief Translate scancode into the appropriate char
  *        accounting for CAPS and shift. Also keeps
@@ -146,6 +157,11 @@ scancode2char(uint8_t scancode)
 
     /* We pre check for the terminal switch hotkey */
     if(handle_terminal_switch(scancode)) {
+        return 0;
+    }
+
+    /* We check for the up/down switch */
+    if(handle_up_down_arrow(scancode)) {
         return 0;
     }
 
@@ -187,24 +203,32 @@ void keyboard_handler(registers_t registers) {
     scancode = inb(KEYBOARD_PORT);
     /* Check to not print when scancode is non pritable */
     if (0 != (ascii = scancode2char(scancode))) {
-        if ((ascii == '\b') && (keyboard_buf_size > 0)) {
-            /**
-             * Check for Backspace
-             */
-            keyboard_buf_size--;
-            putc2buffer((char*)VIDEO_MEMORY_START_ADDRESS, ascii);
-        } else if (ascii == '\n' || ascii == '\r') {
-            keyboard_buf[keyboard_buf_size++] = ascii;
-            strncpy(terminal_buf, keyboard_buf, keyboard_buf_size);
-            terminal_buf_size = keyboard_buf_size;
-            terminal_t* active_terminal = &terminal_list[current_active_terminal];
-            /* kprintf("enter received: %d\n", active_terminal); */
-            active_terminal->enter_pressed_flag = 1;
-            keyboard_buf_size = 0;
-            putc2buffer((char*)VIDEO_MEMORY_START_ADDRESS, ascii);
-        } else if ((ascii != '\b') && (keyboard_buf_size < KEYBOARD_BUF_MAX_SIZE-1)) {
-            keyboard_buf[keyboard_buf_size++] = ascii;
-            putc2buffer((char*)VIDEO_MEMORY_START_ADDRESS, ascii);
+        if(gui_enabled) {
+            sti();
+            send_eoi(KEYBOARD_IRQ);
+
+            hanlde_keyboard_event(ascii);
+            return;
+        } else {
+            if ((ascii == '\b') && (keyboard_buf_size > 0)) {
+                /**
+                 * Check for Backspace
+                 */
+                keyboard_buf_size--;
+                putc2buffer((char*)VIDEO_MEMORY_START_ADDRESS, ascii);
+            } else if (ascii == '\n' || ascii == '\r') {
+                keyboard_buf[keyboard_buf_size++] = ascii;
+                strncpy(terminal_buf, keyboard_buf, keyboard_buf_size);
+                terminal_buf_size = keyboard_buf_size;
+                terminal_t* active_terminal = &terminal_list[current_active_terminal];
+                /* kprintf("enter received: %d\n", active_terminal); */
+                active_terminal->enter_pressed_flag = 1;
+                keyboard_buf_size = 0;
+                putc2buffer((char*)VIDEO_MEMORY_START_ADDRESS, ascii);
+            } else if ((ascii != '\b') && (keyboard_buf_size < KEYBOARD_BUF_MAX_SIZE-1)) {
+                keyboard_buf[keyboard_buf_size++] = ascii;
+                putc2buffer((char*)VIDEO_MEMORY_START_ADDRESS, ascii);
+            }
         }
     }
     sti();
