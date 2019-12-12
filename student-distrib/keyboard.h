@@ -29,6 +29,10 @@
 #define KEYBOARD_KEY_F4 0x3E
 #define KEYBOARD_KEY_F5 0x3F
 
+#define KEYBOARD_UP_ARROW 0x48
+#define KEYBOARD_DOWN_ARROW 0x50
+
+
 /* For MacOS keyboard mapping */
 #define KEYBOARD_OPTION_PRESS 56
 #define KEYBOARD_OPTION_RELEASE 184

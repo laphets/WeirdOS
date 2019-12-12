@@ -78,7 +78,7 @@ void TRAP_E(registers_trap_error_t registers) {
         static char header[] = "If this is the first time you've seen this Stop error screen, restart your computer. \nIf this screen appears again, follow these steps:"
                                   "Check to make sure any new hardware or software is properly installed. If this is a new installation, ask your hardware or software manufacturer for any ECE391 OS updates you might need."
                                   "If problems continue, disable or remove any newly installed hardware or software. Disable BIOS memory options such as caching or shadowing. If you need to use safe mode to remove or disable components, restart your computer, press F8 to select Advanced Startup Options, and then select Safe Mode.\n\n\n";
-        sprintf(message, "%s0x0E PAGE_FAULT\nTechnical Information:\n\n*** CODE: 0x%x  LOCATION: 0x%x  MEMORY ACCESS LOCATION: 0x%x HEAP END: 0x%x ***\n", header, registers.code, registers.eip, registers.eax, heap.end_addr);
+        sprintf((uint8_t*)message, "%s0x0E PAGE_FAULT\nTechnical Information:\n\n*** CODE: 0x%x  LOCATION: 0x%x  MEMORY ACCESS LOCATION: 0x%x HEAP END: 0x%x ***\n", header, registers.code, registers.eip, registers.eax, heap.end_addr);
 
         gui_error(message);
     } else {

@@ -30,6 +30,7 @@ void handle_left_release_event();
 void handle_right_click_event();
 void handle_right_release_event();
 void hanlde_keyboard_event(char ascii);
+void handle_keyboard_scroll(uint8_t type);
 
 void* gui_render_application_window(void* window, char* title);
 

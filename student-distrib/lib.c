@@ -1177,7 +1177,36 @@ char* strcat(char *dest, const char *src) {
 
     while (*dest)
         dest++;
-    while (*dest++ = *src++)
-        ;
+    while ((*dest++ = *src++)) {};
     return rdest;
+}
+
+int atoi(char *p) {
+    int k = 0;
+    while (*p) {
+        k = (k << 3) + (k << 1) + (*p) - '0';
+        p++;
+    }
+    return k;
+}
+
+char* strstr(char *str, char *substr) {
+    while (*str)
+    {
+        char *Begin = str;
+        char *pattern = substr;
+
+        // If first character of sub string match, check for whole string
+        while (*str && *pattern && *str == *pattern)
+        {
+            str++;
+            pattern++;
+        }
+        // If complete sub string match, return starting address
+        if (!*pattern)
+            return Begin;
+
+        str = Begin + 1;	// Increament main string
+    }
+    return NULL;
 }

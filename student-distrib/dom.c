@@ -11,10 +11,6 @@ inline RGBA_t* UIElementGetPixel(UIElement_t* element, uint32_t x, uint32_t y) {
     return &element->framebuffer[y * element->real_width + x];
 }
 inline void UIElementSetPixel(UIElement_t* element, uint32_t x, uint32_t y, uint32_t color, uint8_t force_set) {
-    if(element == 0xBD34488) {
-        kprintf("FUCK!\n");
-    }
-
     RGBA_t* pixel = UIElementGetPixel(element, x, y);
 //    if(pixel != NULL) {
         if(element->is_transparent && !force_set) {
@@ -112,7 +108,7 @@ void UIElement_copy_fb(UIElement_t* element, int32_t x_begin, int32_t y_begin, U
     }
 }
 
-void UIElement_render_font(UIElement_t* element, int x_start, int y_start, char ch) {
+void UIElement_render_font(UIElement_t* element, int x_start, int y_start, char ch, uint8_t should_highlight) {
     char* font = get_font(ch);
     int x,y;
     int set;
@@ -120,7 +116,11 @@ void UIElement_render_font(UIElement_t* element, int x_start, int y_start, char 
         for (x=0; x < 8; x++) {
             set = font[y] & 1 << x;
             if(set) {
-                UIElementSetPixel(element, x_start+x, y_start+y, element->color, 1);
+                if(should_highlight) {
+                    UIElementSetPixel(element, x_start+x, y_start+y, 0x0032AB, 1);
+                } else {
+                    UIElementSetPixel(element, x_start+x, y_start+y, element->color, 1);
+                }
             }
         }
     }
@@ -128,6 +128,7 @@ void UIElement_render_font(UIElement_t* element, int x_start, int y_start, char 
 
 void UIElement_render_text(UIElement_t* element) {
     if(element->text != NULL) {
+        static int text_height = 12, text_width = 8;
         int i, length = strlen(element->text);
         int cur_x = element->padding[3], cur_y = element->padding[0];
         if(element->text_align & UIE_TEXT_ALIGN_VERT_CENTER) {
@@ -136,18 +137,42 @@ void UIElement_render_text(UIElement_t* element) {
         if(element->text_align & UIE_TEXT_ALIGN_HORZ_CENTER) {
             cur_x = element->padding[3] + ((element->real_width - element->padding[1] - element->padding[3])/2) - (length/2)*8;
         }
+
+        /* We should solve for the text offset for scroll view */
+        int32_t max_y = element->real_height - element->padding[2];
+        int32_t real_scroll_y_offset = 0;
+        if(element->enable_scroll_view && element->scroll_y_offset > 0) {
+            max_y += element->scroll_y_offset;
+            real_scroll_y_offset = element->scroll_y_offset +  element->padding[0];
+        }
+
+        uint8_t highlight_state = 0;
+
         for(i = 0; i < length; i++) {
-            if(element->text[i] == '\n' || element->text[i] == '\t' || element->text[i] == '|') {
-                cur_x = element->padding[3];
-                cur_y += 12;
+            if(element->text[i] == '|') {
+                highlight_state ^= 1;
                 continue;
             }
-            UIElement_render_font(element, cur_x, cur_y, element->text[i]);
-            cur_x += 8;
-            if(cur_x > element->real_width - element->padding[1]) {
+            if(element->text[i] == '\n' || element->text[i] == '\t') {
                 cur_x = element->padding[3];
-                cur_y += 10; /* Not handle y overflow now */
-                if(cur_y >= element->real_height)
+                cur_y += text_height;
+                if(cur_y >= max_y)
+                    return;
+                continue;
+            }
+            if(element->enable_scroll_view) {
+                if(cur_y >= real_scroll_y_offset) {
+                    UIElement_render_font(element, cur_x, cur_y - element->scroll_y_offset, element->text[i], highlight_state);
+                }
+            } else {
+                UIElement_render_font(element, cur_x, cur_y, element->text[i], highlight_state);
+            }
+
+            cur_x += text_width;
+            if(cur_x + text_width > element->real_width - element->padding[1]) {
+                cur_x = element->padding[3];
+                cur_y += text_height; /* Not handle y overflow now */
+                if(cur_y >= max_y)
                     return;
             }
         }
@@ -288,6 +313,8 @@ UIElement_t* UIElement_allocate(int32_t width, int32_t height, uint8_t is_respon
     element->left = 0;
     element->right = 0;
     element->is_manual_render = is_manual_render;
+    element->enable_scroll_view = 0;
+    element->scroll_y_offset = 0;
 
     if(is_manual_render) {
         element->framebuffer = NULL;

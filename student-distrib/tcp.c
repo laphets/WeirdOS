@@ -148,6 +148,8 @@ void tcp_recv(tcp_t* tcp_packet, uint32_t length) {
     uint32_t data_length = length - tcp_packet->data_offset * 4;
     uint32_t data_ptr = (uint32_t)tcp_packet + tcp_packet->data_offset * 4;
 
+    gui_debug("TCP Packet Comes!!!!");
+
     kprintf("TCP Packet Comes!!!!, data_length: %d, flags: 0x%x, seq_num: %d, ack_num: %d\n", data_length, tcp_packet->flags, tcp_packet->seq_num, tcp_packet->ack_num);
 
     /* Check for whether we care for that packet */
@@ -182,6 +184,26 @@ void tcp_recv(tcp_t* tcp_packet, uint32_t length) {
         if(socket->tcp_common_length == 0)
             socket->tcp_common_length = data_length;
         if(tcp_packet->seq_num + data_length > socket->others_seq_num) {
+            if(socket->content_length == 0) {
+                static char content_match_str[] = "Content-Length: ";
+                char* content_length_ptr =  strstr((char*)data_ptr, (char*)content_match_str);
+                if(content_length_ptr != NULL) {
+                    content_length_ptr += strlen(content_match_str);
+                    char* content_length_ptr_end = strstr(content_length_ptr, "\r\n");
+                    char content_length_str[20];
+                    uint32_t content_length_str_length = (uint32_t)content_length_ptr_end - (uint32_t)content_length_ptr;
+                    memcpy(content_length_str, content_length_ptr, content_length_str_length);
+                    content_length_str[content_length_str_length] = '\0';
+                    socket->content_length = atoi(content_length_str);
+
+                    char* header_end_ptr =  strstr((char*)data_ptr, "\r\n\r\n");
+                    if(header_end_ptr != NULL) {
+                        socket->header_length = 4 + (uint32_t)header_end_ptr - (uint32_t)data_ptr;
+                        socket->target_length = socket->content_length + socket->header_length;
+                    }
+                }
+            }
+
             /* That data is useful, we then copy */
             uint32_t begin_buffer_delta = 0;
             if(tcp_packet->seq_num < socket->first_data_packet_seq_num) {
@@ -196,7 +218,7 @@ void tcp_recv(tcp_t* tcp_packet, uint32_t length) {
             socket->others_seq_num = tcp_packet->seq_num + data_length;
             socket->data_packet_num++;
 
-            if(data_length < socket->tcp_common_length) {
+            if((socket->target_length) != 0 && socket->recv_buf_end_ptr >= socket->target_length) {
                 /* Then we send FIN */
                 tcp_send(socket->port, socket->target_port, socket->target_ip, socket->my_seq_num, socket->others_seq_num, TCP_FLAG_ACK | TCP_FLAG_FIN, NULL, 0);
                 socket->my_seq_num++;

@@ -14,7 +14,6 @@ static void left_release_event_handler() {
 
 
 void removeChar(char *s, int c){
-
     int j, n = strlen(s);
     int i;
     for ( i=j=0; i<n; i++)
@@ -71,7 +70,7 @@ void dfs(HtmlElement* element, int level, char* result) {
             nextlevel++;
             int i;
             for(i = 0; i < level; i++) {
-                strcat(result, " ");
+                strcat(result, "  ");
 //                sprintf(result, "%s ", result);
 //                printf("-");
             }
@@ -85,11 +84,11 @@ void dfs(HtmlElement* element, int level, char* result) {
 //                kprintf("element.tag: %d, %s\n", element->tag, element->tag_name);
 //            }
             if(element->tag == HTML_TAG_P || element->tag == HTML_TAG_H1 || element->tag == HTML_TAG_H2 || element->tag == HTML_TAG_H3) {
-//                strcat(result, "\n");
-//                dfs(element->child, nextlevel, result);
-//                element = element->sibling;
-//                strcat(result, "\n");
-//                continue;
+                strcat(result, "\n");
+                dfs(element->child, nextlevel, result);
+                element = element->sibling;
+                strcat(result, "\n");
+                continue;
             }
             if(element->tag == HTML_TAG_BR) {
                 strcat(result, "\n");
@@ -112,7 +111,7 @@ void dfs(HtmlElement* element, int level, char* result) {
 //                printf("||\n");
             }
             if(element->tag == HTML_TAG_LI) {
-//                strcat(result, "\n");
+                strcat(result, "\n");
                 kprintf("\nadd newline\n");
 
 //                printf("||\n");
@@ -134,9 +133,9 @@ void dfs(HtmlElement* element, int level, char* result) {
                 if(href != NULL) {
                     char* a_text = find_text_of_child(element->child);
                     if(a_text != NULL) {
-                        strcat(result, " ");
+                        strcat(result, " |");
                         strcat(result, trim(find_text_of_child(element->child)));
-                        strcat(result, " ");
+                        strcat(result, "|");
 //                        sprintf(result, "%s[%s](%s)", result, trim(find_text_of_child(element->child)), href);
 //                        printf("[%s](%s)", trim(find_text_of_child(element->child)), href);
                         element = element->sibling;
@@ -206,6 +205,7 @@ static void parse_http_result(browser_t* browser, http_res_t* response) {
 static void keyboard_event_handler(browser_t* browser, char ch) {
     if(ch == '\n') {
         char content_text[100];
+        browser->content->scroll_y_offset = 0;
         sprintf((uint8_t*)content_text, "Processing to %s", browser->addr_input_bar->text);
         UIElement_set_text(browser->content, content_text, 0x000000, UIE_TEXT_ALIGN_VERT_CENTER | UIE_TEXT_ALIGN_HORZ_CENTER);
     } else if (ch == '\b') {
@@ -229,9 +229,12 @@ static void keyboard_event_handler(browser_t* browser, char ch) {
         char domain[100];
         sprintf((uint8_t*)domain, "%s", browser->addr_input_bar->text);
         http_res_t http_response = http_request((uint8_t*)domain);
-        parse_http_result(browser, &http_response);
-        kfree(http_response.data);
-
+        if(http_response.present == 0) {
+            UIElement_set_text(browser->content, "Address Input Error", 0x000000, UIE_TEXT_ALIGN_VERT_CENTER | UIE_TEXT_ALIGN_HORZ_CENTER);
+        } else {
+            parse_http_result(browser, &http_response);
+            kfree(http_response.data);
+        }
         browser->app->window->should_render = 1;
         screen_changed = 1;
         render_screen();
@@ -257,7 +260,7 @@ void launch_browser() {
     browser->addr_hint_bar = UIElement_allocate(-1, 20, 1, 0);
     UIElement_set_background(browser->addr_hint_bar, 0, 0xFFFFFF);
     UIElement_set_padding(browser->addr_hint_bar, 2, 2, 2, 6);
-    UIElement_set_text(browser->addr_hint_bar, "Type address to below input box", 0x000000, UIE_TEXT_ALIGN_VERT_CENTER);
+    UIElement_set_text(browser->addr_hint_bar, "Type address to input box below", 0x000000, UIE_TEXT_ALIGN_VERT_CENTER);
     UIElement_append_child(browser->app->canvas, browser->addr_hint_bar);
 
     /* First add the address bar */
@@ -265,7 +268,7 @@ void launch_browser() {
     UIElement_set_margin(browser->addr_input_bar, 4,0,2,0);
     UIElement_set_background(browser->addr_input_bar, 0, 0xFFFFFF);
     UIElement_set_padding(browser->addr_input_bar, 2, 2, 2, 6);
-    UIElement_set_text(browser->addr_input_bar, "", 0x000000, UIE_TEXT_ALIGN_VERT_CENTER);
+    UIElement_set_text(browser->addr_input_bar, "http://", 0x000000, UIE_TEXT_ALIGN_VERT_CENTER);
     UIElement_append_child(browser->app->canvas, browser->addr_input_bar);
 
     /* Then add the content */
@@ -274,7 +277,11 @@ void launch_browser() {
     UIElement_set_background( browser->content, 0, 0xFFFFFF);
     UIElement_set_padding( browser->content, 10, 10, 10, 10);
     UIElement_set_text(browser->content, "Welcome to ECE391 Internet Explorer", 0x000000, UIE_TEXT_ALIGN_VERT_CENTER | UIE_TEXT_ALIGN_HORZ_CENTER);
+    browser->content->enable_scroll_view = 1;
+    browser->content->scroll_y_offset = 0;
     UIElement_append_child(browser->app->canvas,  browser->content);
+
+    browser->app->window->app_content = browser->content;
 
     gui_debug("Browser has started");
 

@@ -12,8 +12,9 @@ browser.o: browser.c browser.h lib.h types.h terminal.h keyboard.h \
   i8259.h scheduler.h paging.h kheap.h debug.h gui.h vga.h vbe.h font.h \
   dom.h mouse.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h idt.h \
   idthandler.h app.h http.h dns.h udp.h network.h ip.h ethernet.h \
-  rtl8139.h pci.h arp.h tcp.h socket.h html/export.h html/html.h \
-  html/stack.h html/../lib.h html/attrib.h html/tag.h html/util.h
+  rtl8139.h pci.h arp.h tcp.h socket.h yuarel/yuarel.h yuarel/../lib.h \
+  html/export.h html/html.h html/stack.h html/../lib.h html/attrib.h \
+  html/tag.h html/util.h
 dns.o: dns.c dns.h lib.h types.h terminal.h keyboard.h i8259.h \
   scheduler.h paging.h kheap.h debug.h gui.h vga.h vbe.h font.h dom.h \
   mouse.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h idt.h idthandler.h \
@@ -39,7 +40,7 @@ http.o: http.c http.h lib.h types.h terminal.h keyboard.h i8259.h \
   scheduler.h paging.h kheap.h debug.h gui.h vga.h vbe.h font.h dom.h \
   mouse.h vfs.h task.h syscall.h fs.h rtc.h x86_desc.h idt.h idthandler.h \
   dns.h udp.h network.h ip.h ethernet.h rtl8139.h pci.h arp.h tcp.h \
-  socket.h
+  socket.h yuarel/yuarel.h yuarel/../lib.h
 i8259.o: i8259.c i8259.h types.h lib.h terminal.h keyboard.h scheduler.h \
   paging.h kheap.h debug.h gui.h vga.h vbe.h font.h dom.h mouse.h vfs.h \
   task.h syscall.h fs.h rtc.h x86_desc.h idt.h idthandler.h
@@ -57,9 +58,9 @@ kernel.o: kernel.c multiboot.h types.h x86_desc.h lib.h terminal.h \
   keyboard.h i8259.h scheduler.h paging.h kheap.h debug.h gui.h vga.h \
   vbe.h font.h dom.h mouse.h vfs.h task.h syscall.h fs.h rtc.h idt.h \
   idthandler.h tests.h pit.h pci.h rtl8139.h ethernet.h arp.h ip.h \
-  network.h udp.h dns.h socket.h tcp.h http.h browser.h app.h \
-  html/export.h html/html.h html/stack.h html/../lib.h html/attrib.h \
-  html/tag.h html/util.h
+  network.h udp.h dns.h socket.h tcp.h http.h yuarel/yuarel.h \
+  yuarel/../lib.h browser.h app.h html/export.h html/html.h html/stack.h \
+  html/../lib.h html/attrib.h html/tag.h html/util.h
 keyboard.o: keyboard.c keyboard.h lib.h types.h terminal.h vfs.h task.h \
   syscall.h fs.h paging.h kheap.h debug.h rtc.h x86_desc.h i8259.h idt.h \
   idthandler.h vga.h vbe.h font.h gui.h dom.h mouse.h scheduler.h
@@ -164,3 +165,11 @@ util.o: html/util.c html/util.h html/../lib.h html/../types.h \
   html/../mouse.h html/../vfs.h html/../task.h html/../syscall.h \
   html/../fs.h html/../rtc.h html/../x86_desc.h html/../idt.h \
   html/../idthandler.h
+yuarel.o: yuarel/yuarel.c yuarel/yuarel.h yuarel/../lib.h \
+  yuarel/../types.h yuarel/../terminal.h yuarel/../keyboard.h \
+  yuarel/../lib.h yuarel/../i8259.h yuarel/../scheduler.h \
+  yuarel/../paging.h yuarel/../kheap.h yuarel/../debug.h yuarel/../gui.h \
+  yuarel/../vga.h yuarel/../vbe.h yuarel/../font.h yuarel/../dom.h \
+  yuarel/../mouse.h yuarel/../vfs.h yuarel/../task.h yuarel/../syscall.h \
+  yuarel/../fs.h yuarel/../rtc.h yuarel/../x86_desc.h yuarel/../idt.h \
+  yuarel/../idthandler.h

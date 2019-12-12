@@ -31,6 +31,9 @@ typedef struct socket {
 
     /* The following for TCP status ctrl */
     volatile uint32_t tcp_status;
+    uint32_t content_length;
+    uint32_t header_length;
+    uint32_t target_length;
     uint32_t data_packet_num;
     uint32_t my_seq_num, others_seq_num;
     uint32_t first_data_packet_seq_num;
@@ -50,6 +53,7 @@ socket_t socket_list[SOCKET_MAX_NUM];
 
 uint16_t rand_port();
 void init_socket();
+socket_t* get_socket(uint32_t sid);
 int32_t socket_open();
 void socket_close(int32_t sid);
 socket_t* get_socket_by_port(uint16_t port);

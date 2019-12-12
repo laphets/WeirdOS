@@ -31,10 +31,10 @@ void gui_error(char* string) {
 }
 
 void gui_debug(char* string) {
-    if(debug_view != NULL) {
+    if(gui_enabled && debug_view != NULL) {
         uint8_t* new_string = kmalloc(strlen(string) + debug_view->content->text_buffer_length);
         sprintf(new_string, "%s\n%s", debug_view->content->text, string);
-        UIElement_set_text(debug_view->content, new_string, 0xFFFFFF, UIE_TEXT_ALIGN_DEFAULT);
+        UIElement_set_text(debug_view->content, (char*)new_string, 0xFFFFFF, UIE_TEXT_ALIGN_DEFAULT);
 
         debug_view->should_render = 1;
         screen_changed = 1;
@@ -121,6 +121,7 @@ void* gui_render_application_window(void* window_, char* title) {
     UIElement_t* content = UIElement_allocate(-1, -1, 1, 0);
     UIElement_set_background(content, 0, 0xFFFFFF);
     UIElement_append_child(window->element, content);
+    content->enable_scroll_view = 1;
     window->content = content;
 
     /* The status bar */
@@ -190,6 +191,31 @@ void handle_right_click_event() {
 void handle_right_release_event() {
     kprintf("mouse_right_release_event\n");
 
+}
+
+/**
+ *
+ * @param type 0 for up, 1 for down
+ */
+void handle_keyboard_scroll(uint8_t type) {
+    UIElement_t* content = NULL;
+    if(focused_window == NULL || focused_window->content == NULL)
+        return;
+    content = focused_window->content;
+    if(focused_window->app_content != NULL && focused_window->app_content->enable_scroll_view)
+        content = focused_window->app_content;
+
+    if(type == 1) {
+        /* Up */
+        content->scroll_y_offset += 12;
+    } else {
+        /* Down */
+        content->scroll_y_offset -= 12;
+        if(content->scroll_y_offset < 0)
+            content->scroll_y_offset = 0;
+    }
+    focused_window->should_render = 1;
+    screen_changed = 1;
 }
 
 void hanlde_keyboard_event(char ascii) {

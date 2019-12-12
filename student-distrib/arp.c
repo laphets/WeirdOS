@@ -22,6 +22,7 @@ void print_arp_table() {
 }
 
 mac_wrapper_t arp_find(uint8_t* target_ip) {
+    gui_debug("Find arp cache record...");
     int32_t i = 0;
     mac_wrapper_t result;
     result.valid = 0;
@@ -57,6 +58,7 @@ void arp_insert(uint8_t* target_ip, uint8_t* target_mac) {
 }
 
 void arp_send(uint8_t* mac_dest, uint8_t* ip_dest, uint16_t operation) {
+    gui_debug("Broadcast arp request...");
     arp_t* arp_packet = kmalloc(sizeof(arp_t));
     arp_packet->hardware_type = htons(ARP_HARDWARE_TYPE_ETHERNET); /* Ethernet is 1 */
     arp_packet->protocol_type = htons(ARP_PROTOCOL_TYPE_IPv4); /* For IPv4 */
@@ -84,6 +86,7 @@ void arp_request(uint8_t* target_ip) {
 void arp_recv(arp_t* arp_packet) {
     /* ARP packet recv */
     kprintf("ARP packet recv, operation %d\n", ntohs(arp_packet->operation));
+    gui_debug("ARP packet recv from the subnet...");
 
     if(ntohs(arp_packet->operation) == ARP_OP_REQUEST) {
         /* ARP Request to here, we shoud see whether we can reply that */

@@ -126,6 +126,17 @@ char handle_terminal_switch(uint8_t scancode) {
     return 0;
 }
 
+uint8_t handle_up_down_arrow(uint8_t scancode) {
+    if(scancode == KEYBOARD_UP_ARROW) {
+        handle_keyboard_scroll(0);
+        return 1;
+    } else if (scancode == KEYBOARD_DOWN_ARROW) {
+        handle_keyboard_scroll(1);
+        return 1;
+    }
+    return 0;
+}
+
 /**
  * @brief Translate scancode into the appropriate char
  *        accounting for CAPS and shift. Also keeps
@@ -146,6 +157,11 @@ scancode2char(uint8_t scancode)
 
     /* We pre check for the terminal switch hotkey */
     if(handle_terminal_switch(scancode)) {
+        return 0;
+    }
+
+    /* We check for the up/down switch */
+    if(handle_up_down_arrow(scancode)) {
         return 0;
     }
 

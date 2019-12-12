@@ -37,6 +37,11 @@ typedef struct UIElement {
     uint8_t is_manual_render;
     int32_t top, right, bottom, left;
 
+    /* For scroll view implementation */
+    uint8_t enable_scroll_view;
+    int32_t scroll_y_offset;
+
+
     uint8_t direction;
     uint8_t align;
     int32_t margin[4];
@@ -83,6 +88,7 @@ typedef struct UIWindow {
 
     UIElement_t* title_bar;
     UIElement_t* content;
+    UIElement_t* app_content;
 } UIWindow_t;
 
 UIWindow_t* window_head;
