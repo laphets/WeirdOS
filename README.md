@@ -4,7 +4,7 @@
 WeiredOS is a [Linux](https://en.wikipedia.org/wiki/Linux) like operating system under [x86-32](https://en.wikipedia.org/wiki/IA-32) instruction set, which is derived from final project of [ECE391](https://ece.illinois.edu/academics/courses/profile/ECE391)@UIUC.
 
 ## Preview
-![Preview for WeiredOS](./preview.png | width=200)
+![Preview for WeiredOS](./preview.png)
 *The browser is showing Prof Lumetta's [website](http://lumetta.web.engr.illinois.edu/)*
 
 ## Tech Spec
