@@ -1,4 +1,59 @@
-# MP3 Group42
+# WeirdOS
+> WeirdOS = A really Weired Operating System
+
+WeiredOS is a [Linux](https://en.wikipedia.org/wiki/Linux) like operating system under [x86-32](https://en.wikipedia.org/wiki/IA-32) instruction set, which is derived from final project of [ECE391](https://ece.illinois.edu/academics/courses/profile/ECE391)@UIUC.
+
+## Preview
+![Preview for WeiredOS](./preview.png)
+*The browser is showing Prof Lumetta's [website](http://lumetta.web.engr.illinois.edu/)*
+
+## Tech Spec
+We use the following techs during developing WeirdOS:
+- C
+- x86-32
+- Qemu
+
+## Features
+We implement the following techs in WeiredOS:
+### Basic
+- GDT/IDT Support
+- [i8259](https://en.wikipedia.org/wiki/Intel_8259) PIC Interrupt Handler
+- Memory Paging
+- Terminal Driver (VGA Driver under [Text Mode](http://en.wikipedia.org/wiki/Text_mode))
+- Real-Time Clock Driver and Virtualization
+- Basic Set of System Calls
+- Keyboard Driver and Input Buffer
+- Read-only Filesystem
+- Exception/Trap Handler
+- Task Abstraction and Process Control Block
+- User Mode and Stack Switching
+- User-level Code Loader
+- Programmable Interrupt Timer Deiver
+- Inter-process Context Switching
+- Round-robin Style Shceduling
+
+## Extra
+- Dynamic Memory Allocation (`kmalloc` and `kfree` support)
+- VESA High Resolution Support
+- PS/2 Mouse Driver
+- [PCI](https://en.wikipedia.org/wiki/Conventional_PCI)(Peripheral Component Interconnect) Driver
+- Graphical User Interface(GUI)
+  - [DOM](https://en.wikipedia.org/wiki/Document_Object_Model) Tree Based Render
+  - Responsive Layout
+  - Windows Drag & Drop
+  - Scroll View
+  - Intelligent Lazy Render
+- Networking
+  - [RTL8139](https://en.wikipedia.org/wiki/RTL8139) Driver
+  - Link Layer: Ethernet
+  - Network Layer: ARP(Address Resolution Protocol), IPv4(Internet Protocol version 4)
+  - Transport Layer: UDP(User Datagram Protocol), TCP(Transmission Control Protocol)
+  - Application Layer: DNS(Domain Name System), HTTP(HyperText Transfer Protocol)(Chunk Support)
+  - Socket Abstraction and Port Management
+- Browser!
+  - HTML Parser and HTML2DOM Tree Generator
+  - Keyboard and Mouse Event Handler
+  - HTTP API
 
 ## Starting Guide
 ### Build Image
@@ -19,46 +74,31 @@ make vm
 make vmdebug
 ```
 
-## PCI Note
-To register rel8139, we need first read pci for that device and then enable 
-the memory map and io
-
 ## Memory Layout
 Seems for Qumu on my local machine(MacOS), the physical memory start from `693KB` to `260992KB` (under memory of `256MB`), the `693KB` is like `0x9fc00`, so we may not use memory below that.
 ```
-
-------------------------------------------------
+---------------------------------------------------------
 0-4MB Kernel Memory(V=P)
-
---------------------
 Terminal Unshown Video Memory 0x200000(2MB) + tid * 4KB
---------------------
 Video Memory VGA 0xA0000-0xBF000
---------------------
-
-------------------------------------------------
+---------------------------------------------------------
 4MB-8MB Kernel Memory(V=P)
-
-
---------------------
-8KB each
-PCB↓
-Task Kernel Stack ↑
---------------------
-------------------------------------------------
+PCB 8KB each
+Task Kernel Stack
+---------------------------------------------------------
 8MB+ User Memory(V: 128MB=0x08000000, P:)
---------------------
-4MB each
-Task User Stack ↑
---------------------
-
+4MB each Task User Stack
 User Video Memory 0x9000000
-
 VBE 0xFD000000 4GB (V=P)
-------------------------------------------------
+---------------------------------------------------------
+Dynamic Allocated Area
 ```
 
-## LOGISTICS
+## External Library
+- HTML Parser credit to [html](https://github.com/h4xxel/html)
+- URL Parser credit to [libyuarel](https://github.com/jacketizer/libyuarel)
+
+## Logistics
 - Checkpoint 1 due Monday 10/21/2019, 6pm in GitLab
 - Checkpoint 2 due Monday 10/28/2019, 6pm in GitLab
 - Checkpoint 3 due Monday 11/11/2019, 6pm in GitLab
