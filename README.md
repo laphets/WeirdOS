@@ -1,7 +1,7 @@
 # WeirdOS
 > WeirdOS = A really Weird Operating System
 
-WeiredOS is a [Linux](https://en.wikipedia.org/wiki/Linux) like operating system under [x86-32](https://en.wikipedia.org/wiki/IA-32) instruction set, which is derived from final project of [ECE391](https://ece.illinois.edu/academics/courses/profile/ECE391)@UIUC.
+WeirdOS is a [Linux](https://en.wikipedia.org/wiki/Linux) like operating system under [x86-32](https://en.wikipedia.org/wiki/IA-32) instruction set, which is derived from final project of [ECE391](https://ece.illinois.edu/academics/courses/profile/ECE391)@UIUC.
 
 ## Preview
 ![Preview for WeirdOS](./preview.png)
