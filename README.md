@@ -9,12 +9,12 @@ WeirdOS is a [Linux](https://en.wikipedia.org/wiki/Linux) like operating system 
 
 ## Tech Spec
 We use the following techs during development of WeirdOS:
-- C
+- Pure C
 - x86-32
 - QEMU
 
 ## Features
-We implement the following techs in WeirdOS:
+We implement the following features for WeirdOS:
 ### Basic
 - GDT/IDT Support
 - [i8259](https://en.wikipedia.org/wiki/Intel_8259) PIC Interrupt Handler
